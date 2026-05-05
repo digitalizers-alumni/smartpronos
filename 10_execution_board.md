@@ -88,14 +88,25 @@ feat/auth-profile
 
 | ID | Tâche | Owner | Statut | Dépend de | DoD |
 |---|---|---|---|---|---|
-| AUTH-001 | Configurer Supabase Auth magic link | BACKEND | TODO | — | Magic link fonctionnel |
-| AUTH-002 | Créer table profiles | BACKEND | TODO | — | Table créée + contrainte auth.users |
-| AUTH-003 | Créer RPC create_or_update_profile | BACKEND | TODO | AUTH-002 | RPC conforme API contracts |
-| AUTH-004 | Créer RLS profiles | BACKEND | TODO | AUTH-002 | User lit/modifie seulement son profil |
+| AUTH-001 | Configurer Supabase Auth magic link | BACKEND | DONE | — | Magic link fonctionnel |
+| AUTH-002 | Créer table profiles | BACKEND | DONE | — | Table créée + contrainte auth.users |
+| AUTH-003 | Créer RPC create_or_update_profile | BACKEND | DONE | AUTH-002 | RPC conforme API contracts |
+| AUTH-004 | Créer RLS profiles | BACKEND | DONE | AUTH-002 | User lit/modifie seulement son profil |
 | AUTH-005 | Créer écran login magic link | FRONTEND | TODO | AUTH-001 | Login mobile fonctionnel |
 | AUTH-006 | Créer écran choix pseudo | FRONTEND | TODO | AUTH-003 | Pseudo envoyé au backend |
 | AUTH-007 | Tests auth/profile | QA | TODO | AUTH-003, AUTH-006 | Cas login + pseudo validés |
 | AUTH-008 | Valider slice Auth & Profile | PO/SM | TODO | AUTH-007 | Parcours complet validé |
+
+### Avancement backend
+
+```txt
+Statut : DONE
+Branche : feat/auth-profile
+Commit : f6d0850 feat: add auth profile migration
+Livrable : supabase/migrations/20260505120000_auth_profiles.sql
+Contenu : table profiles, RLS profiles, RPC create_or_update_profile, vue current_user_profile
+Validation : migration appliquée/testée localement via Supabase CLI
+```
 
 ---
 
