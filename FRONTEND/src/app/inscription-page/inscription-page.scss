@@ -1,0 +1,313 @@
+:host {
+  display: block;
+}
+
+.inscription-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 40px 0;
+  color: var(--on-background);
+  background: var(--background);
+  font-family: 'Anybody', sans-serif;
+}
+
+.inscription-page ::selection {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.background-stadium {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCOMK3fURYJeDe2uFZm-5FfgjLKJ6d2duwPJFHC4bdWurribqLDwNcmTgtttoiho6pu_fwAFVz5x_dNUQl03Phj-Mxhi-YqZ82TcTPXNbuz8obKV1IcpV74h-zS4XCCBj-d8N1NyzyGQ9u1IyVjyPRMp_5rUeEl0CmuX_3kmC34iCR2X7VFbAr6jOyusFsyOMHsaa7lLSil_7NaLzJddr7Z35zihqvMFq5C6Yfhl-xnBsy0hh10mlKey7t2tNxelGWAAH8ihj3kPg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.background-overlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.content-canvas {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  padding: 0 20px;
+}
+
+.registration-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 12px;
+  padding: 24px;
+  background: rgb(40 41 51 / 60%);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 60%);
+}
+
+.glass-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 128px;
+  height: 128px;
+  pointer-events: none;
+  border-radius: 12px 0 0 0;
+  background: linear-gradient(135deg, rgb(255 255 255 / 10%), transparent);
+}
+
+.header-section {
+  margin-bottom: 40px;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 4px;
+    color: var(--on-surface);
+    font-family: 'Anton', sans-serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  h1 span {
+    background: linear-gradient(90deg, var(--primary-container), var(--secondary));
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p {
+    margin: 0;
+    color: var(--on-surface-variant);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    color: var(--on-surface-variant);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--outline);
+}
+
+input {
+  width: 100%;
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  padding: 8px 16px 8px 48px;
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  font-family: 'Anybody', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 30%);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+
+  &::placeholder {
+    color: color-mix(in srgb, var(--outline) 50%, transparent);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-container);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 30%), 0 0 0 1px var(--primary-container);
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 0;
+  color: var(--outline);
+  background: transparent;
+  cursor: pointer;
+  transition: color 160ms ease;
+
+  &:hover {
+    color: var(--on-surface);
+  }
+}
+
+.submit-container {
+  padding-top: 8px;
+}
+
+.submit-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 9999px;
+  padding: 12px 16px;
+  color: var(--on-primary-container);
+  font-family: 'Anton', sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--primary-container), var(--secondary));
+  box-shadow: 0 0 20px rgb(0 85 255 / 20%);
+  cursor: pointer;
+  transition: box-shadow 300ms ease;
+
+  &:hover {
+    box-shadow: 0 0 30px rgb(65 229 108 / 40%);
+  }
+}
+
+.arrow-icon {
+  font-variation-settings: 'wght' 700;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+
+  .line {
+    height: 1px;
+    flex: 1;
+    background: color-mix(in srgb, var(--outline-variant) 50%, transparent);
+  }
+
+  span {
+    color: var(--outline);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+.social-signup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 50%, transparent);
+  border-radius: 12px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--surface-container) 50%, transparent);
+  cursor: pointer;
+  transition: background-color 180ms ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+    transition: opacity 180ms ease;
+  }
+
+  span {
+    color: var(--on-surface);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .apple-svg {
+    fill: var(--on-surface);
+  }
+
+  &:hover {
+    background: var(--surface-container);
+  }
+
+  &:hover svg {
+    opacity: 1;
+  }
+}
+
+.card-footer {
+  margin-top: 24px;
+  border-top: 1px solid rgb(255 255 255 / 5%);
+  padding-top: 16px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--on-surface-variant);
+    font-size: 16px;
+  }
+
+  a {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    transition: color 180ms ease;
+
+    &:hover {
+      color: var(--secondary);
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .content-canvas {
+    padding: 0;
+  }
+
+  .registration-card {
+    padding: 40px;
+  }
+}

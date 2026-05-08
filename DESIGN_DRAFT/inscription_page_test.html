@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartPronos 2026 - Créer un compte</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Anybody:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8d90a2",
+                        "tertiary-container": "#c13301",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "inverse-on-surface": "#2e303a",
+                        "on-primary-fixed-variant": "#0039b3",
+                        "surface-container-highest": "#32343f",
+                        "surface-container-low": "#191b25",
+                        "inverse-surface": "#e1e1ef",
+                        "surface-container-high": "#282933",
+                        "on-tertiary": "#601400",
+                        "surface": "#11131c",
+                        "on-tertiary-container": "#ffe1d9",
+                        "background": "#11131c",
+                        "secondary-fixed": "#69ff87",
+                        "inverse-primary": "#004dea",
+                        "on-surface": "#e1e1ef",
+                        "secondary-container": "#06c854",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-container": "#e3e6ff",
+                        "outline-variant": "#434656",
+                        "secondary": "#41e56c",
+                        "tertiary-fixed": "#ffdbd1",
+                        "surface-container-lowest": "#0c0e17",
+                        "tertiary": "#ffb5a0",
+                        "primary": "#b6c4ff",
+                        "on-tertiary-fixed": "#3b0900",
+                        "on-secondary-fixed": "#002108",
+                        "on-error": "#690005",
+                        "on-background": "#e1e1ef",
+                        "on-secondary-fixed-variant": "#00531e",
+                        "surface-bright": "#373943",
+                        "primary-fixed": "#dce1ff",
+                        "surface-variant": "#32343f",
+                        "on-secondary-container": "#004d1b",
+                        "on-primary": "#002780",
+                        "on-surface-variant": "#c3c5d9",
+                        "surface-container": "#1d1f29",
+                        "primary-container": "#0055ff",
+                        "surface-dim": "#11131c",
+                        "error": "#ffb4ab",
+                        "on-secondary": "#003912",
+                        "error-container": "#93000a",
+                        "surface-tint": "#b6c4ff",
+                        "on-tertiary-fixed-variant": "#872100",
+                        "secondary-fixed-dim": "#3de36a",
+                        "on-primary-fixed": "#001551",
+                        "tertiary-fixed-dim": "#ffb5a0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xxl": "64px",
+                        "gutter": "20px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "stats-number": ["Anton"],
+                        "body-md": ["Anybody"],
+                        "headline-md": ["Anton"],
+                        "headline-lg": ["Anton"],
+                        "display-xl": ["Anton"],
+                        "label-bold": ["Anybody"],
+                        "body-lg": ["Anybody"]
+                    },
+                    "fontSize": {
+                        "stats-number": ["24px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen relative overflow-hidden flex items-center justify-center font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Atmospheric Background -->
+<div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" data-alt="A wide-angle, hyper-realistic view of a massive football stadium at night. The stands are packed with cheering fans, illuminated by hundreds of flashing camera lights. Massive emerald green and electric blue spotlights sweep across the pitch, creating an intense, electric atmosphere typical of a World Cup final. The scene is cinematic, high-contrast, and deeply saturated in rich navy and neon hues, perfectly capturing the Kinetic Glass aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCOMK3fURYJeDe2uFZm-5FfgjLKJ6d2duwPJFHC4bdWurribqLDwNcmTgtttoiho6pu_fwAFVz5x_dNUQl03Phj-Mxhi-YqZ82TcTPXNbuz8obKV1IcpV74h-zS4XCCBj-d8N1NyzyGQ9u1IyVjyPRMp_5rUeEl0CmuX_3kmC34iCR2X7VFbAr6jOyusFsyOMHsaa7lLSil_7NaLzJddr7Z35zihqvMFq5C6Yfhl-xnBsy0hh10mlKey7t2tNxelGWAAH8ihj3kPg');">
+<!-- Dark Navy Overlay -->
+<div class="absolute inset-0 bg-background/85 backdrop-blur-[2px]"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-[480px] px-gutter md:px-0">
+<!-- Registration Card (Kinetic Glass Style) -->
+<div class="relative w-full bg-surface-container-high/60 backdrop-blur-xl border border-white/10 rounded-xl p-lg md:p-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] overflow-hidden">
+<!-- Glass Highlight (Top Left) -->
+<div class="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-tl-xl pointer-events-none"></div>
+<!-- Header Section -->
+<div class="text-center mb-xl">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs tracking-tight">REJOIGNEZ<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary">L'ARÈNE</span></h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Créez votre compte SmartPronos 2026</p>
+</div>
+<!-- Registration Form -->
+<form class="space-y-md">
+<!-- Full Name Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-bold text-label-bold text-on-surface-variant uppercase" for="fullname">Nom complet</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-[48px] pr-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors placeholder:text-outline/50 shadow-inner" id="fullname" name="fullname" placeholder="Ex: Kylian Mbappé" type="text"/>
+</div>
+</div>
+<!-- Email Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-bold text-label-bold text-on-surface-variant uppercase" for="email">Adresse Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-[48px] pr-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors placeholder:text-outline/50 shadow-inner" id="email" name="email" placeholder="champion@worldcup.com" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-bold text-label-bold text-on-surface-variant uppercase" for="password">Mot de passe</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">lock</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-[48px] pr-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors placeholder:text-outline/50 shadow-inner" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Primary Submit Button -->
+<div class="pt-sm">
+<button class="w-full bg-gradient-to-r from-primary-container to-secondary rounded-full py-[12px] font-stats-number text-stats-number text-on-primary-container uppercase shadow-[0_0_20px_rgba(0,85,255,0.2)] hover:shadow-[0_0_30px_rgba(65,229,108,0.4)] transition-shadow duration-300 flex items-center justify-center gap-sm" type="submit">
+                        CRÉER MON COMPTE
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Divider -->
+<div class="flex items-center gap-md my-lg">
+<div class="flex-1 h-px bg-outline-variant/50"></div>
+<span class="font-label-bold text-label-bold text-outline uppercase">Ou</span>
+<div class="flex-1 h-px bg-outline-variant/50"></div>
+</div>
+<!-- Social Sign-up -->
+<div class="grid grid-cols-2 gap-md mb-lg">
+<button class="flex items-center justify-center gap-sm bg-surface-container/50 hover:bg-surface-container border border-outline-variant/50 rounded-xl py-sm transition-colors group" type="button">
+<!-- Generic Google SVG -->
+<svg class="w-[20px] h-[20px] opacity-80 group-hover:opacity-100 transition-opacity" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">Google</span>
+</button>
+<button class="flex items-center justify-center gap-sm bg-surface-container/50 hover:bg-surface-container border border-outline-variant/50 rounded-xl py-sm transition-colors group" type="button">
+<!-- Generic Apple SVG -->
+<svg class="w-[20px] h-[20px] fill-on-surface opacity-80 group-hover:opacity-100 transition-opacity" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.365 7.022c-.015.01-.035.015-.05.025-1.57.805-2.585 2.45-2.585 4.31 0 2.505 1.95 4.415 4.355 4.675-.025.075-.05.15-.08.225-1.07 3.12-3.32 6.745-6.025 6.745-1.22 0-2.455-.77-3.905-.77-1.42 0-2.64.765-3.9.765C1.65 23 0 18.235 0 13.91c0-4.04 2.22-7.39 5.6-7.39 1.41 0 2.65.75 3.93.75 1.25 0 2.45-.75 3.92-.75.98 0 1.96.22 2.915.5zM11.53.003c.01-.002.025-.003.04-.003C13.882 0 16.03 2.102 16.03 4.406c0 2.3-2.148 4.405-4.46 4.405-.01 0-.025 0-.04-.002C9.218 8.81 7.07 6.708 7.07 4.404 7.07 2.102 9.218 0 11.53 0z"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">Apple</span>
+</button>
+</div>
+<!-- Footer Login Link -->
+<div class="text-center mt-lg pt-md border-t border-white/5">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Déjà un compte ? 
+                    <a class="font-label-bold text-label-bold text-primary hover:text-secondary transition-colors underline decoration-primary/30 underline-offset-4" href="#">Se connecter</a>
+</p>
+</div>
+</div>
+</main>
+</body></html>
