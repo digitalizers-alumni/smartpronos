@@ -770,25 +770,31 @@ P0
 ### US-DA-009 — Choix de la stratégie de récupération
 
 
-**En tant que** responsable Data,
-**je veux** définir la source des données (manuel / scraping / API),
+**En tant que** team Data,
+**je veux** définir la stratégie hybride API + fallback manuel,
 **afin d'** assurer la fiabilité pendant tout le tournoi.
 
 **Critères d'acceptation :**
-- Stratégie documentée
-- Saisie manuelle retenue pour le MVP
-- Plan de secours défini si la source échoue
+- Stratégie hybride documentée dans `DATA/strategy.md`
+- Source primaire : API-Football (`league=1`, `season=2026`)
+- Fallback : saisie manuelle par la team Data en cas d'indisponibilité API
+  ou de quota dépassé
+- Procédure de bascule API ↔ manuel explicite
 
 #### Documents et stratégie concernés
 
-- Documentation : `data/strategy.md`
-- Stratégie MVP : saisie manuelle
-- Plan B documenté : `data/fallback_plan.md`
+- Documentation : `DATA/strategy.md`
+- Stratégie MVP : hybride (API primaire + fallback manuel)
+- Plan B : protocole de bascule défini dans `DATA/strategy.md`
+- Variable d'env attendue côté Backend/DevOps : `API_FOOTBALL_KEY`
+  (déjà prévue dans US-DO-002)
 
 #### Schéma v2 — éléments concernés
 
-- Stratégie manuelle pour le MVP
+- Stratégie hybride pour le MVP
 - Tous les `kickoff_at` en UTC obligatoirement (D-009)
+- L'API fournit des timestamps UTC nativement, ce qui réduit le risque
+  manuel sur le timezone documenté en D-009 mitigation #6
 
 
 ---
@@ -1363,26 +1369,34 @@ P0
 ### US-DA-006 — Mise à jour des scores
 
 
-**En tant que** responsable Data,
-**je veux** saisir le score officiel après chaque match,
-**afin que** le backend calcule les points des utilisateurs.
+**En tant que** team Data,
+**je veux** que les scores officiels soient récupérés via l'API-Football,
+**afin que** le backend calcule les points des utilisateurs sans saisie humaine
+en condition normale.
 
 **Critères d'acceptation :**
-- Score équipe A et équipe B renseignés
-- Statut passé à `terminé`
-- Mise à jour faite dans l'heure suivant la fin du match
+- Les scores sont récupérés depuis l'API-Football (FIFA World Cup 2026,
+  `league=1`, `season=2026`)
+- L'insertion dans `match_results` se fait par le job d'ingestion backend
+- En cas d'indisponibilité de l'API ou de dépassement du quota gratuit
+  (100 req/jour), la team Data effectue la saisie manuelle via le mécanisme
+  de bascule prévu
+- La mise à jour est effective dans l'heure suivant la fin du match
 
 #### Tables et fichiers de données concernés
 
-- Table : `match_results` (insertion)
+- Table : `match_results` (insertion par le job d'ingestion ou en fallback manuel)
 - Champs : `match_id`, `home_score`, `away_score`
 - Contrainte : `UNIQUE(match_id)` empêche les doublons
-- Procédure : `data/results_pipeline.md`
+- Procédure : `DATA/strategy.md` (stratégie hybride)
+- Variable d'env : `API_FOOTBALL_KEY` (cf. US-DO-002)
 
 #### Schéma v2 — éléments concernés
 
-- Insertion dans `match_results` déclenche automatiquement le scoring (la vue `user_scores` reflète immédiatement la nouvelle vérité — D-005)
+- Insertion dans `match_results` déclenche automatiquement le scoring (la vue
+  `user_scores` reflète immédiatement la nouvelle vérité — D-005)
 - UNIQUE `match_id` empêche tout doublon
+- Source de l'insertion (API ou manuelle) transparente pour le schéma
 
 
 ---
@@ -1396,20 +1410,24 @@ P0
 **afin de** faire confiance au leaderboard.
 
 **Critères d'acceptation :**
-- Double vérification du score avant validation
-- Source officielle utilisée (FIFA / site officiel)
-- Aucune erreur tolérée
+- Comparaison automatique ou manuelle entre la valeur ingérée et la source
+  officielle FIFA en cas de doute
+- Source officielle de vérification : fifa.com
+- Aucune erreur tolérée — toute incohérence détectée déclenche le protocole
+  de bascule manuelle
 
 #### Tables et fichiers de données concernés
 
-- Source officielle : sites FIFA et FIFA.com
-- Table : `match_results` (insertion après double validation)
-- Procédure : `data/double_check_protocol.md`
+- Source officielle de vérification : fifa.com
+- Table : `match_results` (correction via UPDATE admin uniquement si écart confirmé,
+  cf. US-BE-024)
+- Procédure : `DATA/strategy.md` (section vérification et conflits)
 
 #### Schéma v2 — éléments concernés
 
 - Source de vérité unique : `match_results`
-- Pas de versioning des résultats au MVP (D-009) — corrections via UPDATE admin uniquement (US-BE-024)
+- Pas de versioning des résultats au MVP (D-009) — corrections via UPDATE admin
+  uniquement (US-BE-024)
 
 
 ---
@@ -1445,25 +1463,30 @@ P0
 ### US-DA-010 — Pipeline de mise à jour quotidien
 
 
-**En tant que** responsable Data,
+**En tant que** team Data,
 **je veux** suivre un processus clair chaque jour de match,
-**afin de** ne rien oublier.
+**afin de** garantir la continuité du pipeline de scores.
 
 **Critères d'acceptation :**
-- Checklist : vérifier matchs du jour → saisir scores → vérifier cohérence → confirmer backend
-- 1 personne responsable identifiée
-- Logs des mises à jour conservés
+- Procédure de monitoring de l'API documentée : vérification que les
+  scores des matchs terminés ont bien été ingérés
+- Procédure de bascule manuelle documentée : conditions de déclenchement,
+  étapes, validation
+- Logs de toute intervention manuelle conservés
+- La team Data s'organise en interne pour assurer la couverture
 
 #### Tables et fichiers de données concernés
 
-- Checklist : `data/daily_checklist.md`
+- Procédure : `DATA/strategy.md` (sections monitoring + fallback)
 - Tables affectées : `match_results`
-- Logs : `data/update_journal.md` (manuel)
+- Logs d'interventions : à définir dans `DATA/strategy.md`
+- Logs techniques du cron : Render dashboard (cf. US-DO-009)
 
 #### Schéma v2 — éléments concernés
 
-- Pipeline jour-J : insérer dans `match_results` après chaque match terminé
-- Pas de cron au MVP (D-009 / D-007)
+- Pipeline jour-J : surveillance de l'ingestion automatique + insertion
+  manuelle dans `match_results` si fallback nécessaire
+- Le déclenchement du scoring reste agnostique de la source (D-005, D-007)
 
 
 ---
