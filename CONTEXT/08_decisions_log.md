@@ -74,6 +74,7 @@ Proposée | Validée | Implémentée | Obsolète
 - D-011 — Format invite_code et fonction de génération
 - D-012 — Boost perdu si match annulé
 - D-013 — Statut de match dynamique (upcoming/live/finished)
+- D-014 — Seed des équipes via migration SQL versionnée
 
 ---
 
@@ -738,3 +739,53 @@ END
 **Liens** :
 - US-DA-003
 - `supabase/migrations/20260512115627_view_matches_with_status.sql`
+
+---
+
+### D-014 — Seed des équipes via migration SQL versionnée
+
+**Date** : 2026-05-12
+
+**Contexte** :
+La US-DA-004 demande un référentiel des 48 équipes de la Coupe du Monde 2026
+avec id, name, code 3 lettres et drapeau optionnel. La table `teams` était
+peuplée manuellement dans Supabase, ce qui rendait l'environnement non
+reproductible et fragilisait le seed des matchs qui en dépend.
+
+**Décision** :
+Créer une migration SQL versionnée `supabase/migrations/20260511104742_seed_teams.sql`
+qui insère les 48 équipes avec `ON CONFLICT (name) DO NOTHING` (idempotent).
+Timestamp choisi pour s'exécuter juste avant `20260511104743_seed_matches.sql`.
+
+Source de référence lisible : `DATA/teams_seed.csv`.
+
+Codes : trigrammes FIFA d'usage courant (ENG, GER, NED, POR, KSA, RSA, SUI,
+URU, CRO, PAR, HAI, CIV, COD, CUW, BIH, CPV, KOR, SCO, TUR, UZB...).
+
+Drapeaux : URLs flagcdn (`https://flagcdn.com/w320/<iso2>.png`),
+service gratuit, stable et léger.
+
+**Alternatives considérées** :
+- A. Seed manuel dans Supabase ❌ non reproductible
+- B. Script Python d'import au runtime ❌ dépendance externe, non versionné
+- C. Codes ISO 3166-1 stricts (HRV, DEU, NLD...) ❌ moins lisibles côté foot
+- D. Migration SQL + CSV source + codes FIFA ✅ retenue
+
+**Pourquoi** :
+- Reproductibilité totale (`supabase db reset` recrée tout)
+- Source de vérité claire (CSV lisible + SQL généré)
+- Idempotent : ré-exécution sans risque
+- Codes FIFA alignés avec l'usage métier (maillots, retransmissions)
+
+**Impact** :
+- Data : nouveaux artefacts `DATA/teams_seed.csv` + migration seed_teams
+- Backend : aucun action requise si données déjà en base (ON CONFLICT)
+- Frontend : peut désormais utiliser `flag_url` pour afficher les drapeaux
+- QA : 48 équipes, codes uniques, names uniques, drapeaux présents
+
+**Statut** : Implémentée
+
+**Liens** :
+- US-DA-004
+- `DATA/teams_seed.csv`
+- `supabase/migrations/20260511104742_seed_teams.sql`
