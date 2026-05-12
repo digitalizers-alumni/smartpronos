@@ -27,34 +27,38 @@ Options à discuter avec l'équipe Backend :
 - Le frontend affiche TOUJOURS les labels français du tableau §1, jamais
   les codes anglais.
 
-## 4. Mapping noms d'équipes pour l'affichage français
+## 4. Noms d'équipes — convention de localisation
 
-**Décision retenue (à confirmer avec l'équipe demain)** : Option B —
-mapping JSON côté frontend, pas de modif DB.
+Le nom français d'affichage des équipes vit en base via la colonne
+`teams.name_fr` (migration `20260512140000_add_team_name_fr.sql`).
 
-Le fichier `DATA/teams_fr.json` est un mapping COMPLET des 48 équipes
-(sous ownership Data). Pour chaque équipe, il fournit le nom à afficher
-côté frontend :
+### Architecture
 
-    teamsFr[match.home_team_name]
+- **`teams.name`** (anglais) : source FIFA, utilisée pour les jointures,
+  les seeds, et l'identification technique
+- **`teams.name_fr`** (français) : utilisée par le frontend pour l'affichage
 
-L'équipe est libre de déplacer ce fichier dans
-`FRONTEND/src/assets/i18n/teams.fr.json` si elle préfère le maintenir
-côté frontend — `git mv` simple, pas de blocage.
+Le frontend lit `teams.name_fr` directement via le RPC `get_match_list()`
+ou les vues. Aucun mapping côté client n'est nécessaire.
 
-### Comment la valeur FR a été décidée pour chaque équipe
+### Convention de traduction appliquée
 
-Pour chacune des 48 entrées du JSON, la valeur est :
+Les noms français usuels sont utilisés, avec leurs diacritiques quand
+l'usage courant les impose :
+- Brésil, Sénégal, Équateur, Égypte, Allemagne, Suède...
+- Tchéquie (pas Czechia), Curaçao (pas Curacao), Jordanie (pas Jordan)
+- Côte d'Ivoire, Cap-Vert, Pays-Bas, États-Unis, Bosnie-Herzégovine,
+  Ouzbékistan, RD Congo
 
-- **Une traduction française** quand l'usage courant l'établit
-  (Mexico → Mexique, Germany → Allemagne, Spain → Espagne, Senegal → Sénégal...)
-- **Identique au nom anglais** quand il n'y a pas d'équivalent français
-  d'usage, ou quand le nom anglais est déjà la forme française
-  (Canada → Canada, Brazil → Brazil, Ghana → Ghana, Panama → Panama...)
+Les pays sans équivalent français usuel gardent leur nom anglais :
+Canada, Brazil → Brésil mais Panama, Ghana, Iran, Iraq, Qatar, Paraguay,
+Uruguay, Haïti (avec accent), Uzbekistan → Ouzbékistan...
 
-### Règles éditoriales appliquées
+La liste complète des 48 mappings est dans la migration
+`20260512140000_add_team_name_fr.sql`.
 
-- Pas de diacritiques exotiques : Curacao reste Curacao, Czechia reste Czechia
-  (pas de "ç", pas de "č"). On conserve la forme FIFA pour la lisibilité.
-- Cas explicite validé par le PO : Turkiye → Turquie
-- Bosnie-Herzégovine et Ouzbékistan : traduits (usage français établi)
+### Modification d'une traduction
+
+Pour corriger ou ajouter une traduction, créer une nouvelle migration
+SQL avec un `UPDATE` sur `teams.name_fr`. Ne jamais modifier en place
+la migration historique.
