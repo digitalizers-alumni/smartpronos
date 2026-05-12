@@ -75,6 +75,7 @@ Proposée | Validée | Implémentée | Obsolète
 - D-012 — Boost perdu si match annulé
 - D-013 — Statut de match dynamique (upcoming/live/finished)
 - D-014 — Seed des équipes via migration SQL versionnée
+- D-015 — Nom français des équipes stocké en base (`name_fr`)
 
 ---
 
@@ -789,3 +790,50 @@ service gratuit, stable et léger.
 - US-DA-004
 - `DATA/teams_seed.csv`
 - `supabase/migrations/20260511104742_seed_teams.sql`
+
+---
+
+### D-015 — Nom français des équipes stocké en base (`name_fr`)
+
+**Date** : 2026-05-12
+
+**Contexte** :
+La US-DA-005 demande un affichage cohérent des équipes côté frontend :
+noms en français et codes standardisés. Aujourd'hui, le mapping FR vit
+dans `DATA/teams_fr.json` côté code, sans source de vérité unique côté DB.
+
+**Décision** :
+Ajouter une colonne `name_fr text NOT NULL UNIQUE` à la table `teams`,
+peuplée via migration depuis le mapping de `DATA/teams_fr.json`.
+La base devient la source de vérité unique pour les noms (EN et FR).
+
+Convention de nommage documentée dans `DATA/naming_conventions.md`.
+
+**Alternatives considérées** :
+- A. Garder le mapping FR dans `teams_fr.json` côté front ❌ 2 sources
+- B. Vue SQL `teams_view` qui ajoute name_fr dynamiquement ❌ complexité inutile
+- C. Colonne `name_fr` en DB peuplée par migration ✅ retenue
+
+**Pourquoi** :
+- Source de vérité unique (DB)
+- Frontend = simple SELECT
+- Migration versionnée, reproductible
+- Cohérent avec les autres champs (name, code, flag_url)
+
+**Impact** :
+- Data : nouvelle colonne + migration `20260512140000_add_team_name_fr.sql`
+- Backend : peut exposer `name_fr` via l'API
+- Frontend : utilise `name_fr` au lieu de mapping JSON côté code
+- QA : 48 valeurs FR uniques, NOT NULL après migration
+
+**Codes (rappel)** :
+On retient les trigrammes FIFA (ENG, GER, NED, POR, KSA, RSA, SUI, URU…)
+plutôt que l'ISO 3166-1 strict, par cohérence avec l'usage métier
+(maillots, retransmissions, comparaisons cross-tournois).
+
+**Statut** : Implémentée
+
+**Liens** :
+- US-DA-005
+- `supabase/migrations/20260512140000_add_team_name_fr.sql`
+- `DATA/naming_conventions.md`
