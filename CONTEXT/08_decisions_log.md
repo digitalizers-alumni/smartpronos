@@ -73,6 +73,7 @@ Proposée | Validée | Implémentée | Obsolète
 - D-010 — Création automatique du profile (trigger auth)
 - D-011 — Format invite_code et fonction de génération
 - D-012 — Boost perdu si match annulé
+- D-013 — Statut de match dynamique (upcoming/live/finished)
 
 ---
 
@@ -690,3 +691,50 @@ Un mauvais log = retour en arrière constant
 ```
 
 👉 Documenter 2 minutes = gagner 2 heures plus tard
+
+---
+
+### D-013 — Statut de match dynamique (upcoming/live/finished)
+
+**Date** : 2026-05-12
+
+**Contexte** :
+La user story US-DA-003 impose d'afficher un statut match simple
+(`upcoming`, `live`, `finished`) pour savoir si un pari reste possible.
+Le statut doit être calculé dynamiquement à partir de `matches.kickoff_at`
+et de l'existence d'une ligne dans `match_results`.
+
+**Décision** :
+Le statut n'est pas stocké dans `matches`. Il est calculé dans la vue SQL
+`matches_with_status` avec la règle suivante :
+
+```sql
+CASE
+  WHEN match_results existe pour le match THEN 'finished'
+  WHEN kickoff_at > now() THEN 'upcoming'
+  ELSE 'live'
+END
+```
+
+**Alternatives considérées** :
+- A. Ajouter une colonne `matches.status` alimentée manuellement ou via cron
+- B. Calcul côté frontend à partir des dates/résultats
+- C. Vue SQL dynamique côté base ✅ retenue
+
+**Pourquoi** :
+- Source de vérité unique en base, cohérente avec l'architecture data
+- Zéro risque de désynchronisation entre date, résultat et statut
+- Aucune maintenance de job planifié ou trigger de mise à jour
+- Lecture simplifiée côté frontend (un seul objet prêt à consommer)
+
+**Impact** :
+- Backend : nouvelle vue `matches_with_status`
+- Frontend : lit directement le champ `status` calculé
+- Data : aucun champ dérivé stocké à maintenir
+- QA : tests sur les 3 cas métier (`upcoming`, `live`, `finished`)
+
+**Statut** : Implémentée
+
+**Liens** :
+- US-DA-003
+- `supabase/migrations/20260512115627_view_matches_with_status.sql`
