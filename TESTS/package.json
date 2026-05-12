@@ -1,0 +1,17 @@
+{
+  "name": "smartprono-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tests Cypress end-to-end pour SmartProno (branche QA).",
+  "scripts": {
+    "cy:open": "cypress open --e2e",
+    "cy:run": "cypress run",
+    "test:us002": "cypress run --spec 'US_QA_002.cy.ts'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "cypress": "^13.15.0",
+    "typescript": "~5.9.2",
+    "wait-on": "^7.2.0"
+  }
+}
