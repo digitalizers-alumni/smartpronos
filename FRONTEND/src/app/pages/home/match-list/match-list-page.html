@@ -1,0 +1,89 @@
+<header class="top-app-bar">
+  <a routerLink="/" class="top-app-bar__left" aria-label="Retour à l'accueil">
+    <span class="material-symbols-outlined top-app-bar__icon">arrow_back</span>
+  </a>
+  <h1 class="top-app-bar__title">SMARTPRONOS</h1>
+  <div class="top-app-bar__right" aria-hidden="true">
+    <span class="material-symbols-outlined top-app-bar__icon">notifications</span>
+  </div>
+</header>
+
+<main class="match-list-page">
+  <div class="match-list-page__bg" role="presentation">
+    <div class="match-list-page__bg-overlay"></div>
+  </div>
+
+  <section class="match-list-page__canvas">
+    <header class="match-list-page__intro">
+      <p class="match-list-page__eyebrow">Coupe du Monde 2026</p>
+      <h2 class="match-list-page__title">
+        CALENDRIER DES
+        <span class="match-list-page__title-highlight">MATCHS</span>
+      </h2>
+      <p class="match-list-page__subtitle">
+        Filtre par statut et ouvre un match pour saisir ou consulter ton pronostic.
+      </p>
+    </header>
+
+    <div class="match-list-page__filters" role="group" aria-label="Filtrer par statut">
+      <button
+        type="button"
+        class="match-list-page__filter"
+        [class.match-list-page__filter--active]="isFilterActive('all')"
+        (click)="setFilter('all')"
+      >
+        Tous
+      </button>
+      <button
+        type="button"
+        class="match-list-page__filter"
+        [class.match-list-page__filter--active]="isFilterActive('open')"
+        (click)="setFilter('open')"
+      >
+        Ouverts
+      </button>
+      <button
+        type="button"
+        class="match-list-page__filter"
+        [class.match-list-page__filter--active]="isFilterActive('locked')"
+        (click)="setFilter('locked')"
+      >
+        Verrouillés
+      </button>
+      <button
+        type="button"
+        class="match-list-page__filter"
+        [class.match-list-page__filter--active]="isFilterActive('finished')"
+        (click)="setFilter('finished')"
+      >
+        Terminés
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="match-list-page__state" role="status" aria-live="polite">
+        <span class="material-symbols-outlined match-list-page__state-icon">hourglass_top</span>
+        <p>Chargement du calendrier…</p>
+      </div>
+    } @else if (dateGroups().length === 0) {
+      <div class="match-list-page__state">
+        <span class="material-symbols-outlined match-list-page__state-icon">event_busy</span>
+        <p>Aucun match pour ce filtre.</p>
+      </div>
+    } @else {
+      @for (group of dateGroups(); track group.dateKey) {
+        <section class="match-list-page__day" [attr.aria-labelledby]="'day-' + group.dateKey">
+          <h3 class="match-list-page__day-title" [id]="'day-' + group.dateKey">
+            <span class="material-symbols-outlined match-list-page__day-icon">calendar_today</span>
+            {{ group.labelDate | date: "EEEE d MMMM yyyy" : 'UTC' : 'fr-FR' }}
+          </h3>
+          <div class="match-list-page__cards">
+            @for (m of group.matches; track m.id) {
+              <app-match-card [match]="m" />
+            }
+          </div>
+        </section>
+      }
+    }
+  </section>
+</main>

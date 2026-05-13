@@ -31,6 +31,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'home/match-list',
+    loadComponent: () =>
+      import('./pages/home/match-list/match-list-page').then((m) => m.MatchListPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
