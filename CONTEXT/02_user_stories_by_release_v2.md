@@ -771,30 +771,28 @@ P0
 
 
 **En tant que** team Data,
-**je veux** définir la stratégie hybride API + fallback manuel,
-**afin d'** assurer la fiabilité pendant tout le tournoi.
+**je veux** documenter la stratégie hybride API + fallback manuel,
+**afin que** l'équipe et les contributeurs futurs comprennent les choix
+techniques et opérationnels.
 
 **Critères d'acceptation :**
-- Stratégie hybride documentée dans `DATA/strategy.md`
-- Source primaire : API-Football (`league=1`, `season=2026`)
-- Fallback : saisie manuelle par la team Data en cas d'indisponibilité API
-  ou de quota dépassé
-- Procédure de bascule API ↔ manuel explicite
+- Stratégie complète documentée dans `DATA/strategy.md`
+- Source primaire : football-data.org (compétition `WC`, saison 2026)
+- Mécanisme : Edge Function `update-scores` déclenchée par cron
+- Fallback : team Data demande à team Backend d'insérer le score via
+  Supabase Studio
+- Anti-spam structurel via table `match_alerts`
 
 #### Documents et stratégie concernés
 
 - Documentation : `DATA/strategy.md`
-- Stratégie MVP : hybride (API primaire + fallback manuel)
-- Plan B : protocole de bascule défini dans `DATA/strategy.md`
-- Variable d'env attendue côté Backend/DevOps : `API_FOOTBALL_KEY`
-  (déjà prévue dans US-DO-002)
+- Configuration : variables d'env (cf. README de l'Edge Function)
 
 #### Schéma v2 — éléments concernés
 
-- Stratégie hybride pour le MVP
 - Tous les `kickoff_at` en UTC obligatoirement (D-009)
-- L'API fournit des timestamps UTC nativement, ce qui réduit le risque
-  manuel sur le timezone documenté en D-009 mitigation #6
+- L'API fournit des timestamps UTC nativement
+- Tables impliquées : `matches`, `teams`, `match_results`, `match_alerts`
 
 
 ---
@@ -1370,64 +1368,66 @@ P0
 
 
 **En tant que** team Data,
-**je veux** que les scores officiels soient récupérés via l'API-Football,
-**afin que** le backend calcule les points des utilisateurs sans saisie humaine
-en condition normale.
+**je veux** que les scores officiels soient récupérés automatiquement
+depuis football-data.org via l'Edge Function `update-scores`,
+**afin que** le backend calcule les points des utilisateurs sans saisie
+humaine en condition normale.
 
 **Critères d'acceptation :**
-- Les scores sont récupérés depuis l'API-Football (FIFA World Cup 2026,
-  `league=1`, `season=2026`)
-- L'insertion dans `match_results` se fait par le job d'ingestion backend
-- En cas d'indisponibilité de l'API ou de dépassement du quota gratuit
-  (100 req/jour), la team Data effectue la saisie manuelle via le mécanisme
-  de bascule prévu
-- La mise à jour est effective dans l'heure suivant la fin du match
+- L'Edge Function `update-scores` synchronise les scores des matchs
+  terminés (`FINISHED`) depuis football-data.org
+- Insertion dans `match_results` par UPSERT (idempotent, `match_id` unique)
+- Le mapping API → DB se fait via `teams.name` (anglais)
+- En cas d'écart ou d'indisponibilité de l'API, la procédure de fallback
+  manuel s'applique (cf. `DATA/strategy.md` §7)
 
 #### Tables et fichiers de données concernés
 
-- Table : `match_results` (insertion par le job d'ingestion ou en fallback manuel)
-- Champs : `match_id`, `home_score`, `away_score`
-- Contrainte : `UNIQUE(match_id)` empêche les doublons
-- Procédure : `DATA/strategy.md` (stratégie hybride)
-- Variable d'env : `API_FOOTBALL_KEY` (cf. US-DO-002)
+- Table : `match_results` (insertion par UPSERT, colonne `last_synced_at`
+  mise à jour à chaque sync)
+- Code : `supabase/functions/update-scores/index.ts`
+- Variable d'env : `FOOTBALL_DATA_KEY` (cf. README de l'Edge Function)
 
 #### Schéma v2 — éléments concernés
 
-- Insertion dans `match_results` déclenche automatiquement le scoring (la vue
-  `user_scores` reflète immédiatement la nouvelle vérité — D-005)
-- UNIQUE `match_id` empêche tout doublon
+- Insertion dans `match_results` déclenche automatiquement le scoring
+  via `user_scores` (D-005)
+- `UNIQUE(match_id)` empêche tout doublon, `UPSERT` garantit l'idempotence
 - Source de l'insertion (API ou manuelle) transparente pour le schéma
 
 
 ---
 
 
-### US-DA-007 — Précision absolue des scores
+### US-DA-007 — Pipeline et précision des scores
 
 
-**En tant que** utilisateur,
-**je veux** avoir l'assurance que les scores sont exacts,
-**afin de** faire confiance au leaderboard.
+**En tant que** team Data,
+**je veux** un pipeline d'ingestion fiable des scores avec détection
+automatique des retards et procédure de fallback manuel,
+**afin que** les scores affichés aux utilisateurs soient à jour et fiables.
 
 **Critères d'acceptation :**
-- Comparaison automatique ou manuelle entre la valeur ingérée et la source
-  officielle FIFA en cas de doute
-- Source officielle de vérification : fifa.com
-- Aucune erreur tolérée — toute incohérence détectée déclenche le protocole
-  de bascule manuelle
+- Détection automatique : pour chaque match dont `kickoff_at + 180 min`
+  est passé sans `match_results`, alerte e-mail envoyée via Resend
+- Anti-spam structurel : une seule alerte par match
+  (PK `match_alerts.match_id`)
+- Procédure de fallback manuel documentée dans `DATA/strategy.md` §7
+- Source officielle en cas de doute : fifa.com
 
 #### Tables et fichiers de données concernés
 
-- Source officielle de vérification : fifa.com
-- Table : `match_results` (correction via UPDATE admin uniquement si écart confirmé,
-  cf. US-BE-024)
-- Procédure : `DATA/strategy.md` (section vérification et conflits)
+- Tables : `match_results`, `match_alerts`
+- Code : `supabase/functions/update-scores/index.ts`
+- Variables d'env : `RESEND_API_KEY`, `ALERT_EMAIL_TO`,
+  `ALERT_EMAIL_FROM` (optionnel)
+- Doc : `DATA/strategy.md`
 
 #### Schéma v2 — éléments concernés
 
-- Source de vérité unique : `match_results`
-- Pas de versioning des résultats au MVP (D-009) — corrections via UPDATE admin
-  uniquement (US-BE-024)
+- Table `match_alerts` (PK = `match_id`, garantit l'anti-spam structurel)
+- `match_results.last_synced_at` pour traçabilité du sync
+- Corrections manuelles via UPDATE admin uniquement (D-009, US-BE-024)
 
 
 ---
@@ -1455,38 +1455,6 @@ en condition normale.
 
 - Pas de notification ni de webhook au MVP — la vue `user_scores` se met à jour sans intervention (D-005)
 - Le statut `finished` apparaît automatiquement via `matches_with_status`
-
-
----
-
-
-### US-DA-010 — Pipeline de mise à jour quotidien
-
-
-**En tant que** team Data,
-**je veux** suivre un processus clair chaque jour de match,
-**afin de** garantir la continuité du pipeline de scores.
-
-**Critères d'acceptation :**
-- Procédure de monitoring de l'API documentée : vérification que les
-  scores des matchs terminés ont bien été ingérés
-- Procédure de bascule manuelle documentée : conditions de déclenchement,
-  étapes, validation
-- Logs de toute intervention manuelle conservés
-- La team Data s'organise en interne pour assurer la couverture
-
-#### Tables et fichiers de données concernés
-
-- Procédure : `DATA/strategy.md` (sections monitoring + fallback)
-- Tables affectées : `match_results`
-- Logs d'interventions : à définir dans `DATA/strategy.md`
-- Logs techniques du cron : Render dashboard (cf. US-DO-009)
-
-#### Schéma v2 — éléments concernés
-
-- Pipeline jour-J : surveillance de l'ingestion automatique + insertion
-  manuelle dans `match_results` si fallback nécessaire
-- Le déclenchement du scoring reste agnostique de la source (D-005, D-007)
 
 
 ---
@@ -4771,7 +4739,7 @@ P1
 
 - **Backend** : US-BE-008, US-BE-010, US-BE-012, US-BE-013
 - **Frontend** : US-FE-007, US-FE-009, US-FE-010, US-FE-012, US-FE-031, US-FE-032, US-FE-033
-- **Data** : US-DA-006, US-DA-007, US-DA-008, US-DA-010
+- **Data** : US-DA-006, US-DA-007, US-DA-008
 - **DevOps** : US-DO-004, US-DO-005
 - **QA** : US-QA-002, US-QA-003, US-QA-004
 
