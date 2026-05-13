@@ -10,6 +10,59 @@ const FD_API_BASE = "https://api.football-data.org/v4";
 const COMPETITION = "WC";
 const SEASON = 2026;
 
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const ALERT_EMAIL_TO = Deno.env.get("ALERT_EMAIL_TO");
+const ALERT_EMAIL_FROM = Deno.env.get("ALERT_EMAIL_FROM") ?? "onboarding@resend.dev";
+
+async function sendAlertEmail(
+  match: {
+    match_id: string;
+    kickoff_at: string;
+    home_name: string;
+    home_name_fr: string;
+    away_name: string;
+    away_name_fr: string;
+  },
+  resendKey: string,
+  to: string[],
+  from: string
+): Promise<{ ok: boolean; error?: string }> {
+  const subject = `[SmartPronos] Match en retard : ${match.home_name_fr} vs ${match.away_name_fr}`;
+  const text = [
+    "Alerte automatique — Pipeline de scores",
+    "",
+    `Match : ${match.home_name_fr} (${match.home_name}) vs ${match.away_name_fr} (${match.away_name})`,
+    `Kickoff : ${match.kickoff_at}`,
+    "Statut : aucun score ingéré 180 min après le coup d'envoi.",
+    "",
+    "Action requise (procédure de fallback, cf. DATA/strategy.md) :",
+    "  1. Vérifier le score sur fifa.com",
+    "  2. Demander à la team Backend d'insérer le score via Supabase Studio",
+    "  3. L'alerte ne sera pas renvoyée pour ce match (PK match_alerts)",
+    "",
+    "--",
+    "Edge Function update-scores",
+  ].join("\n");
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ from, to, subject, text }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      return { ok: false, error: `Resend ${res.status}: ${body}` };
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
 serve(async (req) => {
   try {
     if (req.method === "OPTIONS") {
@@ -150,6 +203,96 @@ serve(async (req) => {
       upserted++;
     }
 
+    // ===== Détection des matchs en retard + alerte e-mail =====
+    let alertsCandidates = 0;
+    let alertsSent = 0;
+    let alertsFailed = 0;
+    let alertsSkippedNoConfig = false;
+    const alertErrors: Array<{ match_id: string; error: string }> = [];
+
+    if (!RESEND_API_KEY || !ALERT_EMAIL_TO) {
+      console.warn(
+        "RESEND_API_KEY ou ALERT_EMAIL_TO manquante : section alertes désactivée"
+      );
+      alertsSkippedNoConfig = true;
+    } else {
+      const cutoff = new Date(Date.now() - 180 * 60 * 1000).toISOString();
+
+      // Charger les données en flat queries (style cohérent avec le sync existant)
+      const { data: lateMatches, error: amErr } = await supabase
+        .from("matches")
+        .select("id, home_team_id, away_team_id, kickoff_at")
+        .lt("kickoff_at", cutoff);
+
+      const { data: teamsForAlert, error: tErr } = await supabase
+        .from("teams")
+        .select("id, name, name_fr");
+
+      const { data: existingResults, error: rErr } = await supabase
+        .from("match_results")
+        .select("match_id");
+
+      const { data: existingAlerts, error: aErr } = await supabase
+        .from("match_alerts")
+        .select("match_id");
+
+      if (amErr || tErr || rErr || aErr) {
+        alertErrors.push({
+          match_id: "(query)",
+          error: `alert queries failed: ${JSON.stringify({ amErr, tErr, rErr, aErr })}`,
+        });
+      } else {
+        // Maps pour jointures en mémoire
+        const teamById = new Map<string, { name: string; name_fr: string }>();
+        for (const t of teamsForAlert ?? []) {
+          teamById.set(t.id, { name: t.name, name_fr: t.name_fr });
+        }
+        const resultMatchIds = new Set((existingResults ?? []).map((r) => r.match_id));
+        const alertMatchIds = new Set((existingAlerts ?? []).map((a) => a.match_id));
+
+        // Matchs candidats : en retard ET pas de score ET pas d'alerte
+        const toAlert = (lateMatches ?? []).filter(
+          (m) => !resultMatchIds.has(m.id) && !alertMatchIds.has(m.id)
+        );
+
+        alertsCandidates = toAlert.length;
+
+        const to = ALERT_EMAIL_TO.split(",").map((s) => s.trim()).filter(Boolean);
+
+        for (const m of toAlert) {
+          const home = teamById.get(m.home_team_id);
+          const away = teamById.get(m.away_team_id);
+          const result = await sendAlertEmail(
+            {
+              match_id: m.id,
+              kickoff_at: m.kickoff_at,
+              home_name: home?.name ?? "?",
+              home_name_fr: home?.name_fr ?? "?",
+              away_name: away?.name ?? "?",
+              away_name_fr: away?.name_fr ?? "?",
+            },
+            RESEND_API_KEY,
+            to,
+            ALERT_EMAIL_FROM
+          );
+          if (result.ok) {
+            const { error: insertError } = await supabase
+              .from("match_alerts")
+              .insert({ match_id: m.id });
+            if (insertError && !String(insertError.message).includes("duplicate key")) {
+              alertsFailed++;
+              alertErrors.push({ match_id: m.id, error: String(insertError.message) });
+            } else {
+              alertsSent++;
+            }
+          } else {
+            alertsFailed++;
+            alertErrors.push({ match_id: m.id, error: result.error ?? "unknown" });
+          }
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         ok: true,
@@ -159,6 +302,11 @@ serve(async (req) => {
         skipped_not_finished: skippedNotFinished,
         skipped_unmapped: skippedUnmapped,
         errors: errors.slice(0, 10),
+        alerts_candidates: alertsCandidates,
+        alerts_sent: alertsSent,
+        alerts_failed: alertsFailed,
+        alerts_skipped_no_config: alertsSkippedNoConfig,
+        alert_errors: alertErrors,
       }),
       {
         status: 200,

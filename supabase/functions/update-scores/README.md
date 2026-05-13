@@ -11,6 +11,9 @@
 | `FOOTBALL_DATA_KEY` | football-data.org/client/register | Clé API gratuite |
 | `SUPABASE_URL` | injecté automatiquement par Supabase | URL du projet |
 | `SUPABASE_SERVICE_ROLE_KEY` | injecté automatiquement par Supabase | Clé service_role |
+| `RESEND_API_KEY` | resend.com (compte gratuit) | Clé API Resend pour l'envoi d'alertes e-mail |
+| `ALERT_EMAIL_TO` | défini par la team Data | Destinataires de l'alerte, séparés par virgule |
+| `ALERT_EMAIL_FROM` | optionnel | Expéditeur (défaut : onboarding@resend.dev de Resend) |
 
 ## Déploiement (à faire par l'équipe backend)
 
@@ -46,7 +49,12 @@ Réponse attendue :
   "results_upserted": 42,
   "skipped_not_finished": 28,
   "skipped_unmapped": 2,
-  "errors": []
+  "errors": [],
+  "alerts_candidates": 0,
+  "alerts_sent": 0,
+  "alerts_failed": 0,
+  "alerts_skipped_no_config": false,
+  "alert_errors": []
 }
 ```
 
@@ -88,6 +96,41 @@ jobs:
 - Seuls les matchs au statut **`FINISHED`** côté football-data.org donnent lieu à un UPSERT dans `match_results`. Les matchs à venir ou en cours sont comptés dans `skipped_not_finished`.
 - Le matching entre équipes repose sur `teams.name` (anglais), puis sur la paire `(home_team_id, away_team_id)` dans `matches`. Si les noms divergent ou si la rencontre n’existe pas en base, le match est ignoré (`skipped_unmapped` ou entrée dans `errors`). Évolution future : table `external_team_mapping`.
 - Quota football-data.org plan gratuit : 10 requêtes/minute. Une exécution = 1 requête (largement OK avec un cron du type `*/5`).
+
+## Alerte e-mail (anti-spam)
+
+L'Edge Function détecte les matchs dont `kickoff_at + 180 min` est
+passé sans score ingéré. Pour chacun, elle envoie un e-mail via
+[Resend](https://resend.com) et marque l'alerte dans la table
+`match_alerts` (PK = match_id) pour ne pas la renvoyer.
+
+### Configuration
+
+1. Créer un compte gratuit sur https://resend.com
+2. (Recommandé) Vérifier le domaine d'envoi production. Sans ça,
+   seul `onboarding@resend.dev` peut être utilisé en `from`, avec
+   restriction d'envoi vers l'adresse du compte uniquement.
+3. Configurer les secrets côté Supabase :
+```bash
+   supabase secrets set RESEND_API_KEY=<votre_cle_resend>
+   supabase secrets set ALERT_EMAIL_TO=destinataire1@example.com,destinataire2@example.com
+   supabase secrets set ALERT_EMAIL_FROM=alerts@votre-domaine.app
+```
+
+### Mode dégradé
+
+Si `RESEND_API_KEY` ou `ALERT_EMAIL_TO` n'est pas configurée, la
+section alerte est désactivée (warning loggé). Le sync de scores
+continue normalement. La réponse JSON contient
+`alerts_skipped_no_config: true`.
+
+### Reset manuel d'une alerte
+
+Pour re-déclencher une alerte sur un match (rare — pour tests ou
+correction) :
+```sql
+DELETE FROM match_alerts WHERE match_id = '<uuid_du_match>';
+```
 
 ## Logs et monitoring
 Logs accessibles via :
