@@ -1,0 +1,32 @@
+.match-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: 'Anybody', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid rgb(255 255 255 / 12%);
+  white-space: nowrap;
+
+  &[data-status='open'] {
+    color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary-container) 22%, transparent);
+    border-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+  }
+
+  &[data-status='locked'] {
+    color: var(--tertiary);
+    background: color-mix(in srgb, var(--tertiary-container) 25%, transparent);
+    border-color: color-mix(in srgb, var(--tertiary) 40%, transparent);
+  }
+
+  &[data-status='finished'] {
+    color: var(--on-surface-variant);
+    background: color-mix(in srgb, var(--surface-container-high) 80%, transparent);
+    border-color: var(--outline-variant);
+  }
+}
