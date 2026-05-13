@@ -75,6 +75,7 @@ Proposée | Validée | Implémentée | Obsolète
 - D-012 — Boost perdu si match annulé
 - D-013 — Statut de match dynamique (upcoming/live/finished)
 - D-014 — Seed des équipes via migration SQL versionnée
+- D-015 — Adoption officielle du data model V2
 
 ---
 
@@ -226,7 +227,7 @@ matches_with_status → vue avec statut dérivé
 **Statut** : Validée
 
 **Liens** :
-- `03_data_model.md` — section "Vues & calculs"
+- `03.schema.sql` — section "Vues & calculs"
 - `05_business_rules.md` — "Calcul des points uniquement côté backend"
 
 ---
@@ -250,7 +251,7 @@ suffisamment le besoin de groupe pour le MVP.
 
 **Pourquoi** :
 - Aligné avec la vision : "battle entre entreprises" comme MOAT
-- Pas de US qui le réclame : `02_user_stories.md` ne mentionne que des entreprises
+- Pas de US qui le réclame : `02_user_stories_by_release_v2.md` ne mentionne que des entreprises
 - Évite scope creep : doubler le système = doubler les leaderboards, RLS, vues, UX
 - Friction utile : l'invite_code structure la rivalité et crée l'effet viral
 
@@ -271,7 +272,7 @@ suffisamment le besoin de groupe pour le MVP.
 **Date** : 2026-05-05
 
 **Contexte** :
-Le `03_data_model.md` initial prévoyait un champ `matches.status`
+Le `03.schema.sql` initial prévoyait un champ `matches.status`
 stocké. Faut-il vraiment stocker ce statut dérivable ?
 
 **Décision** :
@@ -302,12 +303,12 @@ END
 **Impact** :
 - Backend : vue `matches_with_status` exposée au frontend
 - Frontend : consomme la vue, ne calcule pas le statut
-- `03_data_model.md` : retirer `status` de la table `matches`
+- `03.schema.sql` : retirer `status` de la table `matches`
 
 **Statut** : Validée
 
 **Liens** :
-- `03_data_model.md` — table `matches`
+- `03.schema.sql` — table `matches`
 - `05_business_rules.md` — règles de verrouillage et statuts
 - D-005 — pas de stockage des points (même logique)
 
@@ -352,7 +353,7 @@ Deux compteurs exposés :
 
 **Liens** :
 - D-004 — Score entreprise = moyenne des membres
-- `03_data_model.md` — vue `company_scores`
+- `03.schema.sql` — vue `company_scores`
 
 ---
 
@@ -422,7 +423,7 @@ Priorités probables :
 **Statut** : Validée
 
 **Liens** :
-- `03_data_model.md` — référencer cette décision
+- `03.schema.sql` — référencer cette décision
 - `05_business_rules.md` — règles non couvertes par contrainte SQL
 
 ---
@@ -482,14 +483,14 @@ ensuite via US-002.
 - Backend : aucun code applicatif pour créer le profile
 - Frontend : peut compter sur l'existence du profile dès l'auth
 - UX : flow auth → app immédiat, sans étape "création profile"
-- `02_user_stories.md` US-002 reste valide : l'user modifie
+- `02_user_stories_by_release_v2.md` US-002 reste valide : l'user modifie
   son pseudo plus tard
 
 **Statut** : Validée
 
 **Liens** :
-- `03_data_model.md` — section triggers
-- `02_user_stories.md` — US-001, US-002
+- `03.schema.sql` — section triggers
+- `02_user_stories_by_release_v2.md` — US-001, US-002
 
 ---
 
@@ -572,8 +573,8 @@ invite_code text NOT NULL UNIQUE DEFAULT generate_invite_code()
 **Statut** : Validée
 
 **Liens** :
-- `03_data_model.md` — table `companies`, section fonctions helpers
-- `02_user_stories.md` — US-016, US-017
+- `03.schema.sql` — table `companies`, section fonctions helpers
+- `02_user_stories_by_release_v2.md` — US-016, US-017
 
 ---
 
@@ -647,8 +648,49 @@ Aucun de ces points n'est planifié pour le MVP.
 
 **Liens** :
 - `05_business_rules.md` — règles de boost
-- `03_data_model.md` — index `one_boost_per_user`
+- `03.schema.sql` — index `one_boost_per_user`
 - D-002 — Règle de boost (1 par utilisateur)
+
+---
+
+### D-015 — Adoption officielle du data model V2
+
+**Date** : 2026-05-12
+
+**Contexte** :
+Le nouveau repo contenait déjà un schéma SQL proche de la V2, mais les
+contrats API et le board restaient partiellement alignés sur l’ancien modèle.
+
+**Décision** :
+- La V2 devient la source officielle du projet
+- `CONTEXT/03.schema.sql` reste la référence DB cible
+- `CONTEXT/09_api_contracts.md` est réaligné sur `get_match_list`,
+  `matches_with_status`, `get_companies_leaderboard`, `exact_count`
+  et `joined_at`
+- Les prochaines slices backend suivent ce contrat V2
+
+**Alternatives considérées** :
+- A. Continuer avec l’ancien contrat jusqu’à la fin du MVP
+- B. Réaligner immédiatement docs + schéma + migration ✅ retenue
+
+**Pourquoi** :
+- Réduit les écarts entre DB, docs et frontend
+- Évite des futures migrations de renommage plus coûteuses
+- Clarifie la source de vérité pour tous les agents et pour la QA
+
+**Impact** :
+- Backend : ajout d’une migration V2 et réalignement des RPC/documents
+- Frontend : changement des noms de contrats à consommer
+- QA : scénarios de test à mettre à jour
+- Data : `kickoff_at` et le statut match suivent la V2
+
+**Statut** : Validée
+
+**Liens** :
+- `CONTEXT/03.schema.sql`
+- `CONTEXT/05_business_rules.md`
+- `CONTEXT/09_api_contracts.md`
+- `CONTEXT/10_execution_board.md`
 
 ---
 

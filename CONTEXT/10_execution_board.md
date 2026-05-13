@@ -78,8 +78,8 @@ feat/auth-profile
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-001, US-002
-03_data_model.md → profiles
+02_user_stories_by_release_v2.md → US-001, US-002
+03.schema.sql → profiles
 09_api_contracts.md → create_or_update_profile, current_user_profile
 11_branching_strategy.md
 ```
@@ -88,10 +88,10 @@ feat/auth-profile
 
 | ID | Tâche | Owner | Statut | Dépend de | DoD |
 |---|---|---|---|---|---|
-| AUTH-001 | Configurer Supabase Auth magic link | BACKEND | TODO | — | Magic link fonctionnel |
-| AUTH-002 | Créer table profiles | BACKEND | TODO | — | Table créée + contrainte auth.users |
-| AUTH-003 | Créer RPC create_or_update_profile | BACKEND | TODO | AUTH-002 | RPC conforme API contracts |
-| AUTH-004 | Créer RLS profiles | BACKEND | TODO | AUTH-002 | User lit/modifie seulement son profil |
+| AUTH-001 | Configurer Supabase Auth email+password | BACKEND | TODO | — | Signup/login fonctionnels |
+| AUTH-002 | Créer table profiles | BACKEND | REVIEW | — | Table créée + contrainte auth.users |
+| AUTH-003 | Créer RPC create_or_update_profile | BACKEND | REVIEW | AUTH-002 | RPC conforme API contracts |
+| AUTH-004 | Créer RLS profiles | BACKEND | REVIEW | AUTH-002 | User lit/modifie seulement son profil |
 | AUTH-005 | Créer écran login magic link | FRONTEND | TODO | AUTH-001 | Login mobile fonctionnel |
 | AUTH-006 | Créer écran choix pseudo | FRONTEND | TODO | AUTH-003 | Pseudo envoyé au backend |
 | AUTH-007 | Tests auth/profile | QA | TODO | AUTH-003, AUTH-006 | Cas login + pseudo validés |
@@ -114,8 +114,8 @@ feat/company-invite
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-003, US-004, US-005, US-016, US-017
-03_data_model.md → companies, company_members
+02_user_stories_by_release_v2.md → US-003, US-004, US-005, US-016, US-017
+03.schema.sql → companies, company_members
 09_api_contracts.md → create_company, join_company_by_invite_code, company_members_with_scores
 ```
 
@@ -151,21 +151,21 @@ feat/matches-and-seed
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-006, US-007
-03_data_model.md → teams, matches
-09_api_contracts.md → matches_with_teams, get_matches_with_my_predictions
+02_user_stories_by_release_v2.md → US-006, US-007
+03.schema.sql → teams, matches
+09_api_contracts.md → matches_with_status, get_match_list
 ```
 
 ### Tâches
 
 | ID | Tâche | Owner | Statut | Dépend de | DoD |
 |---|---|---|---|---|---|
-| MATCH-001 | Créer table teams | BACKEND | TODO | — | Table créée |
-| MATCH-002 | Créer table matches | BACKEND | TODO | MATCH-001 | Table créée + FK teams |
+| MATCH-001 | Créer table teams | BACKEND | REVIEW | — | Table créée |
+| MATCH-002 | Créer table matches | BACKEND | REVIEW | MATCH-001 | Table créée + FK teams |
 | MATCH-003 | Créer seed équipes MVP | DATA | TODO | MATCH-001 | Teams insérées proprement |
 | MATCH-004 | Créer seed matchs MVP | DATA | TODO | MATCH-002, MATCH-003 | Matchs insérés avec kickoff_at UTC |
-| MATCH-005 | Créer view matches_with_teams | BACKEND | TODO | MATCH-002 | Vue conforme API contracts |
-| MATCH-006 | Créer RPC get_matches_with_my_predictions | BACKEND | TODO | MATCH-005 | Retourne matchs + prono utilisateur |
+| MATCH-005 | Créer view matches_with_status | BACKEND | REVIEW | MATCH-002 | Statut dynamique conforme V2 |
+| MATCH-006 | Créer RPC get_match_list | BACKEND | REVIEW | MATCH-005 | Retourne matchs + prono utilisateur |
 | MATCH-007 | Créer écran liste des matchs | FRONTEND | TODO | MATCH-006 | MatchCards visibles |
 | MATCH-008 | Créer affichage statut match | FRONTEND | TODO | MATCH-006 | scheduled/locked/finished affichés |
 | MATCH-009 | Tests matches/seed | QA | TODO | MATCH-004, MATCH-007 | Liste cohérente et triée |
@@ -188,8 +188,8 @@ feat/predictions-lock
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-008, US-009, US-010, US-011
-03_data_model.md → predictions
+02_user_stories_by_release_v2.md → US-008, US-009, US-010, US-011
+03.schema.sql → predictions
 05_business_rules.md → verrouillage, boost
 09_api_contracts.md → upsert_prediction
 ```
@@ -198,12 +198,12 @@ feat/predictions-lock
 
 | ID | Tâche | Owner | Statut | Dépend de | DoD |
 |---|---|---|---|---|---|
-| PRED-001 | Créer table predictions | BACKEND | TODO | AUTH-002, MATCH-002 | Table + unique(user_id, match_id) |
-| PRED-002 | Ajouter contraintes scores >= 0 | BACKEND | TODO | PRED-001 | Scores négatifs refusés |
-| PRED-003 | Implémenter logique lock backend | BACKEND | TODO | PRED-001, MATCH-002 | now() < kickoff_at - 15min |
-| PRED-004 | Implémenter règle boost unique | BACKEND | TODO | PRED-001 | 1 boost max par user |
-| PRED-005 | Créer RPC upsert_prediction | BACKEND | TODO | PRED-003, PRED-004 | RPC conforme API contracts |
-| PRED-006 | Créer RLS predictions | BACKEND | TODO | PRED-005 | User modifie seulement ses pronos avant lock |
+| PRED-001 | Créer table predictions | BACKEND | REVIEW | AUTH-002, MATCH-002 | Table + unique(user_id, match_id) |
+| PRED-002 | Ajouter contraintes scores >= 0 | BACKEND | REVIEW | PRED-001 | Scores négatifs refusés |
+| PRED-003 | Implémenter logique lock backend | BACKEND | REVIEW | PRED-001, MATCH-002 | now() < kickoff_at - 15min |
+| PRED-004 | Implémenter règle boost unique | BACKEND | REVIEW | PRED-001 | 1 boost max par user |
+| PRED-005 | Créer RPC upsert_prediction | BACKEND | REVIEW | PRED-003, PRED-004 | RPC conforme API contracts |
+| PRED-006 | Créer RLS predictions | BACKEND | REVIEW | PRED-005 | User modifie seulement ses pronos avant lock |
 | PRED-007 | Créer PredictionForm | FRONTEND | TODO | PRED-005 | Saisie score mobile |
 | PRED-008 | Créer BoostSelector simple | FRONTEND | TODO | PRED-005 | Boost visible et envoyé |
 | PRED-009 | Gérer erreurs MATCH_LOCKED / BOOST_ALREADY_USED | FRONTEND | TODO | PRED-005 | Messages clairs affichés |
@@ -227,21 +227,21 @@ feat/results-scoring
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-012
-03_data_model.md → match_results, user_scores
+02_user_stories_by_release_v2.md → US-012
+03.schema.sql → match_results, user_scores
 05_business_rules.md → scoring
-09_api_contracts.md → set_match_result, user_scores, prediction_points
+09_api_contracts.md → set_match_result, user_scores, company_scores
 ```
 
 ### Tâches
 
 | ID | Tâche | Owner | Statut | Dépend de | DoD |
 |---|---|---|---|---|---|
-| SCORE-001 | Créer table match_results | BACKEND | TODO | MATCH-002 | Table + unique(match_id) |
+| SCORE-001 | Créer table match_results | BACKEND | REVIEW | MATCH-002 | Table + unique(match_id) |
 | SCORE-002 | Créer RPC set_match_result | BACKEND | TODO | SCORE-001 | Admin seulement + status finished |
-| SCORE-003 | Créer view prediction_points | BACKEND | TODO | PRED-001, SCORE-001 | Points par prono calculés |
-| SCORE-004 | Créer view user_scores | BACKEND | TODO | SCORE-003 | Total points par user |
-| SCORE-005 | Intégrer boost dans scoring | BACKEND | TODO | SCORE-004 | Points x2 si boost |
+| SCORE-003 | Créer view user_scores | BACKEND | TODO | PRED-001, SCORE-001 | Points par user calculés |
+| SCORE-004 | Créer view company_scores | BACKEND | TODO | SCORE-003, COMP-001 | Score entreprise calculé |
+| SCORE-005 | Intégrer boost dans scoring | BACKEND | TODO | SCORE-003 | Points x2 si boost |
 | SCORE-006 | Préparer script insertion résultats MVP | DATA | TODO | SCORE-002 | Résultat test insérable |
 | SCORE-007 | Afficher points obtenus dans Mes pronos | FRONTEND | TODO | SCORE-003 | Points visibles si résultat |
 | SCORE-008 | Tests scoring complet | QA | TODO | SCORE-004, SCORE-007 | Exact=5, bon=2, mauvais=0, boost=x2 |
@@ -264,10 +264,10 @@ feat/leaderboards
 ### Sources de vérité
 
 ```txt
-02_user_stories.md → US-013, US-014, US-015
-03_data_model.md → user_scores, company_scores
+02_user_stories_by_release_v2.md → US-013, US-014, US-015
+03.schema.sql → user_scores, company_scores
 05_business_rules.md → leaderboards
-09_api_contracts.md → get_global_leaderboard, get_company_leaderboard, get_company_ranking
+09_api_contracts.md → get_global_leaderboard, get_company_leaderboard, get_companies_leaderboard
 ```
 
 ### Tâches
@@ -277,7 +277,7 @@ feat/leaderboards
 | LEAD-001 | Créer view company_scores | BACKEND | TODO | SCORE-004, COMP-001 | Moyenne points par entreprise |
 | LEAD-002 | Créer RPC get_global_leaderboard | BACKEND | TODO | SCORE-004 | Classement global trié |
 | LEAD-003 | Créer RPC get_company_leaderboard | BACKEND | TODO | SCORE-004, COMP-001 | Classement entreprise filtré |
-| LEAD-004 | Créer RPC get_company_ranking | BACKEND | TODO | LEAD-001 | Classement entreprises trié |
+| LEAD-004 | Créer RPC get_companies_leaderboard | BACKEND | TODO | LEAD-001 | Classement entreprises trié |
 | LEAD-005 | Créer page leaderboard global | FRONTEND | TODO | LEAD-002 | Classement visible mobile |
 | LEAD-006 | Créer page leaderboard entreprise | FRONTEND | TODO | LEAD-003 | Classement collègues visible |
 | LEAD-007 | Créer classement entreprises | FRONTEND | TODO | LEAD-004 | Battle sociale visible |
@@ -304,7 +304,7 @@ feat/mobile-polish
 00_vision.md
 01_product_scope.md
 04_design_system.md
-02_user_stories.md → US-018, US-020
+02_user_stories_by_release_v2.md → US-018, US-020
 ```
 
 ### Tâches
