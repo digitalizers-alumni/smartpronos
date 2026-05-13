@@ -1,0 +1,128 @@
+<header class="top-app-bar">
+  <a routerLink="/" class="top-app-bar__left" aria-label="Retour à l'accueil">
+    <span class="material-symbols-outlined top-app-bar__icon">arrow_back</span>
+  </a>
+  <h1 class="top-app-bar__title">SMARTPRONOS</h1>
+  <div class="top-app-bar__right" aria-hidden="true">
+    <span class="material-symbols-outlined top-app-bar__icon">notifications</span>
+  </div>
+</header>
+
+<main class="prediction-page">
+  <div class="prediction-page__bg" role="presentation">
+    <div class="prediction-page__bg-overlay"></div>
+  </div>
+
+  <section class="prediction-page__canvas">
+    <div class="prediction-card">
+      <div class="prediction-card__glass-highlight" aria-hidden="true"></div>
+      <div class="prediction-card__accent-bar" aria-hidden="true"></div>
+
+      <header class="prediction-card__header">
+        <span class="prediction-card__competition">
+          {{ match().competition }} · {{ match().stage }}
+        </span>
+        <h2 class="prediction-card__title">
+          PRONOSTIQUEZ
+          <span class="prediction-card__title-highlight">LE SCORE</span>
+        </h2>
+        <p class="prediction-card__meta">
+          <span class="material-symbols-outlined">schedule</span>
+          {{ match().kickoff | date: "EEEE d MMMM yyyy 'à' HH'h'mm" : 'UTC' : 'fr' }}
+        </p>
+        <p class="prediction-card__meta">
+          <span class="material-symbols-outlined">stadium</span>
+          {{ match().venue }}
+        </p>
+      </header>
+
+      @if (!isSuccess()) {
+        <app-prediction-form
+          [homeTeam]="match().homeTeam"
+          [awayTeam]="match().awayTeam"
+          [submitting]="isSubmitting()"
+          (predictionSubmit)="handlePredictionSubmit($event)"
+        />
+
+        @if (isError() && errorMessage(); as msg) {
+          <div class="prediction-alert prediction-alert--error" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            <div class="prediction-alert__content">
+              <strong>Échec de l'envoi</strong>
+              <p>{{ msg }}</p>
+            </div>
+            <button
+              type="button"
+              class="prediction-alert__close"
+              (click)="dismissError()"
+              aria-label="Fermer le message d'erreur"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        }
+
+        <p class="prediction-card__rules">
+          <span class="material-symbols-outlined">info</span>
+          Saisissez un score entre 0 et 20 pour chaque équipe. Vous pouvez modifier
+          votre pronostic jusqu'au coup d'envoi.
+        </p>
+      } @else {
+        <div class="prediction-success" role="status" aria-live="polite">
+          <div class="prediction-success__badge" aria-hidden="true">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <h3 class="prediction-success__title">Pronostic enregistré !</h3>
+          <p class="prediction-success__subtitle">
+            Votre pari est verrouillé. Bonne chance pour la suite du tournoi.
+          </p>
+
+          <div class="prediction-success__summary">
+            <div class="prediction-success__team">
+              <span class="prediction-success__team-name">{{
+                match().homeTeam.name
+              }}</span>
+              <span class="prediction-success__team-score">{{
+                submittedScore()?.homeScore
+              }}</span>
+            </div>
+            <span class="prediction-success__separator">—</span>
+            <div class="prediction-success__team">
+              <span class="prediction-success__team-score">{{
+                submittedScore()?.awayScore
+              }}</span>
+              <span class="prediction-success__team-name">{{
+                match().awayTeam.name
+              }}</span>
+            </div>
+          </div>
+
+          @if (lastPrediction()?.pointsAwarded; as points) {
+            <p class="prediction-success__points">
+              <span class="material-symbols-outlined">stars</span>
+              Points potentiels&nbsp;: <strong>{{ points }}</strong>
+            </p>
+          }
+
+          <div class="prediction-success__actions">
+            <button
+              type="button"
+              class="prediction-success__btn prediction-success__btn--primary"
+              (click)="predictAgain()"
+            >
+              <span class="material-symbols-outlined">replay</span>
+              Modifier mon pronostic
+            </button>
+            <a
+              routerLink="/"
+              class="prediction-success__btn prediction-success__btn--secondary"
+            >
+              <span class="material-symbols-outlined">arrow_back</span>
+              Retour à l'accueil
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</main>

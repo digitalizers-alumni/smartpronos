@@ -17,6 +17,25 @@ export const routes: Routes = [
       import('./inscription-page/inscription-page').then((m) => m.InscriptionPage),
   },
   {
+    path: 'match/prediction-form',
+    loadComponent: () =>
+      import('./pages/match/prediction-form/prediction-form-page').then(
+        (m) => m.PredictionFormPage,
+      ),
+  },
+  {
+    path: 'match/:matchId/prediction-form',
+    loadComponent: () =>
+      import('./pages/match/prediction-form/prediction-form-page').then(
+        (m) => m.PredictionFormPage,
+      ),
+  },
+  {
+    path: 'home/match-list',
+    loadComponent: () =>
+      import('./pages/home/match-list/match-list-page').then((m) => m.MatchListPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
