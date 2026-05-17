@@ -12,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 
 import { PredictionForm } from '../../../components/prediction-form/prediction-form';
+import { TopAppBar } from '../../../shared/components/top-app-bar/top-app-bar';
 import {
   PredictionFormValue,
 } from '../../../shared/models/prediction.models';
@@ -28,7 +29,7 @@ type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-prediction-form-page',
   standalone: true,
-  imports: [PredictionForm, RouterLink, DatePipe],
+  imports: [PredictionForm, RouterLink, DatePipe, TopAppBar],
   templateUrl: './prediction-form-page.html',
   styleUrl: './prediction-form-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
