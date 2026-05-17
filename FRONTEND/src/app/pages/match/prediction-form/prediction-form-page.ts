@@ -14,7 +14,6 @@ import { map } from 'rxjs/operators';
 import { PredictionForm } from '../../../components/prediction-form/prediction-form';
 import {
   PredictionFormValue,
-  PredictionFormTeam,
 } from '../../../shared/models/prediction.models';
 import { PredictionService } from '../../../services/prediction.service';
 import {
@@ -22,37 +21,9 @@ import {
   PredictionSubmissionError,
 } from '../../../shared/models/prediction.models';
 
-interface MatchInfo {
-  id: string;
-  competition: string;
-  stage: string;
-  kickoff: Date;
-  venue: string;
-  homeTeam: PredictionFormTeam;
-  awayTeam: PredictionFormTeam;
-}
+import { MatchInfo, DEMO_MATCH } from '../../../shared/utils/demo-data';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
-
-const DEMO_MATCH: MatchInfo = {
-  id: 'wc-2026-r16-fra-bra',
-  competition: 'Coupe du Monde 2026',
-  stage: 'Huitièmes de finale',
-  kickoff: new Date('2026-06-30T20:00:00Z'),
-  venue: 'MetLife Stadium · East Rutherford',
-  homeTeam: {
-    name: 'France',
-    shortCode: 'FRA',
-    flagUrl: 'https://flagcdn.com/w160/fr.png',
-    accentColor: 'var(--primary-container)',
-  },
-  awayTeam: {
-    name: 'Brésil',
-    shortCode: 'BRA',
-    flagUrl: 'https://flagcdn.com/w160/br.png',
-    accentColor: 'var(--secondary)',
-  },
-};
 
 @Component({
   selector: 'app-prediction-form-page',
