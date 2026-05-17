@@ -11,18 +11,18 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 
-import { PredictionForm } from '../../../components/prediction-form/prediction-form';
-import { TopAppBar } from '../../../shared/components/top-app-bar/top-app-bar';
+import { PredictionForm } from '../../components/prediction-form/prediction-form';
+import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
 import {
   PredictionFormValue,
-} from '../../../shared/models/prediction.models';
-import { PredictionService } from '../../../services/prediction.service';
+} from '../../shared/models/prediction.models';
+import { PredictionService } from '../../services/prediction.service';
 import {
   PredictionResponse,
   PredictionSubmissionError,
-} from '../../../shared/models/prediction.models';
+} from '../../shared/models/prediction.models';
 
-import { MatchInfo, DEMO_MATCH } from '../../../shared/utils/demo-data';
+import { MatchInfo, DEMO_MATCH } from '../../shared/utils/demo-data';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 

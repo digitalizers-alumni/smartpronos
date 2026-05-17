@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { TopAppBar } from '../shared/components/top-app-bar/top-app-bar';
+import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
 
 interface Feature {
   icon: string;

@@ -1,5 +1,5 @@
-@use '../shared/styles/variables' as v;
-@use '../shared/styles/mixins' as m;
+@use '../../shared/styles/variables' as v;
+@use '../../shared/styles/mixins' as m;
 
 @mixin glass-panel {
   background-color: rgba(21, 34, 69, 0.6);

@@ -8,10 +8,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatchCard } from '../../../components/match-card/match-card';
-import { TopAppBar } from '../../../shared/components/top-app-bar/top-app-bar';
-import { MatchListItem, MatchStatus } from '../../../shared/models/match.models';
-import { MatchService } from '../../../services/match.service';
+import { MatchCard } from '../../components/match-card/match-card';
+import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
+import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
+import { MatchService } from '../../services/match.service';
 
 export type MatchStatusFilter = 'all' | MatchStatus;
 
