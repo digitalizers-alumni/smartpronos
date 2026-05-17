@@ -14,7 +14,7 @@ export const routes: Routes = [
   {
     path: 'signup',
     loadComponent: () =>
-      import('./inscription-page/inscription-page').then((m) => m.InscriptionPage),
+      import('./signup-page/signup-page').then((m) => m.SignupPage),
   },
   {
     path: 'match/prediction-form',
