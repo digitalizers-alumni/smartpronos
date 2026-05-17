@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { MatchStatus } from '../../services/match.service';
+import { MatchStatus } from '../../shared/models/match.models';
 
 @Component({
   selector: 'app-match-status-badge',

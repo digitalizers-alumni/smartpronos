@@ -11,16 +11,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 
+import { PredictionForm } from '../../../components/prediction-form/prediction-form';
 import {
-  PredictionForm,
-  PredictionFormTeam,
   PredictionFormValue,
-} from '../../../components/prediction-form/prediction-form';
+  PredictionFormTeam,
+} from '../../../shared/models/prediction.models';
+import { PredictionService } from '../../../services/prediction.service';
 import {
   PredictionResponse,
-  PredictionService,
   PredictionSubmissionError,
-} from '../../../services/prediction.service';
+} from '../../../shared/models/prediction.models';
 
 interface MatchInfo {
   id: string;

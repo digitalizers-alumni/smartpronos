@@ -2,31 +2,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 
-export interface PredictionPayload {
-  matchId: string;
-  homeScore: number;
-  awayScore: number;
-}
-
-export interface PredictionResponse {
-  id: string;
-  matchId: string;
-  homeScore: number;
-  awayScore: number;
-  submittedAt: string;
-  pointsAwarded?: number;
-}
-
-export class PredictionSubmissionError extends Error {
-  constructor(
-    message: string,
-    public readonly status: number,
-    public readonly originalError?: unknown,
-  ) {
-    super(message);
-    this.name = 'PredictionSubmissionError';
-  }
-}
+import {
+  PredictionPayload,
+  PredictionResponse,
+  PredictionSubmissionError,
+} from '../shared/models/prediction.models';
 
 @Injectable({ providedIn: 'root' })
 export class PredictionService {

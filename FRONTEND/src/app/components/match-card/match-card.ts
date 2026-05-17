@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { RouterLink } from '@angular/router';
 
 import { MatchStatusBadge } from '../match-status-badge/match-status-badge';
-import { MatchListItem } from '../../services/match.service';
+import { MatchListItem } from '../../shared/models/match.models';
 
 @Component({
   selector: 'app-match-card',

@@ -2,31 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, of } from 'rxjs';
 
-export type MatchStatus = 'open' | 'locked' | 'finished';
-
-export interface MatchTeam {
-  name: string;
-  shortCode: string;
-  flagUrl?: string;
-}
-
-export interface MatchPredictionSummary {
-  homeScore: number | null;
-  awayScore: number | null;
-  hasPrediction: boolean;
-}
-
-export interface MatchListItem {
-  id: string;
-  kickoff: string;
-  competition?: string;
-  stage?: string;
-  venue?: string;
-  status: MatchStatus;
-  homeTeam: MatchTeam;
-  awayTeam: MatchTeam;
-  prediction: MatchPredictionSummary;
-}
+import { MatchListItem } from '../shared/models/match.models';
 
 /** Demo dataset used when the API is unreachable (local dev without backend). */
 export const DEMO_MATCHES: MatchListItem[] = [

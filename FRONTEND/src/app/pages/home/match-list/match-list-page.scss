@@ -1,17 +1,5 @@
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 40px;
-$radius-xl: 0.75rem;
-$header-height: 64px;
-
-:host {
-  display: block;
-  min-height: 100vh;
-  color: var(--on-background);
-  background: var(--background);
-}
+@use '../../../shared/styles/variables' as *;
+@use '../../../shared/styles/mixins' as *;
 
 @mixin gradient-text {
   background: linear-gradient(

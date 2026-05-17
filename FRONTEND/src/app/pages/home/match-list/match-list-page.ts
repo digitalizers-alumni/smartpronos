@@ -10,11 +10,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
 import { MatchCard } from '../../../components/match-card/match-card';
-import {
-  MatchListItem,
-  MatchService,
-  MatchStatus,
-} from '../../../services/match.service';
+import { MatchListItem, MatchStatus } from '../../../shared/models/match.models';
+import { MatchService } from '../../../services/match.service';
 
 export type MatchStatusFilter = 'all' | MatchStatus;
 
