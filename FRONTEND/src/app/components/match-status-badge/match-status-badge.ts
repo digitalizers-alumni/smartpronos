@@ -14,7 +14,7 @@ export class MatchStatusBadge {
 
   protected label(): string {
     switch (this.status()) {
-      case 'open':
+      case 'scheduled':
         return 'Ouvert';
       case 'locked':
         return 'Verrouillé';

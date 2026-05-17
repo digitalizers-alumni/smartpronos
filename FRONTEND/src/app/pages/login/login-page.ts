@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -10,7 +11,11 @@ import { RouterLink } from '@angular/router';
   styleUrl: './login-page.scss',
 })
 export class LoginPage {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   protected hidePassword = true;
+  protected errorMessage = signal('');
 
   protected readonly loginForm;
 
@@ -26,13 +31,22 @@ export class LoginPage {
     this.hidePassword = !this.hidePassword;
   }
 
-  protected submit(): void {
+  protected async submit(): Promise<void> {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    // TODO: wire with auth service
-    console.log('Login payload:', this.loginForm.getRawValue());
+    this.errorMessage.set('');
+
+    try {
+      const { email, password } = this.loginForm.getRawValue();
+      await this.auth.signIn(email, password);
+      await this.router.navigate(['/home', 'match-list']);
+    } catch (err) {
+      this.errorMessage.set(
+        err instanceof Error ? err.message : 'Erreur de connexion',
+      );
+    }
   }
 }

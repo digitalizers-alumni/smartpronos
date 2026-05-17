@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -17,23 +18,18 @@ export const routes: Routes = [
       import('./pages/signup/signup-page').then((m) => m.SignupPage),
   },
   {
-    path: 'match/prediction-form',
-    loadComponent: () =>
-      import('./pages/prediction-form/prediction-form-page').then(
-        (m) => m.PredictionFormPage,
-      ),
-  },
-  {
     path: 'match/:matchId/prediction-form',
     loadComponent: () =>
       import('./pages/prediction-form/prediction-form-page').then(
         (m) => m.PredictionFormPage,
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'home/match-list',
     loadComponent: () =>
       import('./pages/match-list/match-list-page').then((m) => m.MatchListPage),
+    canActivate: [authGuard],
   },
   {
     path: '**',

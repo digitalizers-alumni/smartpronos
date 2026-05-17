@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-signup-page',
@@ -10,7 +11,11 @@ import { RouterLink } from '@angular/router';
   styleUrl: './signup-page.scss',
 })
 export class SignupPage {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   protected isPasswordVisible = false;
+  protected errorMessage = signal('');
 
   protected readonly signupForm;
 
@@ -26,14 +31,23 @@ export class SignupPage {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
-  protected submit(): void {
+  protected async submit(): Promise<void> {
     if (this.signupForm.invalid) {
       this.signupForm.markAllAsTouched();
       return;
     }
 
-    // TODO: wire with AuthService
-    console.log('Signup payload:', this.signupForm.getRawValue());
+    this.errorMessage.set('');
+
+    try {
+      const { email, password } = this.signupForm.getRawValue();
+      await this.auth.signUp(email, password);
+      await this.router.navigate(['/home', 'match-list']);
+    } catch (err) {
+      this.errorMessage.set(
+        err instanceof Error ? err.message : "Erreur d'inscription",
+      );
+    }
   }
 
   protected getControlError(controlName: 'fullname' | 'email' | 'password'): string | null {

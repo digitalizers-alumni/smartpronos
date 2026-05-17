@@ -1,4 +1,4 @@
-export type MatchStatus = 'open' | 'locked' | 'finished';
+export type MatchStatus = 'scheduled' | 'locked' | 'finished';
 
 export interface MatchTeam {
   name: string;

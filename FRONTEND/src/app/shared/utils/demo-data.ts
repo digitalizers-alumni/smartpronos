@@ -18,7 +18,7 @@ export const DEMO_MATCHES: MatchListItem[] = [
     competition: 'Coupe du Monde 2026',
     stage: 'Phase de groupes · Groupe A',
     venue: 'Azteca · Mexico City',
-    status: 'open',
+    status: 'scheduled',
     homeTeam: {
       name: 'Mexique',
       shortCode: 'MEX',
@@ -37,7 +37,7 @@ export const DEMO_MATCHES: MatchListItem[] = [
     competition: 'Coupe du Monde 2026',
     stage: 'Phase de groupes · Groupe B',
     venue: 'SoFi Stadium · Inglewood',
-    status: 'open',
+    status: 'scheduled',
     homeTeam: {
       name: 'France',
       shortCode: 'FRA',

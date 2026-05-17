@@ -85,6 +85,9 @@
         </div>
 
         <div class="submit-container">
+          @if (errorMessage(); as msg) {
+            <small class="input-error input-error--api">{{ msg }}</small>
+          }
           <button type="submit" class="submit-btn" [disabled]="signupForm.invalid">
             CRÉER MON COMPTE
             <span class="material-symbols-outlined arrow-icon">arrow_forward</span>

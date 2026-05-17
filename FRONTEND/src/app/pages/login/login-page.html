@@ -60,6 +60,9 @@
           Se souvenir de moi
         </label>
 
+        @if (errorMessage(); as msg) {
+          <small class="login-form__error login-form__error--api">{{ msg }}</small>
+        }
         <button class="login-form__submit" type="submit">Se connecter</button>
       </form>
 
