@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  pull-requests: write
+  issues: write
+
 jobs:
   preview:
     runs-on: ubuntu-latest
