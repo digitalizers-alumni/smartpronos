@@ -1,0 +1,22 @@
+name: Cloudflare Pages Preview
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request.head.sha.substring(0, 8);
+            const url = `https://${sha}.smartpronos.ch`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Preview deployed\n\n**URL :** ${url}\n\n> Available in few minutes after Cloudflare build.`
+            });
