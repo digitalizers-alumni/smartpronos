@@ -1,82 +1,11 @@
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 40px;
-$radius-xl: 0.75rem;
-$header-height: 64px;
+@use '../../shared/styles/variables' as *;
+@use '../../shared/styles/mixins' as *;
 
 :host {
   display: block;
   min-height: 100vh;
   color: var(--on-background);
   background: var(--background);
-}
-
-@mixin gradient-text {
-  background: linear-gradient(
-    to right,
-    var(--primary-container),
-    var(--error),
-    var(--secondary)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.top-app-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  height: $header-height;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 $spacing-md;
-  background-color: rgb(17 19 28 / 60%);
-  backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 0 20px rgb(0 85 255 / 10%);
-
-  &__left,
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    text-decoration: none;
-    color: inherit;
-    transition: opacity 0.2s;
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-
-  &__icon {
-    font-size: 24px;
-    color: var(--on-surface-variant);
-  }
-
-  &__left &__icon {
-    color: var(--primary);
-  }
-
-  &__title {
-    font-family: 'Anton', sans-serif;
-    font-size: 28px;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    @include gradient-text;
-    font-weight: 400;
-  }
 }
 
 .match-list-page {

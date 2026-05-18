@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
+
 interface Feature {
   icon: string;
   iconColor: string;
@@ -23,7 +25,7 @@ interface NavLink {
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TopAppBar],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss',
 })

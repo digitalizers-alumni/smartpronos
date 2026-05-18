@@ -1,0 +1,25 @@
+@use 'variables' as v;
+
+@mixin container {
+  max-width: v.$container-max;
+  margin: 0 auto;
+  padding: 0 v.$spacing-md;
+}
+
+@mixin glass-panel {
+  background-color: rgb(40 41 51 / 60%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 60%);
+}
+
+@mixin gradient-text {
+  background: linear-gradient(to right, var(--primary-container), var(--error), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin gradient-primary {
+  background-image: linear-gradient(to right, #0055ff, #ffb4ab, #41e56c);
+}

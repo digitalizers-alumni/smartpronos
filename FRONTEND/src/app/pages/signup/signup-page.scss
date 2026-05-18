@@ -2,7 +2,7 @@
   display: block;
 }
 
-.inscription-page {
+.signup-page {
   position: relative;
   display: flex;
   align-items: center;
@@ -15,7 +15,7 @@
   font-family: 'Anybody', sans-serif;
 }
 
-.inscription-page ::selection {
+.signup-page ::selection {
   background: var(--primary-container);
   color: var(--on-primary-container);
 }
@@ -153,6 +153,13 @@ input {
   }
 }
 
+.input-error {
+  color: var(--error);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
 .password-toggle {
   position: absolute;
   top: 50%;
@@ -197,8 +204,13 @@ input {
   cursor: pointer;
   transition: box-shadow 300ms ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     box-shadow: 0 0 30px rgb(65 229 108 / 40%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 

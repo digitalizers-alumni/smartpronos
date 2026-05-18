@@ -14,17 +14,10 @@ import {
   Validators,
 } from '@angular/forms';
 
-export interface PredictionFormValue {
-  homeScore: number;
-  awayScore: number;
-}
-
-export interface PredictionFormTeam {
-  name: string;
-  shortCode?: string;
-  flagUrl?: string;
-  accentColor?: string;
-}
+import {
+  PredictionFormValue,
+  PredictionFormTeam,
+} from '../../shared/models/prediction.models';
 
 const MAX_SCORE = 20;
 const MIN_SCORE = 0;

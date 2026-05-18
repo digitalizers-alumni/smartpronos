@@ -1,0 +1,19 @@
+<header class="top-app-bar">
+  @if (backRoute(); as route) {
+    <a
+      [routerLink]="route"
+      class="top-app-bar__left"
+      aria-label="Retour à l'accueil"
+    >
+      <span class="material-symbols-outlined top-app-bar__icon">arrow_back</span>
+    </a>
+  } @else {
+    <a routerLink="/login" class="top-app-bar__left">
+      <span class="material-symbols-outlined top-app-bar__icon">account_circle</span>
+    </a>
+  }
+  <h1 class="top-app-bar__title">{{ title() }}</h1>
+  <div class="top-app-bar__right" aria-hidden="true">
+    <span class="material-symbols-outlined top-app-bar__icon">notifications</span>
+  </div>
+</header>

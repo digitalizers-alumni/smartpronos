@@ -7,14 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 
-import { MatchCard } from '../../../components/match-card/match-card';
-import {
-  MatchListItem,
-  MatchService,
-  MatchStatus,
-} from '../../../services/match.service';
+import { MatchCard } from '../../components/match-card/match-card';
+import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
+import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
+import { MatchService } from '../../services/match.service';
 
 export type MatchStatusFilter = 'all' | MatchStatus;
 
@@ -27,7 +24,7 @@ export interface MatchDateGroup {
 @Component({
   selector: 'app-match-list-page',
   standalone: true,
-  imports: [RouterLink, DatePipe, MatchCard],
+  imports: [DatePipe, MatchCard, TopAppBar],
   templateUrl: './match-list-page.html',
   styleUrl: './match-list-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,23 +1,5 @@
-@use 'sass:math';
-
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 40px;
-$spacing-xxl: 64px;
-$container-max: 1280px;
-$radius-default: 0.25rem;
-$radius-lg: 0.5rem;
-$radius-xl: 0.75rem;
-$radius-full: 9999px;
-$header-height: 64px;
-
-@mixin container {
-  max-width: $container-max;
-  margin: 0 auto;
-  padding: 0 $spacing-md;
-}
+@use '../../shared/styles/variables' as v;
+@use '../../shared/styles/mixins' as m;
 
 @mixin glass-panel {
   background-color: rgba(21, 34, 69, 0.6);
@@ -25,83 +7,10 @@ $header-height: 64px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-@mixin gradient-text {
-  background: linear-gradient(to right, var(--primary-container), var(--error), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-@mixin gradient-primary {
-  background-image: linear-gradient(to right, #0055ff, #ffb4ab, #41e56c);
-}
-
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-// ─── Top App Bar ────────────────────────────────────────────────
-.top-app-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  height: $header-height;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 $spacing-md;
-  background-color: rgba(17, 19, 28, 0.6);
-  backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(0, 85, 255, 0.1);
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    transition: opacity 0.2s;
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    cursor: pointer;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &:active {
-      scale: 0.95;
-    }
-  }
-
-  &__icon {
-    font-size: 24px;
-    color: var(--on-surface-variant);
-  }
-
-  &__left &__icon {
-    color: var(--primary);
-  }
-
-  &__title {
-    font-family: 'Anton', sans-serif;
-    font-size: 32px;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    @include gradient-text;
-    font-weight: 400;
-  }
 }
 
 // ─── Hero Section ───────────────────────────────────────────────
@@ -111,8 +20,8 @@ $header-height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: $spacing-md;
-  padding-top: calc($header-height + $spacing-md);
+  padding: v.$spacing-md;
+  padding-top: calc(v.$header-height + v.$spacing-md);
   overflow: hidden;
 
   &__bg {
@@ -141,13 +50,13 @@ $header-height: 64px;
   &__content {
     position: relative;
     z-index: 10;
-    max-width: $container-max;
+    max-width: v.$container-max;
     margin: 0 auto;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-xl;
+    gap: v.$spacing-xl;
     width: 100%;
   }
 
@@ -162,7 +71,7 @@ $header-height: 64px;
   }
 
   &__title-highlight {
-    @include gradient-text;
+    @include m.gradient-text;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
   }
 
@@ -176,15 +85,15 @@ $header-height: 64px;
   }
 
   &__cta-primary {
-    @include gradient-primary;
+    @include m.gradient-primary;
     border: none;
     color: var(--surface-container-lowest);
     font-family: 'Anton', sans-serif;
     font-size: 24px;
     line-height: 1;
     letter-spacing: 0.05em;
-    padding: $spacing-md $spacing-xl;
-    border-radius: $radius-full;
+    padding: v.$spacing-md v.$spacing-xl;
+    border-radius: v.$radius-full;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
@@ -200,7 +109,7 @@ $header-height: 64px;
   }
 
   &__cta-secondary-wrapper {
-    margin-top: $spacing-md;
+    margin-top: v.$spacing-md;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -215,8 +124,8 @@ $header-height: 64px;
     font-size: 24px;
     line-height: 1;
     letter-spacing: 0.05em;
-    padding: $spacing-md $spacing-xl;
-    border-radius: $radius-full;
+    padding: v.$spacing-md v.$spacing-xl;
+    border-radius: v.$radius-full;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
@@ -234,14 +143,14 @@ $header-height: 64px;
 
 // ─── Features Section ───────────────────────────────────────────
 .features {
-  padding: $spacing-xxl $spacing-md;
+  padding: v.$spacing-xxl v.$spacing-md;
   background-color: var(--surface-container-lowest);
 
   &__container {
-    @include container;
+    @include m.container;
     display: flex;
     flex-direction: column;
-    gap: $spacing-xl;
+    gap: v.$spacing-xl;
   }
 
   &__heading {
@@ -261,7 +170,7 @@ $header-height: 64px;
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: $spacing-lg;
+    gap: v.$spacing-lg;
 
     @media (min-width: 768px) {
       grid-template-columns: repeat(3, 1fr);
@@ -271,11 +180,11 @@ $header-height: 64px;
 
 .feature-card {
   @include glass-panel;
-  padding: $spacing-lg;
-  border-radius: $radius-xl;
+  padding: v.$spacing-lg;
+  border-radius: v.$radius-xl;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: v.$spacing-md;
   position: relative;
   overflow: hidden;
   border-top: 2px solid var(--card-border-color, var(--primary-container));
@@ -323,7 +232,7 @@ $header-height: 64px;
 
 // ─── Stats Section ──────────────────────────────────────────────
 .stats {
-  padding: $spacing-xxl $spacing-md;
+  padding: v.$spacing-xxl v.$spacing-md;
   background-color: var(--background);
   position: relative;
   overflow: hidden;
@@ -341,7 +250,7 @@ $header-height: 64px;
   }
 
   &__container {
-    @include container;
+    @include m.container;
     position: relative;
     z-index: 10;
     text-align: center;
@@ -350,7 +259,7 @@ $header-height: 64px;
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: $spacing-lg;
+    gap: v.$spacing-lg;
     max-width: 56rem;
     margin: 0 auto;
 
@@ -362,13 +271,13 @@ $header-height: 64px;
 
 .stat-card {
   @include glass-panel;
-  padding: $spacing-lg;
-  border-radius: $radius-xl;
+  padding: v.$spacing-lg;
+  border-radius: v.$radius-xl;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: $spacing-sm;
+  gap: v.$spacing-sm;
 
   &__value {
     font-family: 'Anton', sans-serif;
@@ -390,7 +299,7 @@ $header-height: 64px;
 
 // ─── CTA Section ────────────────────────────────────────────────
 .cta-section {
-  padding: $spacing-xxl $spacing-md;
+  padding: v.$spacing-xxl v.$spacing-md;
   background-color: var(--surface-container-low);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 
@@ -399,13 +308,13 @@ $header-height: 64px;
     margin: 0 auto;
     text-align: center;
     @include glass-panel;
-    padding: $spacing-xl;
-    border-radius: calc($radius-xl + $radius-xl);
+    padding: v.$spacing-xl;
+    border-radius: calc(v.$radius-xl + v.$radius-xl);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: v.$spacing-lg;
   }
 
   &__accent {
@@ -436,7 +345,7 @@ $header-height: 64px;
     font-size: 18px;
     line-height: 1.6;
     color: var(--on-surface-variant);
-    padding-bottom: $spacing-md;
+    padding-bottom: v.$spacing-md;
   }
 
   &__button {
@@ -447,8 +356,8 @@ $header-height: 64px;
     font-size: 24px;
     line-height: 1;
     letter-spacing: 0.05em;
-    padding: $spacing-md $spacing-xl;
-    border-radius: $radius-full;
+    padding: v.$spacing-md v.$spacing-xl;
+    border-radius: v.$radius-full;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
@@ -468,15 +377,15 @@ $header-height: 64px;
 .footer {
   background-color: var(--surface-container-lowest);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: $spacing-xl $spacing-md;
+  padding: v.$spacing-xl v.$spacing-md;
   margin-top: auto;
 
   &__container {
-    @include container;
+    @include m.container;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-lg;
+    gap: v.$spacing-lg;
 
     @media (min-width: 768px) {
       flex-direction: row;
@@ -487,7 +396,7 @@ $header-height: 64px;
   &__brand {
     display: flex;
     align-items: center;
-    gap: $spacing-xs;
+    gap: v.$spacing-xs;
   }
 
   &__logo {
@@ -500,12 +409,12 @@ $header-height: 64px;
   }
 
   &__logo-year {
-    @include gradient-text;
+    @include m.gradient-text;
   }
 
   &__nav {
     display: flex;
-    gap: $spacing-md;
+    gap: v.$spacing-md;
   }
 
   &__nav-link {
@@ -526,13 +435,13 @@ $header-height: 64px;
 
   &__social {
     display: flex;
-    gap: $spacing-sm;
+    gap: v.$spacing-sm;
   }
 
   &__social-link {
     width: 40px;
     height: 40px;
-    border-radius: $radius-full;
+    border-radius: v.$radius-full;
     background-color: var(--surface-container);
     display: flex;
     align-items: center;
@@ -550,7 +459,7 @@ $header-height: 64px;
   &__credits {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: v.$spacing-sm;
     filter: grayscale(100%);
     opacity: 0.7;
     transition: all 0.2s;
@@ -567,8 +476,8 @@ $header-height: 64px;
   }
 
   &__copyright {
-    @include container;
-    margin-top: $spacing-lg;
+    @include m.container;
+    margin-top: v.$spacing-lg;
     text-align: center;
     font-family: 'Anybody', sans-serif;
     font-size: 14px;

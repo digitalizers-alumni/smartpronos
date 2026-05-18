@@ -1,4 +1,4 @@
-<main class="inscription-page">
+<main class="signup-page">
   <div
     class="background-stadium"
     role="img"
@@ -20,19 +20,22 @@
         <p>Créez votre compte SmartPronos 2026</p>
       </header>
 
-      <form class="registration-form" (submit)="onSubmit($event)">
+      <form class="registration-form" [formGroup]="signupForm" (ngSubmit)="submit()">
         <div class="input-group">
           <label for="fullname">Nom complet</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">person</span>
             <input
               id="fullname"
-              name="fullname"
+              formControlName="fullname"
               type="text"
               placeholder="Ex: Kylian Mbappé"
               autocomplete="name"
             />
           </div>
+          @if (getControlError('fullname'); as msg) {
+            <small class="input-error">{{ msg }}</small>
+          }
         </div>
 
         <div class="input-group">
@@ -41,12 +44,15 @@
             <span class="material-symbols-outlined input-icon">mail</span>
             <input
               id="email"
-              name="email"
+              formControlName="email"
               type="email"
               placeholder="champion@worldcup.com"
               autocomplete="email"
             />
           </div>
+          @if (getControlError('email'); as msg) {
+            <small class="input-error">{{ msg }}</small>
+          }
         </div>
 
         <div class="input-group">
@@ -55,7 +61,7 @@
             <span class="material-symbols-outlined input-icon">lock</span>
             <input
               id="password"
-              name="password"
+              formControlName="password"
               [type]="isPasswordVisible ? 'text' : 'password'"
               placeholder="••••••••"
               autocomplete="new-password"
@@ -73,10 +79,16 @@
               </span>
             </button>
           </div>
+          @if (getControlError('password'); as msg) {
+            <small class="input-error">{{ msg }}</small>
+          }
         </div>
 
         <div class="submit-container">
-          <button type="submit" class="submit-btn">
+          @if (errorMessage(); as msg) {
+            <small class="input-error input-error--api">{{ msg }}</small>
+          }
+          <button type="submit" class="submit-btn" [disabled]="signupForm.invalid">
             CRÉER MON COMPTE
             <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
           </button>

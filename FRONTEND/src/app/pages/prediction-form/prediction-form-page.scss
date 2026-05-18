@@ -1,11 +1,5 @@
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 40px;
-$radius-xl: 0.75rem;
-$radius-full: 9999px;
-$header-height: 64px;
+@use '../../shared/styles/variables' as *;
+@use '../../shared/styles/mixins' as *;
 
 :host {
   display: block;
@@ -14,81 +8,6 @@ $header-height: 64px;
   background: var(--background);
 }
 
-@mixin gradient-text {
-  background: linear-gradient(
-    to right,
-    var(--primary-container),
-    var(--error),
-    var(--secondary)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-@mixin glass-panel {
-  background-color: rgb(40 41 51 / 60%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 60%);
-}
-
-// ─── Top App Bar ─────────────────────────────────────────────────
-.top-app-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  height: $header-height;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 $spacing-md;
-  background-color: rgb(17 19 28 / 60%);
-  backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 0 20px rgb(0 85 255 / 10%);
-
-  &__left,
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    text-decoration: none;
-    color: inherit;
-    transition: opacity 0.2s;
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-
-  &__icon {
-    font-size: 24px;
-    color: var(--on-surface-variant);
-  }
-
-  &__left &__icon {
-    color: var(--primary);
-  }
-
-  &__title {
-    font-family: 'Anton', sans-serif;
-    font-size: 28px;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    @include gradient-text;
-    font-weight: 400;
-  }
-}
-
-// ─── Page Layout ─────────────────────────────────────────────────
 .prediction-page {
   position: relative;
   min-height: 100vh;

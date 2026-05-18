@@ -1,126 +1,65 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, from, catchError, of, map } from 'rxjs';
 
-export type MatchStatus = 'open' | 'locked' | 'finished';
+import { SupabaseService } from '../core/services/supabase.service';
+import { MatchListItem, MatchStatus } from '../shared/models/match.models';
+import { DEMO_MATCHES } from '../shared/utils/demo-data';
 
-export interface MatchTeam {
-  name: string;
-  shortCode: string;
-  flagUrl?: string;
-}
-
-export interface MatchPredictionSummary {
-  homeScore: number | null;
-  awayScore: number | null;
-  hasPrediction: boolean;
-}
-
-export interface MatchListItem {
-  id: string;
-  kickoff: string;
-  competition?: string;
-  stage?: string;
-  venue?: string;
+interface MatchListRpcRow {
+  match_id: string;
+  home_team_name: string;
+  home_team_code: string;
+  home_team_flag: string | null;
+  away_team_name: string;
+  away_team_code: string;
+  away_team_flag: string | null;
+  kickoff_at: string;
+  stage: string;
   status: MatchStatus;
-  homeTeam: MatchTeam;
-  awayTeam: MatchTeam;
-  prediction: MatchPredictionSummary;
+  user_home_score: number | null;
+  user_away_score: number | null;
+  user_is_boosted: boolean | null;
+  result_home_score: number | null;
+  result_away_score: number | null;
 }
 
-/** Demo dataset used when the API is unreachable (local dev without backend). */
-export const DEMO_MATCHES: MatchListItem[] = [
-  {
-    id: 'wc-2026-g1',
-    kickoff: '2026-06-14T17:00:00Z',
-    competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe A',
-    venue: 'Azteca · Mexico City',
-    status: 'open',
+function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
+  return {
+    id: row.match_id,
+    kickoff: row.kickoff_at,
+    stage: row.stage,
+    status: row.status,
     homeTeam: {
-      name: 'Mexique',
-      shortCode: 'MEX',
-      flagUrl: 'https://flagcdn.com/w160/mx.png',
+      name: row.home_team_name,
+      shortCode: row.home_team_code,
+      flagUrl: row.home_team_flag ?? undefined,
     },
     awayTeam: {
-      name: 'Canada',
-      shortCode: 'CAN',
-      flagUrl: 'https://flagcdn.com/w160/ca.png',
+      name: row.away_team_name,
+      shortCode: row.away_team_code,
+      flagUrl: row.away_team_flag ?? undefined,
     },
-    prediction: { homeScore: 2, awayScore: 1, hasPrediction: true },
-  },
-  {
-    id: 'wc-2026-g2',
-    kickoff: '2026-06-14T20:00:00Z',
-    competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe B',
-    venue: 'SoFi Stadium · Inglewood',
-    status: 'open',
-    homeTeam: {
-      name: 'France',
-      shortCode: 'FRA',
-      flagUrl: 'https://flagcdn.com/w160/fr.png',
+    prediction: {
+      homeScore: row.user_home_score,
+      awayScore: row.user_away_score,
+      hasPrediction: row.user_home_score !== null,
     },
-    awayTeam: {
-      name: 'Angleterre',
-      shortCode: 'ENG',
-      flagUrl: 'https://flagcdn.com/w160/gb-eng.png',
-    },
-    prediction: { homeScore: null, awayScore: null, hasPrediction: false },
-  },
-  {
-    id: 'wc-2026-g3',
-    kickoff: '2026-06-15T18:00:00Z',
-    competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe C',
-    venue: 'Mercedes-Benz · Atlanta',
-    status: 'locked',
-    homeTeam: {
-      name: 'Portugal',
-      shortCode: 'POR',
-      flagUrl: 'https://flagcdn.com/w160/pt.png',
-    },
-    awayTeam: {
-      name: 'Maroc',
-      shortCode: 'MAR',
-      flagUrl: 'https://flagcdn.com/w160/ma.png',
-    },
-    prediction: { homeScore: 1, awayScore: 1, hasPrediction: true },
-  },
-  {
-    id: 'wc-2026-g4',
-    kickoff: '2026-06-10T16:00:00Z',
-    competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe D',
-    venue: 'Hard Rock · Miami',
-    status: 'finished',
-    homeTeam: {
-      name: 'Argentine',
-      shortCode: 'ARG',
-      flagUrl: 'https://flagcdn.com/w160/ar.png',
-    },
-    awayTeam: {
-      name: 'États-Unis',
-      shortCode: 'USA',
-      flagUrl: 'https://flagcdn.com/w160/us.png',
-    },
-    prediction: { homeScore: 3, awayScore: 2, hasPrediction: true },
-  },
-];
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
-  private readonly http = inject(HttpClient);
-  private readonly endpoint = '/api/matches';
+  private readonly supabase = inject(SupabaseService);
 
-  /**
-   * Returns matches from the API. Falls back to {@link DEMO_MATCHES} when the request fails
-   * so the liste reste utilisable sans backend local.
-   */
   getMatches(): Observable<MatchListItem[]> {
-    return this.http.get<MatchListItem[]>(this.endpoint).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.warn('[MatchService] API indisponible, données de démonstration.', error.status);
+    return from(this.supabase.client.rpc('get_match_list')).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        const rows = data as unknown as MatchListRpcRow[];
+        return rows.map(mapRpcRowToMatchListItem);
+      }),
+      catchError((error) => {
+        console.warn('[MatchService] Supabase indisponible, données de démonstration.', error);
         return of(DEMO_MATCHES);
       }),
     );

@@ -1,14 +1,5 @@
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$radius-xl: 0.75rem;
-
-@mixin glass-panel {
-  background-color: rgb(40 41 51 / 60%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 45%);
-}
+@use '../../shared/styles/variables' as *;
+@use '../../shared/styles/mixins' as *;
 
 .match-card {
   @include glass-panel;
