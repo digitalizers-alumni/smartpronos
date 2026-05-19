@@ -1,129 +1,33 @@
-<app-top-app-bar />
-
-<main>
-  <section class="hero">
-    <div class="hero__bg">
-      <img
-        src="https://lh3.googleusercontent.com/aida/ADBb0ujN3EmImteoSe_B8COGSeoFieNl6eJHcPQXi7x5BKpeMR8htBqn8uASyvHuCWBY6itimiyIy2B4mvxcDMyn6JIGEuofzwW7mzCF-NAC0x_0Al3zNFp2IYTcyM0qGyt5hiX0nRN027ZvC-MB_Oo5Gdegk1XbfDcb7PS1XCMtft_R_mH-lU7m5bYrg_dzXW9z1feCURwuFUKouE-MfFFf9I3hffRNtaBybi1-1q-EzvdUVOvB7edZq18r8A"
-        alt="World Cup 2026"
-        class="hero__bg-img"
-        />
-      <div class="hero__bg-overlay"></div>
+<div class="flex flex-col items-center justify-center h-full w-full bg-tribbo-bg px-8 py-16 md:py-24">
+  <div class="flex flex-col items-center gap-10 md:gap-12 w-full max-w-md mx-auto">
+    <!-- Logo -->
+    <div class="flex items-center justify-center">
+      <img src="assets/logo-tribbo.png" class="w-36 h-36 md:w-44 md:h-44 object-contain" alt="Tribbo" />
     </div>
-    <div class="hero__content">
-      <h2 class="hero__title">
-        L'ARÈNE DES
-        <span class="hero__title-highlight">CHAMPIONS</span>
-      </h2>
-      <p class="hero__subtitle">
-        Préparez-vous pour la Coupe du Monde 2026. Créez vos ligues,
-        affrontez vos amis et dominez les classements avec des prédictions
-        en temps réel.
+
+    <!-- Hero -->
+    <div class="text-center">
+      <h1 class="font-archivo text-5xl md:text-7xl text-tribbo-text leading-none tracking-tight">
+        Tribbo<br />
+        <span class="text-tribbo-primary text-6xl md:text-8xl">2026</span>
+      </h1>
+      <p class="font-inter text-gray-500 mt-6 text-base md:text-lg max-w-sm mx-auto leading-relaxed">
+        La plateforme B2B premium de pronostics pour la Coupe du Monde.
       </p>
-      <a routerLink="/signup" class="hero__cta-primary">
-        Commencer l'aventure
-      </a>
-      <div class="hero__cta-secondary-wrapper">
-        <a routerLink="/login" class="hero__cta-secondary">
-          Connexion
-        </a>
-      </div>
     </div>
-  </section>
 
-  <section class="features">
-    <div class="features__container">
-      <h3 class="features__heading">
-        POURQUOI CHOISIR <span class="features__heading-highlight">SMARTPRONOS</span>
-      </h3>
-      <div class="features__grid">
-        @for (feature of features; track feature.title) {
-          <div
-            class="feature-card"
-            [style.--card-border-color]="feature.borderColor"
-            [style.--card-icon-color]="feature.iconColor"
-          >
-            <div class="feature-card__glow"></div>
-            <span
-              class="material-symbols-outlined feature-card__icon"
-              [style.color]="feature.iconColor"
-              [style.textShadow]="'0 0 10px ' + feature.iconColor + '80'"
-              >{{ feature.icon }}</span
-            >
-            <h4 class="feature-card__title">{{ feature.title }}</h4>
-            <p class="feature-card__desc">{{ feature.description }}</p>
-          </div>
-        }
-      </div>
-    </div>
-  </section>
+    <!-- CTA -->
+    <button
+      routerLink="/signup"
+      class="w-full bg-tribbo-primary text-white font-inter font-semibold text-base md:text-lg py-4 md:py-5 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]"
+    >
+      Commencer
+    </button>
 
-  <section class="stats">
-    <div class="stats__bg-glow"></div>
-    <div class="stats__container">
-      <div class="stats__grid">
-        @for (stat of stats; track stat.label) {
-          <div class="stat-card">
-            <span class="stat-card__value" [style.color]="stat.color">{{
-              stat.value
-            }}</span>
-            <span class="stat-card__label">{{ stat.label }}</span>
-          </div>
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-section">
-    <div class="cta-section__card">
-      <div class="cta-section__accent"></div>
-      <h3 class="cta-section__title">Prêt à rejoindre l'élite ?</h3>
-      <p class="cta-section__desc">
-        Ne restez pas sur le banc de touche. Inscrivez-vous dès maintenant
-        et préparez vos analyses pour le tournoi ultime.
-      </p>
-      <a routerLink="/signup" class="cta-section__button">
-        Créer mon compte
-      </a>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
-  <div class="footer__container">
-    <div class="footer__brand">
-      <h2 class="footer__logo">
-        SMARTPRONOS
-        <span class="footer__logo-year">2026</span>
-      </h2>
-    </div>
-    <nav class="footer__nav">
-      @for (link of navLinks; track link.label) {
-        <a [href]="link.href" class="footer__nav-link">{{ link.label }}</a>
-      }
-    </nav>
-    <div class="footer__social">
-      <a href="#" class="footer__social-link" aria-label="Partager">
-        <span class="material-symbols-outlined">share</span>
-      </a>
-      <a href="#" class="footer__social-link" aria-label="Forum">
-        <span class="material-symbols-outlined">forum</span>
-      </a>
-    </div>
-    <div class="footer__credits">
-      <img
-        src="https://lh3.googleusercontent.com/aida/ADBb0ui0AHqHkqaJjCXOcxuaGY4-SSJKiVH4aWfO6WuDVsKTsvbLfyRPNrvcA579srlXxF1jSzAXgZ0x8mPvlwECD1QtwoInAqHGy-OVPDlWrDkMdr1RXldOxf5JRSWD89FIFbbn2ecBmv0OqpLmXNsxziS0G7G_Zl9yxQtBkjS-59b8ShG3G5ojAHJeLiE22Zehv3lJm1Kxees2Ww_oZh0Lq4tGrw2YK0AUgCcJFNQSMBJh2yirkK4dtAPHtQ"
-        alt="by"
-        class="footer__credit-img"
-      />
-      <img
-        src="https://lh3.googleusercontent.com/aida/ADBb0uhKxQNHMT-d6VrkoqeZKz-NDXs-QzjOSKCUBwJHL2apFqd6DXYodvVHEACXesVOoxgH2pR3HoVmHv0MUWqABin3sMjJdKIcdtz9MAcD_TRhz_8MBUkbw012t4NBQqObejNaqZ9ObbSDsSssQ00Db_nxP_IquIYSJsH3Blvt0wEYPbz-Rs-IO21n6o2hJVGo8vI2yQR2XJIL2wHlz-SqWAr8u_4lducmwYA9g4rzRxb7SKRVUSZdFeoO-kBNJUeH8fW0JpJhwNI"
-        alt="digitalizers"
-        class="footer__credit-img"
-      />
-    </div>
+    <!-- Footer link -->
+    <p class="font-inter text-sm text-gray-400">
+      Déjà un compte&nbsp;?
+      <a routerLink="/login" class="text-tribbo-primary font-semibold hover:underline">Se connecter</a>
+    </p>
   </div>
-  <div class="footer__copyright">
-    &copy; 2026 SmartPronos. Tous droits réservés.
-  </div>
-</footer>
+</div>

@@ -29,7 +29,22 @@ export const routes: Routes = [
       import('./pages/match-list/match-list-page').then((m) => m.MatchListPage),
   },
   {
+    path: 'leaderboard',
+    loadComponent: () =>
+      import('./pages/leaderboard/leaderboard-page').then((m) => m.LeaderboardPage),
+  },
+  {
+    path: 'company',
+    loadComponent: () =>
+      import('./pages/company/company-page').then((m) => m.CompanyPage),
+  },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./pages/profile/profile-page').then((m) => m.ProfilePage),
+  },
+  {
     path: '**',
-    redirectTo: '',
+    redirectTo: '/home/match-list',
   },
 ];

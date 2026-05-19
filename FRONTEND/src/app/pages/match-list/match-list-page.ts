@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,7 +8,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatchCard } from '../../components/match-card/match-card';
-import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
 import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
 import { MatchService } from '../../services/match.service';
 
@@ -21,12 +19,16 @@ export interface MatchDateGroup {
   matches: MatchListItem[];
 }
 
+interface FilterOption {
+  label: string;
+  value: MatchStatusFilter;
+}
+
 @Component({
   selector: 'app-match-list-page',
   standalone: true,
-  imports: [DatePipe, MatchCard, TopAppBar],
+  imports: [MatchCard],
   templateUrl: './match-list-page.html',
-  styleUrl: './match-list-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchListPage {
@@ -35,6 +37,13 @@ export class MatchListPage {
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
+
+  protected readonly filters: FilterOption[] = [
+    { label: 'Tous', value: 'all' },
+    { label: 'Ouverts', value: 'scheduled' },
+    { label: 'Verrouillés', value: 'locked' },
+    { label: 'Terminés', value: 'finished' },
+  ];
 
   protected readonly filteredMatches = computed(() => {
     const list = this.matches();

@@ -1,7 +1,11 @@
 <span
-  class="match-status-badge"
-  [attr.data-status]="status()"
-  [attr.aria-label]="'Statut du match : ' + label()"
+  class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-inter font-medium"
+  [class.bg-tribbo-bg]="status() === 'scheduled'"
+  [class.text-gray-600]="status() === 'scheduled'"
+  [class.bg-yellow-50]="status() === 'locked'"
+  [class.text-yellow-700]="status() === 'locked'"
+  [class.bg-gray-100]="status() === 'finished'"
+  [class.text-gray-500]="status() === 'finished'"
 >
   {{ label() }}
 </span>

@@ -23,7 +23,7 @@
           "options": {
 	    "outputPath": {
 	        "base": "dist",
-    	    "browser": ""
+    	    "browser": "browser"
 	    },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
@@ -32,6 +32,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
               }
             ],
             "styles": [

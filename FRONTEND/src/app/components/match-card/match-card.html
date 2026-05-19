@@ -1,67 +1,30 @@
-<a
-  class="match-card"
+<div
   [routerLink]="['/match', match().id, 'prediction-form']"
+  class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full flex flex-col"
 >
-  <div class="match-card__header">
-    <div class="match-card__time">
-      <span class="material-symbols-outlined match-card__time-icon">schedule</span>
-      <time [attr.datetime]="match().kickoff">
-        {{ match().kickoff | date: "HH:mm" : 'UTC' : 'fr-FR' }}
-      </time>
-      <span class="match-card__time-zone">UTC</span>
-    </div>
-    <app-match-status-badge [status]="match().status" />
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4 text-xs text-gray-500 font-inter font-medium">
+    <span class="flex items-center gap-1.5">📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
+    <span class="bg-gray-50 px-2.5 py-1 rounded-full">{{ match().stage }}</span>
   </div>
 
-  <div class="match-card__teams">
-    <div class="match-card__team match-card__team--home">
-      @if (match().homeTeam.flagUrl; as flag) {
-        <img
-          [src]="flag"
-          [alt]="'Drapeau ' + match().homeTeam.name"
-          class="match-card__flag"
-          width="40"
-          height="28"
-        />
-      }
-      <div class="match-card__team-text">
-        <span class="match-card__team-name">{{ match().homeTeam.name }}</span>
-        <span class="match-card__team-code">{{ match().homeTeam.shortCode }}</span>
-      </div>
+  <!-- Teams -->
+  <div class="flex items-center justify-between flex-1">
+    <div class="flex flex-col items-center gap-2 flex-1">
+      <div class="text-4xl leading-none">{{ '🏳️' }}</div>
+      <span class="font-archivo text-sm text-tribbo-text text-center leading-tight">{{ match().homeTeam.name }}</span>
     </div>
-
-    <span class="match-card__vs" aria-hidden="true">VS</span>
-
-    <div class="match-card__team match-card__team--away">
-      <div class="match-card__team-text match-card__team-text--end">
-        <span class="match-card__team-name">{{ match().awayTeam.name }}</span>
-        <span class="match-card__team-code">{{ match().awayTeam.shortCode }}</span>
-      </div>
-      @if (match().awayTeam.flagUrl; as flag) {
-        <img
-          [src]="flag"
-          [alt]="'Drapeau ' + match().awayTeam.name"
-          class="match-card__flag"
-          width="40"
-          height="28"
-        />
-      }
+    <div class="px-3 font-space text-gray-300 font-bold text-xl">VS</div>
+    <div class="flex flex-col items-center gap-2 flex-1">
+      <div class="text-4xl leading-none">{{ '🏳️' }}</div>
+      <span class="font-archivo text-sm text-tribbo-text text-center leading-tight">{{ match().awayTeam.name }}</span>
     </div>
   </div>
 
-  @if (match().stage) {
-    <p class="match-card__meta">{{ match().stage }}</p>
-  }
-
-  <div class="match-card__prediction">
-    <span class="material-symbols-outlined match-card__prediction-icon">sports_soccer</span>
-    <div class="match-card__prediction-text">
-      <span class="match-card__prediction-summary">{{ predictionLine() }}</span>
-      <span class="match-card__prediction-hint">{{ predictionHint() }}</span>
-    </div>
+  <!-- CTA -->
+  <div class="mt-5 pt-4 border-t border-gray-100">
+    <button class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-3 rounded-xl shadow-sm hover:bg-blue-700 hover:shadow-md transition-all active:scale-[0.98]">
+      Pronostiquer
+    </button>
   </div>
-
-  <span class="match-card__cta">
-    <span class="material-symbols-outlined">chevron_right</span>
-  </span>
-</a>
+</div>

@@ -1,2 +1,86 @@
-<router-outlet />
+<div class="min-h-screen flex flex-col bg-tribbo-bg md:bg-gray-100">
+  <!-- Desktop Top Navigation Bar -->
+  @if (!isAuthScreen()) {
+    <header class="hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0 z-30">
+      <a (click)="navigateTo('/home/match-list')" class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="assets/logo-tribbo.png" class="w-10 h-10 object-contain" alt="Tribbo" />
+        <span class="font-archivo text-lg text-tribbo-text uppercase tracking-tight">Tribbo</span>
+      </a>
+      <nav class="flex items-center gap-1">
+        <a (click)="navigateTo('/home/match-list')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/home/match-list')"
+           [class.font-semibold]="isActive('/home/match-list')"
+           [class.bg-tribbo-primary/5]="isActive('/home/match-list')"
+           [class.text-gray-500]="!isActive('/home/match-list')"
+        >Accueil</a>
+        <a (click)="navigateTo('/leaderboard')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/leaderboard')"
+           [class.font-semibold]="isActive('/leaderboard')"
+           [class.bg-tribbo-primary/5]="isActive('/leaderboard')"
+           [class.text-gray-500]="!isActive('/leaderboard')"
+        >Classement</a>
+        <a (click)="navigateTo('/company')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/company')"
+           [class.font-semibold]="isActive('/company')"
+           [class.bg-tribbo-primary/5]="isActive('/company')"
+           [class.text-gray-500]="!isActive('/company')"
+        >Tribu</a>
+        <a (click)="navigateTo('/profile')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/profile')"
+           [class.font-semibold]="isActive('/profile')"
+           [class.bg-tribbo-primary/5]="isActive('/profile')"
+           [class.text-gray-500]="!isActive('/profile')"
+        >Profil</a>
+      </nav>
+      <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+        <span class="material-symbols-outlined text-xl">notifications</span>
+      </button>
+    </header>
+  }
 
+  <!-- Mobile TopAppBar -->
+  @if (!isAuthScreen()) {
+    <div class="flex md:hidden shrink-0">
+      <app-top-app-bar />
+    </div>
+  }
+
+  <!-- Scrollable Content Area -->
+  <main class="flex-1 overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
+    <div class="mx-auto w-full"
+         [class.md:max-w-lg]="isAuthScreen()"
+         [class.md:max-w-7xl]="!isAuthScreen()">
+      <router-outlet />
+    </div>
+
+    <!-- Mobile Digitalizers Signature -->
+    @if (!isAuthScreen()) {
+      <div class="flex md:hidden py-8 shrink-0 flex-col items-center justify-center relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-16 bg-tribbo-primary/15 blur-[40px] rounded-full pointer-events-none"></div>
+        <div class="relative z-10 flex items-center justify-center gap-3">
+          <span class="font-inter text-[11px] text-gray-400 tracking-[4px] uppercase">by</span>
+          <img src="assets/logo-digitalizers.png" class="h-6 opacity-50" alt="Digitalizers" />
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- Desktop Footer -->
+  @if (!isAuthScreen()) {
+    <footer class="hidden md:flex shrink-0 h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2 z-10">
+      <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
+      <img src="assets/logo-digitalizers.png" class="h-5 opacity-40" alt="Digitalizers" />
+    </footer>
+  }
+
+  <!-- Mobile Bottom Navigation (fixed at bottom) -->
+  @if (!isAuthScreen()) {
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex md:hidden">
+      <app-bottom-nav />
+    </nav>
+  }
+</div>

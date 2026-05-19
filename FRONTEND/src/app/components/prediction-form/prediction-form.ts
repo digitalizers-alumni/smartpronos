@@ -37,7 +37,6 @@ function integerValidator(): ValidatorFn {
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './prediction-form.html',
-  styleUrl: './prediction-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PredictionForm {

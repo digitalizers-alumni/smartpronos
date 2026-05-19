@@ -1,81 +1,55 @@
-<app-top-app-bar backRoute="/" />
-
-<main class="match-list-page">
-  <div class="match-list-page__bg" role="presentation">
-    <div class="match-list-page__bg-overlay"></div>
+<div class="flex flex-col h-full w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+  <!-- Stats Bar -->
+  <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="font-inter text-sm text-gray-500 font-medium">Mes points</p>
+        <div class="font-space text-3xl md:text-4xl font-bold text-tribbo-text mt-1">1,240</div>
+      </div>
+      <div class="text-right">
+        <p class="font-inter text-sm text-gray-500 font-medium">Classement</p>
+        <div class="font-space text-2xl md:text-3xl font-bold text-tribbo-primary mt-1">#4</div>
+      </div>
+    </div>
   </div>
 
-  <section class="match-list-page__canvas">
-    <header class="match-list-page__intro">
-      <p class="match-list-page__eyebrow">Coupe du Monde 2026</p>
-      <h2 class="match-list-page__title">
-        CALENDRIER DES
-        <span class="match-list-page__title-highlight">MATCHS</span>
-      </h2>
-      <p class="match-list-page__subtitle">
-        Filtre par statut et ouvre un match pour saisir ou consulter ton pronostic.
-      </p>
-    </header>
+  <!-- Filter Buttons -->
+  <div class="flex gap-2 overflow-x-auto pb-1">
+    @for (f of filters; track f.value) {
+      <button
+        (click)="setFilter(f.value)"
+        class="px-5 py-2.5 rounded-full text-sm font-inter font-medium transition-colors whitespace-nowrap"
+        [class.bg-tribbo-primary]="isFilterActive(f.value)"
+        [class.text-white]="isFilterActive(f.value)"
+        [class.bg-gray-100]="!isFilterActive(f.value)"
+        [class.text-gray-500]="!isFilterActive(f.value)"
+      >
+        {{ f.label }}
+      </button>
+    }
+  </div>
 
-    <div class="match-list-page__filters" role="group" aria-label="Filtrer par statut">
-      <button
-        type="button"
-        class="match-list-page__filter"
-        [class.match-list-page__filter--active]="isFilterActive('all')"
-        (click)="setFilter('all')"
-      >
-        Tous
-      </button>
-      <button
-        type="button"
-        class="match-list-page__filter"
-        [class.match-list-page__filter--active]="isFilterActive('scheduled')"
-        (click)="setFilter('scheduled')"
-      >
-        Ouverts
-      </button>
-      <button
-        type="button"
-        class="match-list-page__filter"
-        [class.match-list-page__filter--active]="isFilterActive('locked')"
-        (click)="setFilter('locked')"
-      >
-        Verrouillés
-      </button>
-      <button
-        type="button"
-        class="match-list-page__filter"
-        [class.match-list-page__filter--active]="isFilterActive('finished')"
-        (click)="setFilter('finished')"
-      >
-        Terminés
-      </button>
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <div class="font-inter text-gray-400 text-sm">Chargement...</div>
+    </div>
+  }
+
+  <!-- Match Grid -->
+  @if (!loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+      @for (group of dateGroups(); track group.dateKey) {
+        @for (match of group.matches; track match.id) {
+          <app-match-card [match]="match" />
+        }
+      }
     </div>
 
-    @if (loading()) {
-      <div class="match-list-page__state" role="status" aria-live="polite">
-        <span class="material-symbols-outlined match-list-page__state-icon">hourglass_top</span>
-        <p>Chargement du calendrier…</p>
+    @if (dateGroups().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16">
+        <div class="font-inter text-gray-400 text-sm">Aucun match trouvé</div>
       </div>
-    } @else if (dateGroups().length === 0) {
-      <div class="match-list-page__state">
-        <span class="material-symbols-outlined match-list-page__state-icon">event_busy</span>
-        <p>Aucun match pour ce filtre.</p>
-      </div>
-    } @else {
-      @for (group of dateGroups(); track group.dateKey) {
-        <section class="match-list-page__day" [attr.aria-labelledby]="'day-' + group.dateKey">
-          <h3 class="match-list-page__day-title" [id]="'day-' + group.dateKey">
-            <span class="material-symbols-outlined match-list-page__day-icon">calendar_today</span>
-            {{ group.labelDate | date: "EEEE d MMMM yyyy" : 'UTC' : 'fr-FR' }}
-          </h3>
-          <div class="match-list-page__cards">
-            @for (m of group.matches; track m.id) {
-              <app-match-card [match]="m" />
-            }
-          </div>
-        </section>
-      }
     }
-  </section>
-</main>
+  }
+</div>

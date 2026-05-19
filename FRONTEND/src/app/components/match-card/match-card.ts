@@ -2,15 +2,13 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { MatchStatusBadge } from '../match-status-badge/match-status-badge';
 import { MatchListItem } from '../../shared/models/match.models';
 
 @Component({
   selector: 'app-match-card',
   standalone: true,
-  imports: [RouterLink, DatePipe, MatchStatusBadge],
+  imports: [RouterLink, DatePipe],
   templateUrl: './match-card.html',
-  styleUrl: './match-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchCard {

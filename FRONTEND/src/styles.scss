@@ -1,78 +1,19 @@
-:root,
-.dark {
-  --on-tertiary-fixed-variant: #872100;
-  --on-error-container: #ffdad6;
-  --surface-dim: #11131c;
-  --on-surface: #e1e1ef;
-  --on-background: #e1e1ef;
-  --surface: #11131c;
-  --inverse-surface: #e1e1ef;
-  --on-surface-variant: #c3c5d9;
-  --on-secondary-fixed: #002108;
-  --surface-variant: #32343f;
-  --outline: #8d90a2;
-  --tertiary-container: #c13301;
-  --on-primary-container: #e3e6ff;
-  --inverse-on-surface: #2e303a;
-  --surface-bright: #373943;
-  --outline-variant: #434656;
-  --surface-container: #1d1f29;
-  --on-secondary-fixed-variant: #00531e;
-  --tertiary: #ffb5a0;
-  --secondary-fixed: #69ff87;
-  --on-tertiary-fixed: #3b0900;
-  --secondary-container: #06c854;
-  --secondary: #41e56c;
-  --on-primary-fixed: #001551;
-  --tertiary-fixed: #ffdbd1;
-  --primary-fixed: #dce1ff;
-  --on-primary: #002780;
-  --inverse-primary: #004dea;
-  --surface-tint: #b6c4ff;
-  --on-error: #690005;
-  --primary-container: #0055ff;
-  --on-tertiary-container: #ffe1d9;
-  --primary-fixed-dim: #b6c4ff;
-  --tertiary-fixed-dim: #ffb5a0;
-  --background: #11131c;
-  --surface-container-high: #282933;
-  --surface-container-highest: #32343f;
-  --on-tertiary: #601400;
-  --secondary-fixed-dim: #3de36a;
-  --error: #ffb4ab;
-  --primary: #b6c4ff;
-  --on-secondary: #003912;
-  --surface-container-lowest: #0c0e17;
-  --on-primary-fixed-variant: #0039b3;
-  --surface-container-low: #191b25;
-  --on-secondary-container: #004d1b;
-  --error-container: #93000a;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@layer base {
+  html {
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+  }
 
-html {
-  scroll-behavior: smooth;
-}
+  body {
+    @apply bg-tribbo-bg text-tribbo-text antialiased;
+    min-height: 100vh;
+  }
 
-body {
-  font-family: 'Anybody', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--on-background);
-  background-color: var(--background);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
 }

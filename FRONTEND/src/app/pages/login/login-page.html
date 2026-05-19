@@ -1,75 +1,72 @@
-<section class="login-page">
-  <div class="login-page__bg">
-    <img
-      src="https://lh3.googleusercontent.com/aida/ADBb0ujN3EmImteoSe_B8COGSeoFieNl6eJHcPQXi7x5BKpeMR8htBqn8uASyvHuCWBY6itimiyIy2B4mvxcDMyn6JIGEuofzwW7mzCF-NAC0x_0Al3zNFp2IYTcyM0qGyt5hiX0nRN027ZvC-MB_Oo5Gdegk1XbfDcb7PS1XCMtft_R_mH-lU7m5bYrg_dzXW9z1feCURwuFUKouE-MfFFf9I3hffRNtaBybi1-1q-EzvdUVOvB7edZq18r8A"
-      alt="World Cup stadium"
-      class="login-page__bg-img"
-    />
-    <div class="login-page__bg-overlay"></div>
-  </div>
+<div class="flex flex-col h-full w-full bg-tribbo-bg px-8 py-12 md:py-16">
+  <div class="flex flex-col w-full max-w-sm mx-auto flex-1">
+    <!-- Header -->
+    <div class="flex flex-col items-center mb-10">
+      <button routerLink="/" class="mb-8 hover:opacity-80 transition-opacity">
+        <img src="assets/logo-tribbo.png" class="w-14 h-14 object-contain" alt="Tribbo" />
+      </button>
+      <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
+        Connexion
+      </h1>
+      <div class="h-1 w-12 bg-tribbo-primary mt-4 rounded-full"></div>
+    </div>
 
-  <div class="login-page__content">
-    <a routerLink="/" class="login-page__back">
-      <span class="material-symbols-outlined">arrow_back</span>
-      Retour accueil
-    </a>
-
-    <div class="login-card">
-      <h1 class="login-card__title">Connexion</h1>
-      <p class="login-card__subtitle">
-        Rejoins ta ligue, reprends tes pronostics et grimpe au classement.
-      </p>
-
-      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="submit()">
-        <label class="login-form__field">
-          <span>Email</span>
-          <input type="email" formControlName="email" placeholder="ton@email.com" />
-          @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
-            <small class="login-form__error">Email invalide.</small>
-          }
+    <!-- Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-1.5">
+        <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+          Email professionnel
         </label>
-
-        <label class="login-form__field">
-          <span>Mot de passe</span>
-          <div class="login-form__password-wrap">
-            <input
-              [type]="hidePassword ? 'password' : 'text'"
-              formControlName="password"
-              placeholder="********"
-            />
-            <button
-              type="button"
-              class="login-form__toggle"
-              (click)="togglePasswordVisibility()"
-              [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
-            >
-              <span class="material-symbols-outlined">
-                {{ hidePassword ? 'visibility' : 'visibility_off' }}
-              </span>
-            </button>
-          </div>
-          @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
-            <small class="login-form__error">
-              Le mot de passe doit contenir au moins 6 caracteres.
-            </small>
-          }
-        </label>
-
-        <label class="login-form__remember">
-          <input type="checkbox" formControlName="remember" />
-          Se souvenir de moi
-        </label>
-
-        @if (errorMessage(); as msg) {
-          <small class="login-form__error login-form__error--api">{{ msg }}</small>
-        }
-        <button class="login-form__submit" type="submit">Se connecter</button>
-      </form>
-
-      <div class="login-card__meta">
-        <a href="#">Mot de passe oublie ?</a>
-        <a routerLink="/signup">Creer un compte</a>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="JEAN.DUPONT@DIGITALIZERS.FR"
+          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+          required
+        />
       </div>
+
+      <div class="flex flex-col gap-1.5">
+        <div class="flex justify-between items-center">
+          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+            Mot de passe
+          </label>
+          <button type="button" class="font-space text-[10px] uppercase tracking-wider text-tribbo-primary font-bold hover:underline">
+            Oublié&nbsp;?
+          </button>
+        </div>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="••••••••••••"
+          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+          required
+        />
+      </div>
+
+      @if (errorMessage()) {
+        <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <p class="font-inter text-xs text-red-600">{{ errorMessage() }}</p>
+        </div>
+      }
+
+      <button
+        type="submit"
+        class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 mt-2"
+      >
+        Se connecter
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="mt-auto pt-10 flex flex-col items-center">
+      <button
+        routerLink="/signup"
+        class="font-space text-[11px] uppercase tracking-tight text-gray-400 group"
+      >
+        Pas encore de compte&nbsp;?
+        <span class="text-tribbo-primary font-bold group-hover:underline">S'inscrire</span>
+      </button>
     </div>
   </div>
-</section>
+</div>

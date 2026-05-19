@@ -1,163 +1,39 @@
-<form
-  class="prediction-form"
-  [formGroup]="form"
-  (ngSubmit)="onSubmit()"
-  novalidate
-  autocomplete="off"
->
-  <div class="prediction-form__scoreboard">
-    <!-- Home team -->
-    <div
-      class="team-slot team-slot--home"
-      [style.--team-accent]="homeTeam().accentColor || 'var(--primary-container)'"
-    >
-      <div class="team-slot__header">
-        @if (homeTeam().flagUrl) {
-          <img
-            class="team-slot__flag"
-            [src]="homeTeam().flagUrl!"
-            [alt]="homeTeam().name + ' flag'"
-            loading="lazy"
-          />
-        } @else {
-          <span class="material-symbols-outlined team-slot__flag-fallback"
-            >sports_soccer</span
-          >
-        }
-        <div class="team-slot__identity">
-          <span class="team-slot__name">{{ homeTeam().name }}</span>
-          @if (homeTeam().shortCode) {
-            <span class="team-slot__code">{{ homeTeam().shortCode }}</span>
-          }
-        </div>
-      </div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-6">
+  <div class="font-inter text-gray-500 text-sm flex items-center gap-2">
+    Votre pronostic
+  </div>
 
-      <div class="score-input">
-        <button
-          type="button"
-          class="score-input__btn score-input__btn--minus"
-          (click)="decrement('homeScore')"
-          [disabled]="disabled() || submitting() || form.controls.homeScore.value <= minScore"
-          aria-label="Diminuer le score domicile"
-        >
-          <span class="material-symbols-outlined">remove</span>
-        </button>
-        <input
-          id="home-score"
-          class="score-input__field"
-          type="number"
-          inputmode="numeric"
-          step="1"
-          [min]="minScore"
-          [max]="maxScore"
-          formControlName="homeScore"
-          [attr.aria-invalid]="form.controls.homeScore.touched && form.controls.homeScore.invalid"
-          [attr.aria-describedby]="errorMessage('homeScore') ? 'home-score-error' : null"
-        />
-        <button
-          type="button"
-          class="score-input__btn score-input__btn--plus"
-          (click)="increment('homeScore')"
-          [disabled]="disabled() || submitting() || form.controls.homeScore.value >= maxScore"
-          aria-label="Augmenter le score domicile"
-        >
-          <span class="material-symbols-outlined">add</span>
-        </button>
-      </div>
-
-      @if (errorMessage('homeScore'); as msg) {
-        <p id="home-score-error" class="score-input__error" role="alert">
-          {{ msg }}
-        </p>
-      }
+  <div class="flex items-center justify-center gap-6 w-full">
+    <div class="flex flex-col items-center gap-2">
+      <input
+        type="number"
+        formControlName="homeScore"
+        [min]="minScore"
+        [max]="maxScore"
+        class="w-20 h-24 bg-tribbo-bg border-2 border-gray-100 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text focus:border-tribbo-primary focus:outline-none transition-colors"
+      />
+      <span class="font-archivo text-xs text-gray-400 uppercase">{{ homeTeam().name }}</span>
     </div>
 
-    <div class="prediction-form__separator" aria-hidden="true">
-      <span class="prediction-form__separator-text">VS</span>
-    </div>
+    <span class="font-space text-gray-300 font-bold text-2xl">-</span>
 
-    <!-- Away team -->
-    <div
-      class="team-slot team-slot--away"
-      [style.--team-accent]="awayTeam().accentColor || 'var(--error)'"
-    >
-      <div class="team-slot__header">
-        @if (awayTeam().flagUrl) {
-          <img
-            class="team-slot__flag"
-            [src]="awayTeam().flagUrl!"
-            [alt]="awayTeam().name + ' flag'"
-            loading="lazy"
-          />
-        } @else {
-          <span class="material-symbols-outlined team-slot__flag-fallback"
-            >sports_soccer</span
-          >
-        }
-        <div class="team-slot__identity">
-          <span class="team-slot__name">{{ awayTeam().name }}</span>
-          @if (awayTeam().shortCode) {
-            <span class="team-slot__code">{{ awayTeam().shortCode }}</span>
-          }
-        </div>
-      </div>
-
-      <div class="score-input">
-        <button
-          type="button"
-          class="score-input__btn score-input__btn--minus"
-          (click)="decrement('awayScore')"
-          [disabled]="disabled() || submitting() || form.controls.awayScore.value <= minScore"
-          aria-label="Diminuer le score extérieur"
-        >
-          <span class="material-symbols-outlined">remove</span>
-        </button>
-        <input
-          id="away-score"
-          class="score-input__field"
-          type="number"
-          inputmode="numeric"
-          step="1"
-          [min]="minScore"
-          [max]="maxScore"
-          formControlName="awayScore"
-          [attr.aria-invalid]="form.controls.awayScore.touched && form.controls.awayScore.invalid"
-          [attr.aria-describedby]="errorMessage('awayScore') ? 'away-score-error' : null"
-        />
-        <button
-          type="button"
-          class="score-input__btn score-input__btn--plus"
-          (click)="increment('awayScore')"
-          [disabled]="disabled() || submitting() || form.controls.awayScore.value >= maxScore"
-          aria-label="Augmenter le score extérieur"
-        >
-          <span class="material-symbols-outlined">add</span>
-        </button>
-      </div>
-
-      @if (errorMessage('awayScore'); as msg) {
-        <p id="away-score-error" class="score-input__error" role="alert">
-          {{ msg }}
-        </p>
-      }
+    <div class="flex flex-col items-center gap-2">
+      <input
+        type="number"
+        formControlName="awayScore"
+        [min]="minScore"
+        [max]="maxScore"
+        class="w-20 h-24 bg-tribbo-bg border-2 border-gray-100 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text focus:border-tribbo-primary focus:outline-none transition-colors"
+      />
+      <span class="font-archivo text-xs text-gray-400 uppercase">{{ awayTeam().name }}</span>
     </div>
   </div>
 
   <button
     type="submit"
-    class="prediction-form__submit"
-    [disabled]="disabled() || submitting() || form.invalid"
+    [disabled]="submitting() || disabled()"
+    class="w-full md:max-w-xs md:mx-auto bg-tribbo-primary text-white font-inter font-semibold py-4 rounded-xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] active:scale-95 transition-all hover:brightness-110 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
   >
-    @if (submitting()) {
-      <span class="material-symbols-outlined prediction-form__spinner"
-        >progress_activity</span
-      >
-      <span>Envoi en cours…</span>
-    } @else {
-      <span>{{ submitLabel() }}</span>
-      <span class="material-symbols-outlined prediction-form__submit-icon"
-        >arrow_forward</span
-      >
-    }
+    {{ submitting() ? 'Validation...' : submitLabel() }}
   </button>
 </form>

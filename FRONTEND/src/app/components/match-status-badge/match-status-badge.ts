@@ -6,7 +6,6 @@ import { MatchStatus } from '../../shared/models/match.models';
   selector: 'app-match-status-badge',
   standalone: true,
   templateUrl: './match-status-badge.html',
-  styleUrl: './match-status-badge.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchStatusBadge {
