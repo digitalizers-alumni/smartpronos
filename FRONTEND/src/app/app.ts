@@ -25,7 +25,15 @@ export class App {
 
   protected readonly isAuthScreen = computed(() => {
     const u = this.currentUrl();
-    return u === '/' || u === '/login' || u === '/signup';
+    return u === '/login' || u === '/signup';
+  });
+
+  protected readonly isLandingPage = computed(() => {
+    return this.currentUrl() === '/';
+  });
+
+  protected readonly showAppChrome = computed(() => {
+    return !this.isAuthScreen() && !this.isLandingPage();
   });
 
   protected navigateTo(url: string): void {

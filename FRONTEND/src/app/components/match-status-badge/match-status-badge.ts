@@ -14,11 +14,11 @@ export class MatchStatusBadge {
   protected label(): string {
     switch (this.status()) {
       case 'scheduled':
-        return 'Ouvert';
+        return 'À pronostiquer';
       case 'locked':
-        return 'Verrouillé';
+        return 'Pronos clos';
       case 'finished':
-        return 'Terminé';
+        return 'Match joué';
       default:
         return '';
     }

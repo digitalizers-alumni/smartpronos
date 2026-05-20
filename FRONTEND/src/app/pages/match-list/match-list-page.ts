@@ -40,9 +40,9 @@ export class MatchListPage {
 
   protected readonly filters: FilterOption[] = [
     { label: 'Tous', value: 'all' },
-    { label: 'Ouverts', value: 'scheduled' },
-    { label: 'Verrouillés', value: 'locked' },
-    { label: 'Terminés', value: 'finished' },
+    { label: 'À pronostiquer', value: 'scheduled' },
+    { label: 'Pronos clos', value: 'locked' },
+    { label: 'Matchs joués', value: 'finished' },
   ];
 
   protected readonly filteredMatches = computed(() => {

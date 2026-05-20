@@ -1,33 +1,125 @@
-<div class="flex flex-col items-center justify-center h-full w-full bg-tribbo-bg px-8 py-16 md:py-24">
-  <div class="flex flex-col items-center gap-10 md:gap-12 w-full max-w-md mx-auto">
-    <!-- Logo -->
-    <div class="flex items-center justify-center">
-      <img src="assets/logo-tribbo.png" class="w-36 h-36 md:w-44 md:h-44 object-contain" alt="Tribbo" />
+<div class="min-h-screen w-full bg-tribbo-bg">
+  <!-- Hero -->
+  <section class="relative min-h-[80vh] md:min-h-[85vh] flex items-center px-6 md:px-16 lg:px-24 py-16 overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.05)_50%,_transparent_85%)] pointer-events-none"></div>
+
+    <div class="relative z-10 w-full max-w-screen-2xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="flex flex-col items-center md:items-start gap-6 text-center md:text-left">
+          <img src="assets/logo-tribbo.png" class="w-20 h-20 md:w-28 md:h-28 object-contain" alt="Tribbo" />
+          <h1 class="font-archivo text-5xl md:text-7xl text-tribbo-text leading-none tracking-tight uppercase">
+            Tribbo<br />
+            <span class="text-tribbo-primary text-6xl md:text-8xl">2026</span>
+          </h1>
+          <p class="font-inter text-gray-500 text-base md:text-lg leading-relaxed max-w-lg">
+            La plateforme B2B premium de pronostics pour la Coupe du Monde. Créez vos ligues, affrontez vos collègues et dominez les classements.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button routerLink="/signup"
+              class="bg-tribbo-primary text-white font-inter font-semibold py-4 px-8 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]">
+              Commencer
+            </button>
+            <a routerLink="/login"
+              class="bg-white text-tribbo-text font-inter font-semibold py-4 px-8 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-[0.98] text-center">
+              Connexion
+            </a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center justify-center">
+          <span class="font-archivo text-[200px] lg:text-[280px] leading-none text-tribbo-primary/10 select-none">2026</span>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- Hero -->
-    <div class="text-center">
-      <h1 class="font-archivo text-5xl md:text-7xl text-tribbo-text leading-none tracking-tight">
-        Tribbo<br />
-        <span class="text-tribbo-primary text-6xl md:text-8xl">2026</span>
-      </h1>
-      <p class="font-inter text-gray-500 mt-6 text-base md:text-lg max-w-sm mx-auto leading-relaxed">
-        La plateforme B2B premium de pronostics pour la Coupe du Monde.
-      </p>
+  <!-- Features -->
+  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-white">
+    <div class="max-w-screen-2xl mx-auto">
+      <h2 class="font-archivo text-2xl md:text-4xl text-tribbo-text text-center mb-12 md:mb-16 uppercase tracking-tight">
+        Pourquoi <span class="text-tribbo-primary">Tribbo</span>&nbsp;?
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
+          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">public</span>
+          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Pronostics Mondiaux</h3>
+          <p class="font-inter text-gray-500 text-sm leading-relaxed">
+            Participez au plus grand événement sportif de 2026. Pronostiquez chaque match, des phases de groupes à la grande finale.
+          </p>
+        </div>
+
+        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
+          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">groups</span>
+          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Défis entre Amis</h3>
+          <p class="font-inter text-gray-500 text-sm leading-relaxed">
+            Créez des ligues privées exclusives. Invitez vos collègues ou vos amis pour déterminer le véritable expert du ballon rond.
+          </p>
+        </div>
+
+        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
+          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Classements en Direct</h3>
+          <p class="font-inter text-gray-500 text-sm leading-relaxed">
+            Suivez votre progression en temps réel. Nos classements s'ajustent à chaque match durant le tournoi.
+          </p>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- CTA -->
-    <button
-      routerLink="/signup"
-      class="w-full bg-tribbo-primary text-white font-inter font-semibold text-base md:text-lg py-4 md:py-5 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]"
-    >
-      Commencer
-    </button>
+  <!-- Stats -->
+  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-tribbo-bg">
+    <div class="max-w-screen-2xl mx-auto">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-8 border border-gray-100 text-center">
+          <div class="font-archivo text-5xl md:text-6xl text-tribbo-primary">1M+</div>
+          <p class="font-inter text-sm text-gray-500 mt-2 uppercase tracking-wider">Pronostiqueurs Inscrits</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-gray-100 text-center">
+          <div class="font-archivo text-5xl md:text-6xl text-tribbo-primary">500k+</div>
+          <p class="font-inter text-sm text-gray-500 mt-2 uppercase tracking-wider">Ligues Privées Créées</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Footer link -->
-    <p class="font-inter text-sm text-gray-400">
-      Déjà un compte&nbsp;?
-      <a routerLink="/login" class="text-tribbo-primary font-semibold hover:underline">Se connecter</a>
-    </p>
-  </div>
+  <!-- CTA Final -->
+  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-white">
+    <div class="max-w-screen-2xl mx-auto">
+      <div class="bg-tribbo-bg rounded-3xl p-10 md:p-16 border border-gray-100 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_transparent_70%)] pointer-events-none"></div>
+        <div class="relative z-10">
+          <h2 class="font-archivo text-2xl md:text-4xl text-tribbo-text uppercase mb-4">Prêt à rejoindre l'arène&nbsp;?</h2>
+          <p class="font-inter text-gray-500 text-sm md:text-base mb-8 max-w-md mx-auto">
+            Inscrivez-vous dès maintenant et préparez vos analyses pour le tournoi ultime.
+          </p>
+          <button routerLink="/signup" class="bg-tribbo-primary text-white font-inter font-semibold px-10 py-4 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]">
+            Créer mon compte
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-10 px-6 md:px-16 lg:px-24 bg-tribbo-bg border-t border-gray-100">
+    <div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-2">
+        <img src="assets/logo-tribbo.png" class="w-8 h-8 object-contain" alt="" />
+        <span class="font-archivo text-sm text-gray-400 uppercase tracking-tight">Tribbo 2026</span>
+      </div>
+      <nav class="flex gap-6 text-sm font-inter text-gray-400">
+        <a href="#" class="hover:text-tribbo-primary transition-colors">Règlement</a>
+        <a href="#" class="hover:text-tribbo-primary transition-colors">FAQ</a>
+        <a href="#" class="hover:text-tribbo-primary transition-colors">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2 text-gray-300">
+        <span class="font-inter text-[10px] tracking-[3px] uppercase">by</span>
+        <img src="assets/logo-digitalizers.png" class="h-5 opacity-40" alt="Digitalizers" />
+      </div>
+    </div>
+  </footer>
 </div>

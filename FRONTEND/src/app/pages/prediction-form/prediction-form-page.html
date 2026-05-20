@@ -1,53 +1,68 @@
 <div class="flex flex-col h-full w-full bg-tribbo-bg relative">
-  <!-- Blue Header -->
-  <div class="bg-tribbo-primary pt-6 pb-12 px-4 rounded-b-3xl shadow-md">
-    <div class="flex items-center justify-between text-white/80 text-xs font-inter mb-6">
-      <span class="flex items-center gap-1.5">📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
-      <span class="flex items-center gap-1.5">📍 {{ match().venue }}</span>
-    </div>
+  <!-- Background Halo -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
 
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col items-center gap-3 flex-1">
-        <div class="text-6xl drop-shadow-md">{{ '🏳️' }}</div>
-        <span class="font-archivo text-white text-lg">{{ match().homeTeam.name }}</span>
+  <div class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10">
+    @if (status() === 'idle' || status() === 'submitting') {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <!-- Card Halo -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+        <div class="relative p-5 md:p-7 space-y-5">
+          <!-- Match Info -->
+          <div class="flex items-center justify-between text-gray-400 text-xs font-inter">
+            <span>📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
+            <span>📍 {{ match().venue }}</span>
+          </div>
+
+          <!-- Teams -->
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col items-center gap-2 flex-1">
+              <img [src]="match().homeTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
+              <span class="font-archivo text-tribbo-text text-base">{{ match().homeTeam.name }}</span>
+            </div>
+            <div class="px-3 font-space text-gray-300 font-bold text-lg">VS</div>
+            <div class="flex flex-col items-center gap-2 flex-1">
+              <img [src]="match().awayTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
+              <span class="font-archivo text-tribbo-text text-base">{{ match().awayTeam.name }}</span>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <hr class="border-gray-100" />
+
+          <!-- Form -->
+          <app-prediction-form
+            [homeTeam]="{ name: match().homeTeam.name, shortCode: match().homeTeam.shortCode, flagUrl: match().homeTeam.flagUrl }"
+            [awayTeam]="{ name: match().awayTeam.name, shortCode: match().awayTeam.shortCode, flagUrl: match().awayTeam.flagUrl }"
+            [submitting]="isSubmitting()"
+            [disabled]="false"
+            (predictionSubmit)="handlePredictionSubmit($event)"
+          />
+        </div>
       </div>
-      <div class="px-2 font-space text-white/50 font-bold text-xl">VS</div>
-      <div class="flex flex-col items-center gap-3 flex-1">
-        <div class="text-6xl drop-shadow-md">{{ '🏳️' }}</div>
-        <span class="font-archivo text-white text-lg">{{ match().awayTeam.name }}</span>
+    }
+
+    @if (isSuccess()) {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+        <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
+          <div class="text-6xl">🎉</div>
+          <p class="font-inter text-gray-500 text-sm text-center">Pronostic enregistré !</p>
+        </div>
       </div>
-    </div>
+    }
+
+    @if (isError()) {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+        <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
+          <div class="text-6xl">😕</div>
+          <p class="font-inter text-gray-500 text-sm text-center">{{ errorMessage() }}</p>
+          <button (click)="dismissError()" class="font-inter text-tribbo-primary text-sm font-medium">
+            Réessayer
+          </button>
+        </div>
+      </div>
+    }
   </div>
-
-  @if (status() === 'idle' || status() === 'submitting') {
-    <!-- Prediction Card -->
-    <div class="flex-1 px-4 -mt-6">
-      <app-prediction-form
-        [homeTeam]="{ name: match().homeTeam.name, shortCode: match().homeTeam.shortCode }"
-        [awayTeam]="{ name: match().awayTeam.name, shortCode: match().awayTeam.shortCode }"
-        [submitting]="isSubmitting()"
-        [disabled]="false"
-        (predictionSubmit)="handlePredictionSubmit($event)"
-      />
-    </div>
-  }
-
-  @if (isSuccess()) {
-    <!-- Success State -->
-    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-4">
-      <div class="text-6xl">🎉</div>
-      <p class="font-inter text-gray-500 text-sm text-center">Pronostic enregistré !</p>
-    </div>
-  }
-
-  @if (isError()) {
-    <!-- Error State -->
-    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-4">
-      <div class="text-6xl">😕</div>
-      <p class="font-inter text-gray-500 text-sm text-center">{{ errorMessage() }}</p>
-      <button (click)="dismissError()" class="font-inter text-tribbo-primary text-sm font-medium">
-        Réessayer
-      </button>
-    </div>
-  }
 </div>

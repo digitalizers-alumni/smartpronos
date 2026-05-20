@@ -10,7 +10,7 @@
         formControlName="homeScore"
         [min]="minScore"
         [max]="maxScore"
-        class="w-20 h-24 bg-tribbo-bg border-2 border-gray-100 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text focus:border-tribbo-primary focus:outline-none transition-colors"
+        class="w-24 h-24 bg-gray-50 border-2 border-gray-200 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text shadow-inner focus:border-tribbo-primary focus:ring-2 focus:ring-tribbo-primary/10 focus:outline-none transition-all [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span class="font-archivo text-xs text-gray-400 uppercase">{{ homeTeam().name }}</span>
     </div>
@@ -23,7 +23,7 @@
         formControlName="awayScore"
         [min]="minScore"
         [max]="maxScore"
-        class="w-20 h-24 bg-tribbo-bg border-2 border-gray-100 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text focus:border-tribbo-primary focus:outline-none transition-colors"
+        class="w-24 h-24 bg-gray-50 border-2 border-gray-200 rounded-xl text-center font-space text-4xl font-bold text-tribbo-text shadow-inner focus:border-tribbo-primary focus:ring-2 focus:ring-tribbo-primary/10 focus:outline-none transition-all [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span class="font-archivo text-xs text-gray-400 uppercase">{{ awayTeam().name }}</span>
     </div>
