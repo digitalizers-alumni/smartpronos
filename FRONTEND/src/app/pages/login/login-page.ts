@@ -1,6 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -10,9 +11,11 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class LoginPage {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   protected hidePassword = true;
   protected errorMessage = signal('');
+  protected submitting = signal(false);
 
   protected readonly loginForm;
 
@@ -24,7 +27,20 @@ export class LoginPage {
   }
 
   protected async submit(): Promise<void> {
+    if (this.loginForm.invalid || this.submitting()) return;
+
     this.errorMessage.set('');
-    await this.router.navigate(['/home', 'match-list']);
+    this.submitting.set(true);
+
+    try {
+      const { email, password } = this.loginForm.getRawValue();
+      await this.authService.signIn(email, password);
+      await this.router.navigate(['/home', 'match-list']);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Identifiants incorrects.';
+      this.errorMessage.set(msg);
+    } finally {
+      this.submitting.set(false);
+    }
   }
 }
