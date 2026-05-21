@@ -60,6 +60,20 @@ export class MatchDetailPage {
   protected readonly isLocked = computed(() => this.match()?.status === 'locked');
   protected readonly isScheduled = computed(() => this.match()?.status === 'scheduled');
   protected readonly hasPrediction = computed(() => this.match()?.prediction.hasPrediction ?? false);
+  protected readonly result = computed(() => this.match()?.result ?? null);
+
+  protected readonly pointsEarned = computed(() => {
+    const m = this.match();
+    if (!m || !m.result || !m.prediction.hasPrediction) return null;
+    const { homeScore: rh, awayScore: ra } = m.result;
+    const { homeScore: ph, awayScore: pa } = m.prediction;
+    if (ph === null || pa === null) return null;
+    if (ph === rh && pa === ra) return 3;
+    const outcome = (rh > ra ? 'H' : rh < ra ? 'A' : 'D');
+    const predOutcome = (ph > pa ? 'H' : ph < pa ? 'A' : 'D');
+    return outcome === predOutcome ? 1 : 0;
+  });
+
   protected readonly pageTitle = computed(() => {
     const m = this.match();
     if (!m) return '';

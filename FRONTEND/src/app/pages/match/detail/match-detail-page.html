@@ -56,24 +56,74 @@
             }
           </div>
 
-          <!-- Prediction Status -->
-          <div class="bg-tribbo-bg rounded-xl p-4 border border-gray-100">
-            @if (hasPrediction()) {
+          <!-- Finished: Result vs Prediction -->
+          @if (isFinished() && result()) {
+            <div class="bg-tribbo-bg rounded-xl p-4 border border-gray-100 space-y-3">
               <div class="flex items-center justify-center gap-4">
                 <div class="flex flex-col items-center">
-                  <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.homeScore }}</span>
-                  <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
-                </div>
-                <span class="font-space text-gray-300 text-lg">-</span>
-                <div class="flex flex-col items-center">
-                  <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.awayScore }}</span>
-                  <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
+                  <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Score final</span>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="font-space text-2xl font-bold text-green-600">{{ result()!.homeScore }}</span>
+                    <span class="font-space text-gray-300 text-lg">-</span>
+                    <span class="font-space text-2xl font-bold text-green-600">{{ result()!.awayScore }}</span>
+                  </div>
                 </div>
               </div>
-            } @else {
-              <p class="font-inter text-gray-400 text-sm text-center">Aucun pronostic pour ce match</p>
-            }
-          </div>
+              @if (hasPrediction()) {
+                <div class="border-t border-gray-200 pt-3">
+                  <div class="flex items-center justify-center gap-4 opacity-70">
+                    <div class="flex flex-col items-center">
+                      <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Ton prono</span>
+                      <span class="font-space text-lg font-semibold text-tribbo-text mt-0.5">{{ m.prediction.homeScore }}</span>
+                    </div>
+                    <span class="font-space text-gray-300">-</span>
+                    <div class="flex flex-col items-center">
+                      <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Ton prono</span>
+                      <span class="font-space text-lg font-semibold text-tribbo-text mt-0.5">{{ m.prediction.awayScore }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="border-t border-gray-200 pt-3 text-center">
+                  @if (pointsEarned() === 3) {
+                    <span class="inline-flex items-center gap-1 font-inter font-bold text-sm text-green-600">+3 pts Exact !</span>
+                  } @else if (pointsEarned() === 1) {
+                    <span class="inline-flex items-center gap-1 font-inter font-bold text-sm text-amber-600">+1 pts</span>
+                  } @else if (pointsEarned() === 0) {
+                    <span class="inline-flex items-center gap-1 font-inter text-sm text-gray-400">+0 pt</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Non-finished: Prediction Status -->
+          @if (!isFinished()) {
+            <div class="bg-tribbo-bg rounded-xl p-4 border border-gray-100">
+              @if (hasPrediction()) {
+                <div class="flex items-center justify-center gap-4">
+                  <div class="flex flex-col items-center">
+                    <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.homeScore }}</span>
+                    <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
+                  </div>
+                  <span class="font-space text-gray-300 text-lg">-</span>
+                  <div class="flex flex-col items-center">
+                    <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.awayScore }}</span>
+                    <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
+                  </div>
+                </div>
+              } @else {
+                <p class="font-inter text-gray-400 text-sm text-center">Aucun pronostic pour ce match</p>
+              }
+            </div>
+          }
+
+          <!-- Finished: CTA -->
+          @if (isFinished()) {
+            <a routerLink="/home/match-list"
+              class="block w-full text-center bg-gray-100 text-gray-500 font-inter font-medium text-sm py-4 rounded-xl hover:bg-gray-200 transition-all active:scale-[0.98]">
+              Voir les prochains matchs
+            </a>
+          }
 
           <!-- CTA -->
           @if (isScheduled()) {

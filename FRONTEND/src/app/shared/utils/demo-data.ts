@@ -87,6 +87,7 @@ export const DEMO_MATCHES: MatchListItem[] = [
       flagUrl: 'https://flagcdn.com/w160/us.png',
     },
     prediction: { homeScore: 3, awayScore: 2, hasPrediction: true },
+    result: { homeScore: 3, awayScore: 1 },
   },
 ];
 
