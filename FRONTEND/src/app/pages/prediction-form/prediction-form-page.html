@@ -1,68 +1,74 @@
 <div class="flex flex-col h-full w-full bg-tribbo-bg relative">
-  <!-- Background Halo -->
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
 
   <div class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10">
-    @if (status() === 'idle' || status() === 'submitting') {
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-        <!-- Card Halo -->
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
-        <div class="relative p-5 md:p-7 space-y-5">
-          <!-- Match Info -->
-          <div class="flex items-center justify-between text-gray-400 text-xs font-inter">
-            <span>📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
-            <span>📍 {{ match().venue }}</span>
-          </div>
-
-          <!-- Teams -->
-          <div class="flex items-center justify-between">
-            <div class="flex flex-col items-center gap-2 flex-1">
-              <img [src]="match().homeTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
-              <span class="font-archivo text-tribbo-text text-base">{{ match().homeTeam.name }}</span>
-            </div>
-            <div class="px-3 font-space text-gray-300 font-bold text-lg">VS</div>
-            <div class="flex flex-col items-center gap-2 flex-1">
-              <img [src]="match().awayTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
-              <span class="font-archivo text-tribbo-text text-base">{{ match().awayTeam.name }}</span>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <hr class="border-gray-100" />
-
-          <!-- Form -->
-          <app-prediction-form
-            [homeTeam]="{ name: match().homeTeam.name, shortCode: match().homeTeam.shortCode, flagUrl: match().homeTeam.flagUrl }"
-            [awayTeam]="{ name: match().awayTeam.name, shortCode: match().awayTeam.shortCode, flagUrl: match().awayTeam.flagUrl }"
-            [submitting]="isSubmitting()"
-            [disabled]="false"
-            (predictionSubmit)="handlePredictionSubmit($event)"
-          />
-        </div>
+    @if (loading()) {
+      <div class="flex items-center justify-center py-16">
+        <div class="font-inter text-gray-400 text-sm">Chargement...</div>
       </div>
     }
 
-    @if (isSuccess()) {
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
-        <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
-          <div class="text-6xl">🎉</div>
-          <p class="font-inter text-gray-500 text-sm text-center">Pronostic enregistré !</p>
-        </div>
-      </div>
-    }
+    @if (match(); as m) {
+      @if (status() === 'idle' || status() === 'submitting') {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+          <div class="relative p-5 md:p-7 space-y-5">
+            <div class="flex items-center justify-between text-gray-400 text-xs font-inter">
+              <span>📅 {{ m.kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
+              @if (m.venue) {
+                <span>📍 {{ m.venue }}</span>
+              }
+            </div>
 
-    @if (isError()) {
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
-        <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
-          <div class="text-6xl">😕</div>
-          <p class="font-inter text-gray-500 text-sm text-center">{{ errorMessage() }}</p>
-          <button (click)="dismissError()" class="font-inter text-tribbo-primary text-sm font-medium">
-            Réessayer
-          </button>
+            <div class="flex items-center justify-between">
+              <div class="flex flex-col items-center gap-2 flex-1">
+                <img [src]="m.homeTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
+                <span class="font-archivo text-tribbo-text text-base">{{ m.homeTeam.name }}</span>
+              </div>
+              <div class="px-3 font-space text-gray-300 font-bold text-lg">VS</div>
+              <div class="flex flex-col items-center gap-2 flex-1">
+                <img [src]="m.awayTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
+                <span class="font-archivo text-tribbo-text text-base">{{ m.awayTeam.name }}</span>
+              </div>
+            </div>
+
+            <hr class="border-gray-100" />
+
+            <app-prediction-form
+              [homeTeam]="homeTeam()"
+              [awayTeam]="awayTeam()"
+              [submitting]="isSubmitting()"
+              [disabled]="false"
+              [initialValues]="existingPrediction()"
+              [submitLabel]="submitLabel()"
+              (predictionSubmit)="handlePredictionSubmit($event)"
+            />
+          </div>
         </div>
-      </div>
+      }
+
+      @if (isSuccess()) {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+          <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
+            <div class="text-6xl">🎉</div>
+            <p class="font-inter text-gray-500 text-sm text-center">{{ successMessage() }}</p>
+          </div>
+        </div>
+      }
+
+      @if (isError()) {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+          <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
+            <div class="text-6xl">😕</div>
+            <p class="font-inter text-gray-500 text-sm text-center">{{ errorMessage() }}</p>
+            <button (click)="dismissError()" class="font-inter text-tribbo-primary text-sm font-medium">
+              Réessayer
+            </button>
+          </div>
+        </div>
+      }
     }
   </div>
 </div>

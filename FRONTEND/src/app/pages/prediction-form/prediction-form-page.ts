@@ -8,21 +8,21 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
+import { map, switchMap, of, catchError } from 'rxjs';
 
 import { PredictionForm } from '../../components/prediction-form/prediction-form';
 
 import {
   PredictionFormValue,
+  PredictionFormTeam,
 } from '../../shared/models/prediction.models';
 import { PredictionService } from '../../services/prediction.service';
 import {
   PredictionResponse,
   PredictionSubmissionError,
 } from '../../shared/models/prediction.models';
-
-import { MatchInfo, DEMO_MATCH } from '../../shared/utils/demo-data';
+import { MatchService } from '../../services/match.service';
+import { MatchListItem } from '../../shared/models/match.models';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -35,6 +35,7 @@ type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 })
 export class PredictionFormPage {
   private readonly predictionService = inject(PredictionService);
+  private readonly matchService = inject(MatchService);
   private readonly route = inject(ActivatedRoute);
 
   @ViewChild(PredictionForm)
@@ -44,30 +45,77 @@ export class PredictionFormPage {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly lastPrediction = signal<PredictionResponse | null>(null);
   protected readonly submittedScore = signal<PredictionFormValue | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly match = signal<MatchListItem | null>(null);
 
-  private readonly matchIdParam = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('matchId'))),
-    { initialValue: null },
-  );
+  constructor() {
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('matchId')),
+        switchMap((id) => {
+          if (!id) return of(null);
+          return this.matchService.getMatchById(id).pipe(
+            catchError(() => of(null)),
+          );
+        }),
+      )
+      .subscribe((m) => {
+        this.match.set(m);
+        this.loading.set(false);
+      });
+  }
 
-  protected readonly match = computed<MatchInfo>(() => {
-    const id = this.matchIdParam();
-    return id ? { ...DEMO_MATCH, id } : DEMO_MATCH;
+  protected readonly homeTeam = computed<PredictionFormTeam>(() => {
+    const m = this.match();
+    if (!m) return { name: '—', shortCode: '' };
+    return {
+      name: m.homeTeam.name,
+      shortCode: m.homeTeam.shortCode,
+      flagUrl: m.homeTeam.flagUrl,
+    };
   });
 
+  protected readonly awayTeam = computed<PredictionFormTeam>(() => {
+    const m = this.match();
+    if (!m) return { name: '—', shortCode: '' };
+    return {
+      name: m.awayTeam.name,
+      shortCode: m.awayTeam.shortCode,
+      flagUrl: m.awayTeam.flagUrl,
+    };
+  });
+
+  protected readonly existingPrediction = computed<PredictionFormValue | null>(() => {
+    const m = this.match();
+    if (!m?.prediction.hasPrediction) return null;
+    return {
+      homeScore: m.prediction.homeScore ?? 0,
+      awayScore: m.prediction.awayScore ?? 0,
+    };
+  });
+
+  protected readonly isEdit = computed(() => this.existingPrediction() !== null);
   protected readonly isSubmitting = computed(() => this.status() === 'submitting');
   protected readonly isSuccess = computed(() => this.status() === 'success');
   protected readonly isError = computed(() => this.status() === 'error');
 
+  protected readonly submitLabel = computed(() => {
+    if (this.isEdit()) return 'Modifier mon pronostic';
+    return 'Valider mon pronostic';
+  });
+
+  protected readonly successMessage = computed(() => {
+    if (this.isEdit()) return 'Pronostic modifié !';
+    return 'Pronostic enregistré !';
+  });
+
   protected handlePredictionSubmit(value: PredictionFormValue): void {
-    if (this.isSubmitting()) {
-      return;
-    }
+    if (this.isSubmitting()) return;
     this.status.set('submitting');
     this.errorMessage.set(null);
 
     const payload = {
-      matchId: this.match().id,
+      matchId: this.match()?.id ?? '',
       homeScore: value.homeScore,
       awayScore: value.awayScore,
     };
@@ -82,7 +130,7 @@ export class PredictionFormPage {
         const message =
           error instanceof PredictionSubmissionError
             ? error.message
-            : "Une erreur est survenue. Veuillez réessayer.";
+            : 'Une erreur est survenue. Veuillez réessayer.';
         this.errorMessage.set(message);
         this.submittedScore.set(value);
         this.status.set('error');

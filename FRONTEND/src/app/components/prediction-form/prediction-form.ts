@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   input,
   output,
@@ -45,8 +46,21 @@ export class PredictionForm {
   readonly submitting = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly submitLabel = input<string>('Valider mon pronostic');
+  readonly initialValues = input<PredictionFormValue | null>(null);
 
   readonly predictionSubmit = output<PredictionFormValue>();
+
+  constructor() {
+    effect(() => {
+      const vals = this.initialValues();
+      if (vals) {
+        this.form.patchValue({
+          homeScore: vals.homeScore,
+          awayScore: vals.awayScore,
+        });
+      }
+    });
+  }
 
   protected readonly minScore = MIN_SCORE;
   protected readonly maxScore = MAX_SCORE;
@@ -125,7 +139,7 @@ export class PredictionForm {
     return 'Score invalide';
   }
 
-  reset(): void {
-    this.form.reset({ homeScore: 0, awayScore: 0 });
+  reset(values?: PredictionFormValue): void {
+    this.form.reset(values ?? { homeScore: 0, awayScore: 0 });
   }
 }
