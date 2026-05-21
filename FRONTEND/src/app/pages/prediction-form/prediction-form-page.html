@@ -38,7 +38,7 @@
               [homeTeam]="homeTeam()"
               [awayTeam]="awayTeam()"
               [submitting]="isSubmitting()"
-              [disabled]="false"
+              [disabled]="disabled()"
               [initialValues]="existingPrediction()"
               [submitLabel]="submitLabel()"
               (predictionSubmit)="handlePredictionSubmit($event)"
@@ -46,6 +46,8 @@
           </div>
         </div>
       }
+
+
 
       @if (isSuccess()) {
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">

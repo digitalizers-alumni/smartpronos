@@ -7,8 +7,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { map, switchMap, of, catchError } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, switchMap, of, catchError, tap } from 'rxjs';
 
 import { PredictionForm } from '../../components/prediction-form/prediction-form';
 
@@ -37,6 +37,7 @@ export class PredictionFormPage {
   private readonly predictionService = inject(PredictionService);
   private readonly matchService = inject(MatchService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   @ViewChild(PredictionForm)
   private predictionFormRef?: PredictionForm;
@@ -57,6 +58,12 @@ export class PredictionFormPage {
           return this.matchService.getMatchById(id).pipe(
             catchError(() => of(null)),
           );
+        }),
+        tap((m) => {
+          if (!m) return;
+          if (m.status === 'locked' || m.status === 'finished') {
+            this.router.navigate(['/match', m.id, 'detail'], { replaceUrl: true });
+          }
         }),
       )
       .subscribe((m) => {
@@ -98,6 +105,17 @@ export class PredictionFormPage {
   protected readonly isSubmitting = computed(() => this.status() === 'submitting');
   protected readonly isSuccess = computed(() => this.status() === 'success');
   protected readonly isError = computed(() => this.status() === 'error');
+
+  protected readonly isLocked = computed(() => {
+    const m = this.match();
+    if (!m) return false;
+    if (m.status === 'locked') return true;
+    if (m.status === 'finished') return true;
+    const deadline = new Date(m.kickoff).getTime() - 15 * 60 * 1000;
+    return Date.now() >= deadline;
+  });
+
+  protected readonly disabled = computed(() => this.isLocked() || this.isSubmitting());
 
   protected readonly submitLabel = computed(() => {
     if (this.isEdit()) return 'Modifier mon pronostic';
