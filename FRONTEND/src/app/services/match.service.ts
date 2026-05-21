@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, catchError, of, map } from 'rxjs';
+import { Observable, from, catchError, of, map, first } from 'rxjs';
 
 import { SupabaseService } from '../core/services/supabase.service';
 import { MatchListItem, MatchStatus } from '../shared/models/match.models';
@@ -44,12 +44,22 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
       awayScore: row.user_away_score,
       hasPrediction: row.user_home_score !== null,
     },
+    result: row.result_home_score != null && row.result_away_score != null
+      ? { homeScore: row.result_home_score, awayScore: row.result_away_score }
+      : undefined,
   };
 }
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
   private readonly supabase = inject(SupabaseService);
+
+  getMatchById(id: string): Observable<MatchListItem | null> {
+    return this.getMatches().pipe(
+      map((matches) => matches.find((m) => m.id === id) ?? null),
+      first(),
+    );
+  }
 
   getMatches(): Observable<MatchListItem[]> {
     return from(this.supabase.client.rpc('get_match_list')).pipe(

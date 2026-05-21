@@ -1,0 +1,101 @@
+<div class="flex flex-col h-full w-full bg-tribbo-bg relative">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
+
+  <div class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10 space-y-6">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-16">
+        <div class="font-inter text-gray-400 text-sm">Chargement...</div>
+      </div>
+    }
+
+    @if (error(); as err) {
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <span class="text-4xl">😕</span>
+        <p class="font-inter text-gray-400 text-sm text-center">{{ err }}</p>
+        <a routerLink="/home/match-list" class="text-tribbo-primary font-inter text-sm font-medium hover:underline">
+          Retour aux matchs
+        </a>
+      </div>
+    }
+
+    @if (match(); as m) {
+      <!-- Match Card Header -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
+        <div class="relative p-6 md:p-8 space-y-6">
+          <!-- Status & Date -->
+          <div class="flex items-center justify-between">
+            <app-match-status-badge [status]="m.status" />
+            <span class="font-inter text-xs text-gray-400">{{ m.kickoff | date:'EEEE dd MMM yyyy - HH:mm' }}</span>
+          </div>
+
+          <!-- Teams -->
+          <div class="flex items-center justify-between py-4">
+            <div class="flex flex-col items-center gap-3 flex-1">
+              <img [src]="m.homeTeam.flagUrl || ''" class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover shadow-sm" alt="" />
+              <span class="font-archivo text-lg md:text-xl text-tribbo-text text-center leading-tight">{{ m.homeTeam.name }}</span>
+              <span class="font-space text-[11px] uppercase tracking-widest text-gray-400">{{ m.homeTeam.shortCode }}</span>
+            </div>
+            <div class="px-4 flex flex-col items-center gap-2">
+              <span class="font-space text-gray-300 font-bold text-2xl md:text-3xl">VS</span>
+            </div>
+            <div class="flex flex-col items-center gap-3 flex-1">
+              <img [src]="m.awayTeam.flagUrl || ''" class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover shadow-sm" alt="" />
+              <span class="font-archivo text-lg md:text-xl text-tribbo-text text-center leading-tight">{{ m.awayTeam.name }}</span>
+              <span class="font-space text-[11px] uppercase tracking-widest text-gray-400">{{ m.awayTeam.shortCode }}</span>
+            </div>
+          </div>
+
+          <!-- Meta Info -->
+          <div class="flex items-center justify-center gap-6 text-xs font-inter text-gray-400">
+            @if (m.stage) {
+              <span class="flex items-center gap-1.5">🏟️ {{ m.stage }}</span>
+            }
+            @if (m.venue) {
+              <span class="flex items-center gap-1.5">📍 {{ m.venue }}</span>
+            }
+          </div>
+
+          <!-- Prediction Status -->
+          <div class="bg-tribbo-bg rounded-xl p-4 border border-gray-100">
+            @if (hasPrediction()) {
+              <div class="flex items-center justify-center gap-4">
+                <div class="flex flex-col items-center">
+                  <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.homeScore }}</span>
+                  <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
+                </div>
+                <span class="font-space text-gray-300 text-lg">-</span>
+                <div class="flex flex-col items-center">
+                  <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.awayScore }}</span>
+                  <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
+                </div>
+              </div>
+            } @else {
+              <p class="font-inter text-gray-400 text-sm text-center">Aucun pronostic pour ce match</p>
+            }
+          </div>
+
+          <!-- CTA -->
+          @if (isScheduled()) {
+            <a [routerLink]="['/match', m.id, 'prediction-form']"
+              class="block w-full text-center bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:bg-blue-700 hover:shadow-md transition-all active:scale-[0.98]">
+              {{ hasPrediction() ? 'Modifier mon pronostic' : 'Faire mon pronostic' }}
+            </a>
+          }
+          @if (isLocked()) {
+            <div class="w-full text-center bg-gray-100 text-gray-400 font-inter font-semibold text-sm py-4 rounded-xl cursor-not-allowed">
+              Pronos clos
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Back link -->
+      <a routerLink="/home/match-list"
+        class="flex items-center justify-center gap-1.5 font-inter text-sm text-gray-400 hover:text-tribbo-primary transition-colors">
+        <span class="material-symbols-outlined text-base">arrow_back</span>
+        Retour aux matchs
+      </a>
+    }
+  </div>
+</div>

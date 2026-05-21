@@ -17,6 +17,13 @@ export const routes: Routes = [
       import('./pages/signup/signup-page').then((m) => m.SignupPage),
   },
   {
+    path: 'match/:matchId/detail',
+    loadComponent: () =>
+      import('./pages/match/detail/match-detail-page').then(
+        (m) => m.MatchDetailPage,
+      ),
+  },
+  {
     path: 'match/:matchId/prediction-form',
     loadComponent: () =>
       import('./pages/prediction-form/prediction-form-page').then(

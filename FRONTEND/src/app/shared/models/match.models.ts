@@ -12,6 +12,11 @@ export interface MatchPredictionSummary {
   hasPrediction: boolean;
 }
 
+export interface MatchResult {
+  homeScore: number;
+  awayScore: number;
+}
+
 export interface MatchListItem {
   id: string;
   kickoff: string;
@@ -22,4 +27,5 @@ export interface MatchListItem {
   homeTeam: MatchTeam;
   awayTeam: MatchTeam;
   prediction: MatchPredictionSummary;
+  result?: MatchResult;
 }
