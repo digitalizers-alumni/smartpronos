@@ -8,6 +8,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatchCard } from '../../components/match-card/match-card';
+import { UserRankCard } from '../../shared/components/user-rank-card/user-rank-card';
 import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
 import { MatchService } from '../../services/match.service';
 
@@ -27,7 +28,7 @@ interface FilterOption {
 @Component({
   selector: 'app-match-list-page',
   standalone: true,
-  imports: [MatchCard],
+  imports: [MatchCard, UserRankCard],
   templateUrl: './match-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -37,6 +38,9 @@ export class MatchListPage {
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
+
+  protected readonly userPoints = signal(1_240);
+  protected readonly userRank = signal(4);
 
   protected readonly filters: FilterOption[] = [
     { label: 'Tous', value: 'all' },
