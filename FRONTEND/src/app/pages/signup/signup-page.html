@@ -11,85 +11,108 @@
       <div class="h-1 w-12 bg-tribbo-primary mt-4 rounded-full"></div>
     </div>
 
-    <!-- Form -->
-    <form [formGroup]="signupForm" (ngSubmit)="submit()" class="flex flex-col gap-5">
-      <div class="grid grid-cols-2 gap-4">
+    @if (needsEmailConfirmation()) {
+      <div class="flex flex-col items-center gap-6 py-8">
+        <span class="text-6xl">✉️</span>
+        <p class="font-inter text-sm text-gray-500 text-center leading-relaxed">
+          Un email de confirmation t'a été envoyé.<br />
+          Clique sur le lien pour activer ton compte.
+        </p>
+        <button (click)="skipConfirmation()"
+          class="w-full bg-gray-100 text-gray-500 font-inter text-sm font-medium py-4 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-[0.98] mt-4">
+          Mode démo — Ignorer
+        </button>
+      </div>
+    } @else {
+      <form [formGroup]="signupForm" (ngSubmit)="submit()" class="flex flex-col gap-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+              Prénom
+            </label>
+            <input
+              type="text"
+              formControlName="firstname"
+              placeholder="JEAN"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('firstname')?.touched && signupForm.get('firstname')?.invalid"
+              required
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+              Nom
+            </label>
+            <input
+              type="text"
+              formControlName="lastname"
+              placeholder="DUPONT"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('lastname')?.touched && signupForm.get('lastname')?.invalid"
+              required
+            />
+          </div>
+        </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-            Prénom
+            Email professionnel
           </label>
           <input
-            type="text"
-            formControlName="fullname"
-            placeholder="JEAN"
+            type="email"
+            formControlName="email"
+            placeholder="JEAN.DUPONT@DIGITALIZERS.FR"
             class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
             required
           />
         </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-            Nom
+            Mot de passe
           </label>
           <input
-            type="text"
-            placeholder="DUPONT"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••••••"
             class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
             required
           />
         </div>
-      </div>
 
-      <div class="flex flex-col gap-1.5">
-        <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-          Email professionnel
-        </label>
-        <input
-          type="email"
-          formControlName="email"
-          placeholder="JEAN.DUPONT@DIGITALIZERS.FR"
-          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
-          required
-        />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-          Mot de passe
-        </label>
-        <input
-          type="password"
-          formControlName="password"
-          placeholder="••••••••••••"
-          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
-          required
-        />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-          Confirmer le mot de passe
-        </label>
-        <input
-          type="password"
-          placeholder="••••••••••••"
-          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
-          required
-        />
-      </div>
-
-      @if (errorMessage()) {
-        <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-          <p class="font-inter text-xs text-red-600">{{ errorMessage() }}</p>
+        <div class="flex flex-col gap-1.5">
+          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+            Confirmer le mot de passe
+          </label>
+          <input
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="••••••••••••"
+            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+            [class.border-red-300]="signupForm.get('confirmPassword')?.touched && (signupForm.get('confirmPassword')?.invalid || signupForm.hasError('passwordsMismatch'))"
+            required
+          />
         </div>
-      }
 
-      <button
-        type="submit"
-        class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 mt-2"
-      >
-        Créer mon compte
-      </button>
-    </form>
+        @if (errorMessage()) {
+          <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p class="font-inter text-xs text-red-600">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (submitting()) {
+            Inscription...
+          } @else {
+            Créer mon compte
+          }
+        </button>
+      </form>
+    }
 
     <!-- Footer -->
     <div class="mt-auto pt-10 flex flex-col items-center">
