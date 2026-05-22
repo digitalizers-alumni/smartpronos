@@ -30,7 +30,6 @@ export class BottomNav {
   protected readonly navItems: NavItem[] = [
     { icon: 'home', label: 'Accueil', route: '/home/match-list' },
     { icon: 'leaderboard', label: 'Classement', route: '/leaderboard' },
-    { icon: 'rate_review', label: 'Mes pronos', route: '/predictions/mine' },
     { icon: 'groups', label: 'Tribu', route: '/company' },
     { icon: 'person', label: 'Profil', route: '/profile' },
   ];

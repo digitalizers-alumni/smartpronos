@@ -13,6 +13,7 @@ import { map, switchMap, of, catchError } from 'rxjs';
 import { MatchListItem, MatchStatus } from '../../../shared/models/match.models';
 import { MatchService } from '../../../services/match.service';
 import { MatchStatusBadge } from '../../../components/match-status-badge/match-status-badge';
+import { stageLabel } from '../../../shared/utils/stage-label';
 
 @Component({
   selector: 'app-match-detail-page',
@@ -28,6 +29,8 @@ export class MatchDetailPage {
   protected readonly loading = signal(true);
   protected readonly match = signal<MatchListItem | null>(null);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly stageLabel = computed(() => stageLabel(this.match()?.stage));
 
   constructor() {
     this.route.paramMap

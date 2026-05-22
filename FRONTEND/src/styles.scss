@@ -6,11 +6,13 @@
   html {
     font-size: 16px;
     font-family: 'Inter', sans-serif;
+    overflow: hidden;
   }
 
   body {
     @apply bg-tribbo-bg text-tribbo-text antialiased;
     min-height: 100vh;
+    overflow: hidden;
   }
 
   app-root {

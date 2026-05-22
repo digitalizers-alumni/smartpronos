@@ -1,4 +1,4 @@
-<div class="min-h-screen w-full flex flex-col bg-tribbo-bg md:bg-gray-100">
+<div class="h-screen w-full flex flex-col bg-tribbo-bg md:bg-gray-100">
   <!-- Desktop Top Navigation Bar -->
   @if (showAppChrome()) {
     <header class="fixed top-0 left-0 right-0 z-40 hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0">
@@ -21,13 +21,6 @@
             [class.bg-tribbo-primary/5]="isActive('/leaderboard')"
             [class.text-gray-500]="!isActive('/leaderboard')"
          >Classement</a>
-         <a (click)="navigateTo('/predictions/mine')"
-            class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
-            [class.text-tribbo-primary]="isActive('/predictions/mine')"
-            [class.font-semibold]="isActive('/predictions/mine')"
-            [class.bg-tribbo-primary/5]="isActive('/predictions/mine')"
-            [class.text-gray-500]="!isActive('/predictions/mine')"
-         >Mes pronos</a>
          <a (click)="navigateTo('/company')"
             class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
             [class.text-tribbo-primary]="isActive('/company')"

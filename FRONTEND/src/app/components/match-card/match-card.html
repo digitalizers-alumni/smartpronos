@@ -1,17 +1,22 @@
 <div
   [routerLink]="['/match', match().id, 'detail']"
-  class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full flex flex-col relative overflow-hidden"
+  class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full min-h-[240px] flex flex-col relative overflow-hidden"
 >
-  <!-- Halo de fond -->
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-4 text-xs text-gray-500 font-inter font-medium">
+
+  <div class="flex items-center justify-between mb-4 text-xs text-gray-500 font-inter font-medium relative">
     <span class="flex items-center gap-1.5">📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
-    <span class="bg-gray-50 px-2.5 py-1 rounded-full">{{ match().stage }}</span>
+    <div class="flex gap-1.5">
+      @if (match().stage) {
+        <span class="bg-gray-50 px-2.5 py-1 rounded-full">{{ stageLabel() }}</span>
+      }
+      @if (match().group) {
+        <span class="bg-tribbo-primary/10 text-tribbo-primary px-2.5 py-1 rounded-full font-semibold">Groupe {{ match().group }}</span>
+      }
+    </div>
   </div>
 
-  <!-- Teams -->
-  <div class="flex items-center justify-between flex-1">
+  <div class="flex items-center justify-between flex-1 relative">
     <div class="flex flex-col items-center gap-2 flex-1">
       <img [src]="match().homeTeam.flagUrl || ''" class="w-12 h-12 rounded-full object-cover" alt="" />
       <span class="font-archivo text-sm text-tribbo-text text-center leading-tight">{{ match().homeTeam.name }}</span>
@@ -23,10 +28,35 @@
     </div>
   </div>
 
-  <!-- CTA -->
-  <div class="mt-5 pt-4 border-t border-gray-100">
-    <button class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-3 rounded-xl shadow-sm hover:bg-blue-700 hover:shadow-md transition-all active:scale-[0.98]">
-      Voir le match
-    </button>
+  <div class="mt-3 pt-3 border-t border-gray-100 relative">
+    @if (match().prediction.hasPrediction) {
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Mon prono</span>
+        <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.homeScore }}</span>
+        <span class="font-space text-gray-300">-</span>
+        <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.awayScore }}</span>
+      </div>
+    } @else {
+      <div class="flex items-center justify-center mb-3">
+        <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
+      </div>
+    }
+    <div
+      class="w-full text-center font-inter font-semibold text-sm py-3 rounded-xl transition-all"
+      [class.bg-tribbo-primary]="match().status === 'scheduled'"
+      [class.text-white]="match().status === 'scheduled'"
+      [class.bg-gray-100]="match().status !== 'scheduled'"
+      [class.text-gray-400]="match().status !== 'scheduled'"
+    >
+      @if (match().status === 'finished') {
+        Match terminé
+      } @else if (match().status === 'locked') {
+        Pronos clos
+      } @else if (match().prediction.hasPrediction) {
+        Modifier mon prono
+      } @else {
+        Faire mon prono
+      }
+    </div>
   </div>
 </div>

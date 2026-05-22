@@ -49,7 +49,10 @@
           <!-- Meta Info -->
           <div class="flex items-center justify-center gap-6 text-xs font-inter text-gray-400">
             @if (m.stage) {
-              <span class="flex items-center gap-1.5">🏟️ {{ m.stage }}</span>
+              <span class="flex items-center gap-1.5">🏟️ {{ stageLabel() }}</span>
+            }
+            @if (m.group) {
+              <span class="flex items-center gap-1.5">🏷️ Groupe {{ m.group }}</span>
             }
             @if (m.venue) {
               <span class="flex items-center gap-1.5">📍 {{ m.venue }}</span>

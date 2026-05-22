@@ -15,6 +15,7 @@ interface MatchListRpcRow {
   away_team_flag: string | null;
   kickoff_at: string;
   stage: string;
+  group_name: string | null;
   status: MatchStatus;
   user_home_score: number | null;
   user_away_score: number | null;
@@ -28,6 +29,7 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
     id: row.match_id,
     kickoff: row.kickoff_at,
     stage: row.stage,
+    group: row.group_name ?? undefined,
     status: row.status,
     homeTeam: {
       name: row.home_team_name,

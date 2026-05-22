@@ -22,6 +22,7 @@ export interface MatchListItem {
   kickoff: string;
   competition?: string;
   stage?: string;
+  group?: string;
   venue?: string;
   status: MatchStatus;
   homeTeam: MatchTeam;
