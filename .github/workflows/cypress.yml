@@ -10,15 +10,27 @@ jobs:
   cypress:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
         working-directory: FRONTEND
 
-    steps:
-      - uses: actions/checkout@v4
+      - name: Build Angular
+        run: npm run build
+        working-directory: FRONTEND
 
-      - uses: cypress-io/github-action@v6
-        with:
-          build: npm ci && npm run build
-          start: npx serve -s dist -l 4200
-          wait-on: 'http://localhost:4200'
+      - name: Install serve + wait-on
+        run: npm install -g serve wait-on
+
+      - name: Start app
+        run: serve -s FRONTEND/dist -l 4200 &
+
+      - name: Wait for app
+        run: wait-on http://localhost:4200
+
+      - name: Run Cypress
+        run: npx cypress run
+        working-directory: FRONTEND
