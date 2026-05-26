@@ -1,0 +1,103 @@
+<div class="flex flex-col h-full w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8">
+  <div class="flex-1 max-w-lg mx-auto w-full">
+    @if (hasTribe()) {
+      <!-- Hero -->
+      <div class="bg-gradient-to-br from-tribbo-primary via-blue-500 to-blue-400 text-white rounded-2xl p-6 text-center shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)] relative overflow-hidden mb-4">
+        <div class="absolute right-[-30px] top-[-30px] w-[140px] h-[140px] bg-white/10 rounded-full"></div>
+        <div class="w-[54px] h-[54px] rounded-full bg-white/20 flex items-center justify-center text-white font-archivo text-lg font-bold mx-auto mb-3 relative">
+          {{ tribeCode }}
+        </div>
+        <div class="font-archivo text-xl relative">{{ tribeName }}</div>
+        <div class="inline-block text-[10px] font-bold tracking-wider bg-white/20 px-3 py-1 rounded-full mt-2 relative">
+          @if (tribeType === 'company') {
+            ✓ Tribu d'entreprise vérifiée
+          } @else {
+            👥 Tribu / groupe
+          }
+        </div>
+        <div class="font-inter text-sm opacity-90 mt-2 relative">
+          {{ memberCount }} membres · {{ tribeRank }}ᵉ / {{ totalTribes }} Tribus
+        </div>
+        @if (rivalName) {
+          <div class="text-sm bg-white/20 rounded-xl px-4 py-2.5 mt-4 relative">
+            🔥 {{ rivalName }} {{ rivalGap > 0 ? 'est devant de ' + rivalGap + ' pts' : 'te talonne' }}. On les rattrape ?
+          </div>
+        }
+      </div>
+
+      <!-- Invite button -->
+      <button class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-2xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:brightness-110 transition-all active:scale-[0.98] mb-6">
+        📨 Inviter dans {{ tribeName }}
+      </button>
+
+      <!-- Members header -->
+      <div class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-3 px-1">
+        Membres · classement interne
+      </div>
+
+      <!-- Member rows -->
+      <div class="space-y-2">
+        @for (member of members; track member.name; let i = $index) {
+          <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm cursor-pointer"
+            [class]="member.isYou ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100 hover:border-tribbo-primary/30'">
+            <div class="w-6 text-center font-space font-bold text-sm text-gray-500">{{ i + 1 }}</div>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+              [style.background]="avatarColor(member.name)">
+              {{ member.initials }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
+                {{ member.name }}
+                @if (member.isYou) {
+                  <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Toi</span>
+                }
+              </div>
+              <div class="font-inter text-xs text-gray-400 mt-0.5">
+                {{ member.noPred ? 'Pas encore joué' : member.points + ' pts' }}
+              </div>
+            </div>
+            @if (!member.isYou && !member.noPred) {
+              <span class="material-symbols-outlined text-gray-400 text-lg">swords</span>
+            }
+            @if (member.noPred) {
+              <span class="text-lg opacity-60">⏳</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Bottom actions -->
+      <button class="w-full mt-4 py-4 rounded-2xl border border-gray-200 text-tribbo-primary font-inter font-semibold text-sm hover:bg-blue-50 transition-all active:scale-[0.98]">
+        Voir le classement des Tribus →
+      </button>
+      <button class="w-full text-center text-red-500 font-inter font-semibold text-sm py-4 mt-2 hover:text-red-600 transition-colors">
+        Quitter {{ tribeName }}
+      </button>
+    } @else {
+      <!-- Empty state -->
+      <div class="flex flex-col items-center text-center py-12">
+        <div class="text-6xl mb-4">👥</div>
+        <h2 class="font-archivo text-xl text-tribbo-text uppercase tracking-tight mb-2">Tu n'as pas encore de Tribu</h2>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed max-w-sm">
+          TRIBBO, c'est mieux à plusieurs. Crée ta Tribu avec tes collègues, ou rejoins-en une via un lien d'invitation. Tu peux en avoir plusieurs.
+        </p>
+      </div>
+      <button class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-2xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:brightness-110 transition-all active:scale-[0.98] mb-3">
+        Créer une Tribu
+      </button>
+      <button class="w-full py-4 rounded-2xl border border-gray-200 text-tribbo-text font-inter font-semibold text-sm hover:bg-gray-50 transition-all active:scale-[0.98]">
+        Rejoindre via un lien
+      </button>
+    }
+
+    <!-- Demo toggle (remove when backend ready) -->
+    <button (click)="toggleHasTribe()"
+      class="w-full text-center font-space text-[10px] uppercase tracking-wider text-gray-400 mt-6 hover:text-gray-500 transition-colors">
+      @if (hasTribe()) {
+        Mode démo : passer en mode sans tribu
+      } @else {
+        Mode démo : passer en mode avec tribu
+      }
+    </button>
+  </div>
+</div>
