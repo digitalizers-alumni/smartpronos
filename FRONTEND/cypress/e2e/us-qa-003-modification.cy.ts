@@ -1,22 +1,6 @@
 describe('US-QA-003 — Modification de prono', () => {
   beforeEach(() => {
-    cy.intercept('POST', '**/auth/v1/token**', {
-      statusCode: 200,
-      body: {
-        access_token: 'test-token',
-        token_type: 'bearer',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        refresh_token: 'test-refresh',
-        user: { id: 'u1', email: 'user@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
-      },
-    }).as('login');
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('user@test.com');
-    cy.get('input[formControlName="password"]').type('secret12');
-    cy.contains('button[type="submit"]', 'Se connecter').click();
-    cy.wait('@login');
-    cy.url({ timeout: 10000 }).should('include', '/home/match-list');
+    cy.loginViaApi();
   });
 
   it('affiche le bouton modifier sur un match avec prono existant', () => {

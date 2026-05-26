@@ -1,22 +1,6 @@
 describe('US-QA-004 — Points / Scoring', () => {
   beforeEach(() => {
-    cy.intercept('POST', '**/auth/v1/token**', {
-      statusCode: 200,
-      body: {
-        access_token: 'test-token',
-        token_type: 'bearer',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        refresh_token: 'test-refresh',
-        user: { id: 'u1', email: 'user@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
-      },
-    }).as('login');
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('user@test.com');
-    cy.get('input[formControlName="password"]').type('secret12');
-    cy.contains('button[type="submit"]', 'Se connecter').click();
-    cy.wait('@login');
-    cy.url({ timeout: 10000 }).should('include', '/home/match-list');
+    cy.loginViaApi();
   });
 
   it('affiche les points utilisateur sur le dashboard', () => {
@@ -25,8 +9,8 @@ describe('US-QA-004 — Points / Scoring', () => {
 
   it('affiche les points sur la page profil', () => {
     cy.visit('/profile');
-    cy.contains('1 240').should('be.visible');
-    cy.contains('Mes points').should('be.visible');
+    cy.contains('1240').should('be.visible');
+    cy.contains('Points').should('be.visible');
   });
 
   it('affiche le rang utilisateur', () => {

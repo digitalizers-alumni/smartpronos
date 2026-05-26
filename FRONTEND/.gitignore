@@ -41,6 +41,10 @@ __screenshots__/
 
 # Environment
 .env
+.env.example
+
+# Test credentials
+cypress.env.json
 
 # System files
 .DS_Store

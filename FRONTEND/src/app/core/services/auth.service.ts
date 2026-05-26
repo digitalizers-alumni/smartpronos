@@ -41,6 +41,15 @@ export class AuthService {
     return data;
   }
 
+  async restoreSession(): Promise<boolean> {
+    const { data } = await this.supabase.client.auth.getSession();
+    if (data.session) {
+      this.currentUser.set(data.session.user);
+      return true;
+    }
+    return false;
+  }
+
   async signOut() {
     const { error } = await this.supabase.client.auth.signOut();
     if (error) throw error;

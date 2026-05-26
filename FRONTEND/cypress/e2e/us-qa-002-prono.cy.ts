@@ -1,22 +1,6 @@
 describe('US-QA-002 — Création de prono', () => {
   beforeEach(() => {
-    cy.intercept('POST', '**/auth/v1/token**', {
-      statusCode: 200,
-      body: {
-        access_token: 'test-token',
-        token_type: 'bearer',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        refresh_token: 'test-refresh',
-        user: { id: 'u1', email: 'user@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
-      },
-    }).as('login');
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('user@test.com');
-    cy.get('input[formControlName="password"]').type('secret12');
-    cy.contains('button[type="submit"]', 'Se connecter').click();
-    cy.wait('@login');
-    cy.url({ timeout: 10000 }).should('include', '/home/match-list');
+    cy.loginViaApi();
   });
 
   it('affiche les matchs disponibles sur le dashboard', () => {
@@ -43,6 +27,9 @@ describe('US-QA-002 — Création de prono', () => {
   });
 
   it('affiche erreur si Supabase indisponible', () => {
+    cy.intercept('POST', '**/rest/v1/rpc/upsert_prediction', (req) => {
+      req.destroy();
+    }).as('upsertFail');
     cy.visit('/match/wc-2026-g2/prediction-form');
     cy.get('input[formControlName="homeScore"]').clear().type('2');
     cy.get('input[formControlName="awayScore"]').clear().type('1');

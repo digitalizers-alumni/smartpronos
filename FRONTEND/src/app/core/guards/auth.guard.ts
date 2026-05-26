@@ -2,13 +2,16 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard = () => {
+export const authGuard = async () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
   if (auth.isAuthenticated()) {
     return true;
   }
+
+  const restored = await auth.restoreSession();
+  if (restored) return true;
 
   return router.parseUrl('/login');
 };

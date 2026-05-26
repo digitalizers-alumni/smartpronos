@@ -1,36 +1,25 @@
 describe('US-QA-005 — Classement', () => {
   beforeEach(() => {
-    cy.intercept('POST', '**/auth/v1/token**', {
-      statusCode: 200,
-      body: {
-        access_token: 'test-token',
-        token_type: 'bearer',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        refresh_token: 'test-refresh',
-        user: { id: 'u1', email: 'user@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
-      },
-    }).as('login');
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('user@test.com');
-    cy.get('input[formControlName="password"]').type('secret12');
-    cy.contains('button[type="submit"]', 'Se connecter').click();
-    cy.wait('@login');
+    cy.loginViaApi();
   });
 
-  it('affiche la page classement', () => {
+  it('affiche la page classement avec les onglets', () => {
     cy.visit('/leaderboard');
-    cy.contains('Classement').should('be.visible');
+    cy.contains('Global').should('be.visible');
+    cy.contains('Ma Tribu').should('be.visible');
+    cy.contains('Tribus').should('be.visible');
   });
 
-  it('affiche un message indicatif si pas encore de classement', () => {
+  it('affiche la liste des joueurs sur longlet global', () => {
     cy.visit('/leaderboard');
-    cy.contains('premier match').should('be.visible');
+    cy.contains('Sophie L.').should('be.visible');
+    cy.contains('Marc D.').should('be.visible');
   });
 
   it('navigation depuis le dashboard vers le classement', () => {
     cy.visit('/home/match-list');
     cy.contains('Classement').click();
     cy.url().should('include', '/leaderboard');
+    cy.contains('Global').should('be.visible');
   });
 });

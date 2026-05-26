@@ -1,22 +1,15 @@
-Cypress.Commands.add('loginViaApi', (email = 'test@test.com', password = 'Password123!') => {
-  cy.session([email, password], () => {
-    cy.intercept('POST', '**/auth/v1/token**', {
-      statusCode: 200,
-      body: {
-        access_token: 'cy-fake-token',
-        token_type: 'bearer',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        refresh_token: 'cy-fake-refresh',
-        user: { id: 'cy-user-id', email, aud: 'authenticated', role: 'authenticated' },
-      },
-    }).as('authLogin');
+/// <reference types="cypress" />
+import { setupDefaultMocks } from './supabase-mock';
 
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type(email);
-    cy.get('input[formControlName="password"]').type(password);
-    cy.get('button[type="submit"]').click();
-    cy.wait('@authLogin');
-    cy.url({ timeout: 10000 }).should('include', '/home/match-list');
-  });
+Cypress.Commands.add('loginViaApi', (email?: string, password?: string) => {
+  const testEmail = email || Cypress.env('TEST_EMAIL') || 'admin@admin.com';
+  const testPassword = password || Cypress.env('TEST_PASSWORD') || '12345678';
+
+  setupDefaultMocks();
+
+  cy.visit('/login');
+  cy.get('input[formControlName="email"]').type(testEmail);
+  cy.get('input[formControlName="password"]').type(testPassword);
+  cy.contains('button[type="submit"]', 'Se connecter').click();
+  cy.url({ timeout: 15000 }).should('include', '/home/match-list');
 });
