@@ -1,0 +1,24 @@
+
+name: Cypress Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: FRONTEND
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cypress-io/github-action@v6
+        with:
+          build: npm ci && npm run build
+          start: npx serve -s dist -l 4200
+          wait-on: 'http://localhost:4200'
