@@ -6,7 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "cy:open": "cypress open --e2e",
+    "cy:run": "cypress run",
+    "test:e2e:auth": "cypress run --spec 'cypress/e2e/us-qa-001*.cy.ts'",
+    "test:e2e:smoke": "cypress run --spec 'cypress/e2e/us-qa-00[16].cy.ts'"
   },
   "private": true,
   "packageManager": "npm@11.9.0",
@@ -26,6 +30,7 @@
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
     "autoprefixer": "^10.5.0",
+    "cypress": "^15.15.0",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.15",
     "postcss-import": "^16.1.1",
