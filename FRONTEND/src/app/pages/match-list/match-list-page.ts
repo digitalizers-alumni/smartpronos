@@ -10,6 +10,7 @@ import { MatchCard } from '../../components/match-card/match-card';
 import { UserRankCard } from '../../shared/components/user-rank-card/user-rank-card';
 import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
 import { MatchService } from '../../services/match.service';
+import { TeamService } from '../../services/team.service';
 import { extractRoundKey, stageLabel } from '../../shared/utils/stage-label';
 
 export type MatchStatusFilter = 'all' | 'mine' | MatchStatus;
@@ -44,13 +45,14 @@ interface GroupFilterOption {
 })
 export class MatchListPage {
   private readonly matchService = inject(MatchService);
+  private readonly teamService = inject(TeamService);
 
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
 
-  protected readonly userPoints = signal(1_240);
-  protected readonly userRank = signal(4);
+  protected readonly userPoints = signal(0);
+  protected readonly userRank = signal(0);
 
   protected readonly statusFilters: StatusFilterOption[] = [
     { label: 'Tous', value: 'all' },
@@ -144,6 +146,13 @@ export class MatchListPage {
         if (parsed.groups) this.selectedGroups.set(new Set(parsed.groups));
       } catch { /* ignore */ }
     }
+
+    this.teamService.getUserProfile().subscribe({
+      next: (p) => {
+        this.userPoints.set(p.total_points);
+        this.userRank.set(p.rank ?? 0);
+      },
+    });
 
     this.matchService
       .getMatches()

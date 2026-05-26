@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TeamService, Team } from '../../services/team.service';
 
 function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -21,12 +22,18 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
 export class SignupPage {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly teamService = inject(TeamService);
 
   protected isPasswordVisible = false;
   protected errorMessage = signal('');
   protected submitting = signal(false);
 
   protected readonly signupForm;
+
+  protected step = signal<'form' | 'team'>('form');
+  protected teams = signal<Team[]>([]);
+  protected selectedTeamId = signal<string | null>(null);
+  protected savingTeam = signal(false);
 
   constructor(private readonly fb: FormBuilder) {
     this.signupForm = this.fb.nonNullable.group({
@@ -50,20 +57,51 @@ export class SignupPage {
       const { email, password } = this.signupForm.getRawValue();
       const result = await this.authService.signUp(email, password);
       if (result?.session) {
-        await this.router.navigate(['/home', 'match-list']);
+        this.teamService.getTeams().subscribe({
+          next: (teams) => {
+            this.teams.set(teams);
+            this.step.set('team');
+            this.submitting.set(false);
+          },
+          error: () => {
+            this.router.navigate(['/home', 'match-list']);
+          },
+        });
       } else {
         this.needsEmailConfirmation.set(true);
+        this.submitting.set(false);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Inscription impossible.';
       this.errorMessage.set(msg);
-    } finally {
       this.submitting.set(false);
     }
   }
 
+  protected selectTeam(teamId: string): void {
+    this.selectedTeamId.set(this.selectedTeamId() === teamId ? null : teamId);
+  }
+
+  protected async confirmTeam(): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      await this.router.navigate(['/home', 'match-list']);
+      return;
+    }
+
+    this.savingTeam.set(true);
+    this.teamService.setFavoriteTeam(teamId).subscribe({
+      next: () => this.router.navigate(['/home', 'match-list']),
+      error: () => this.router.navigate(['/home', 'match-list']),
+    });
+  }
+
   protected async skipConfirmation(): Promise<void> {
     await this.authService.signOut().catch(() => {});
+    await this.router.navigate(['/home', 'match-list']);
+  }
+
+  protected async skipTeamPicker(): Promise<void> {
     await this.router.navigate(['/home', 'match-list']);
   }
 

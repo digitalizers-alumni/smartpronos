@@ -22,6 +22,7 @@ interface MatchListRpcRow {
   user_is_boosted: boolean | null;
   result_home_score: number | null;
   result_away_score: number | null;
+  points_earned: number | null;
 }
 
 function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
@@ -49,6 +50,7 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
     result: row.result_home_score != null && row.result_away_score != null
       ? { homeScore: row.result_home_score, awayScore: row.result_away_score }
       : undefined,
+    pointsEarned: row.points_earned ?? undefined,
   };
 }
 

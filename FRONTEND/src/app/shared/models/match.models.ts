@@ -29,4 +29,5 @@ export interface MatchListItem {
   awayTeam: MatchTeam;
   prediction: MatchPredictionSummary;
   result?: MatchResult;
+  pointsEarned?: number;
 }

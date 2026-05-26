@@ -5,10 +5,21 @@
       <button routerLink="/" class="mb-8 hover:opacity-80 transition-opacity">
         <img src="assets/logo-tribbo.png" class="w-14 h-14 object-contain" alt="Tribbo" />
       </button>
-      <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
-        Créer un<br />compte
-      </h1>
+      @if (step() === 'form') {
+        <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
+          Créer un<br />compte
+        </h1>
+      } @else {
+        <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
+          Ton équipe<br />de coeur
+        </h1>
+      }
       <div class="h-1 w-12 bg-tribbo-primary mt-4 rounded-full"></div>
+      @if (step() === 'team') {
+        <p class="font-inter text-xs text-gray-400 mt-4 text-center leading-relaxed">
+          Choisis l'équipe que tu soutiens<br />pour personnaliser ton expérience
+        </p>
+      }
     </div>
 
     @if (needsEmailConfirmation()) {
@@ -21,6 +32,49 @@
         <button (click)="skipConfirmation()"
           class="w-full bg-gray-100 text-gray-500 font-inter text-sm font-medium py-4 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-[0.98] mt-4">
           Mode démo — Ignorer
+        </button>
+      </div>
+    } @else if (step() === 'team') {
+      <!-- Team picker -->
+      <div class="flex-1 overflow-y-auto -mx-2 px-2">
+        <div class="grid grid-cols-3 gap-3">
+          @for (team of teams(); track team.id) {
+            <button type="button"
+              (click)="selectTeam(team.id)"
+              class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-[0.97]"
+              [class.border-tribbo-primary]="selectedTeamId() === team.id"
+              [class.border-gray-100]="selectedTeamId() !== team.id"
+              [class.bg-tribbo-primary/5]="selectedTeamId() === team.id"
+              [class.bg-white]="selectedTeamId() !== team.id"
+              [class.shadow-sm]="selectedTeamId() !== team.id"
+              [class.shadow-md]="selectedTeamId() === team.id">
+              @if (team.flag_url) {
+                <img [src]="team.flag_url" [alt]="team.name" class="w-10 h-10 rounded-full object-cover shadow-sm" loading="lazy" />
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-400 font-bold">
+                  {{ team.code }}
+                </div>
+              }
+              <span class="font-inter text-[11px] text-gray-600 text-center leading-tight line-clamp-2">
+                {{ team.name }}
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3 pt-6">
+        <button type="button" (click)="confirmTeam()" [disabled]="savingTeam()"
+          class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (savingTeam()) {
+            Sauvegarde...
+          } @else {
+            {{ selectedTeamId() ? 'Confirmer' : 'Passer' }}
+          }
+          </button>
+        <button type="button" (click)="skipTeamPicker()"
+          class="font-space text-[11px] uppercase tracking-tight text-gray-400 hover:text-gray-500 transition-colors text-center">
+          Passer cette étape
         </button>
       </div>
     } @else {
@@ -72,7 +126,7 @@
             Mot de passe
           </label>
           <input
-            type="password"
+            [type]="isPasswordVisible ? 'text' : 'password'"
             formControlName="password"
             placeholder="••••••••••••"
             class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
@@ -85,7 +139,7 @@
             Confirmer le mot de passe
           </label>
           <input
-            type="password"
+            [type]="isPasswordVisible ? 'text' : 'password'"
             formControlName="confirmPassword"
             placeholder="••••••••••••"
             class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
@@ -93,6 +147,11 @@
             required
           />
         </div>
+
+        <button type="button" (click)="isPasswordVisible = !isPasswordVisible"
+          class="font-space text-[10px] uppercase tracking-widest text-gray-400 text-left -mt-2 hover:text-gray-500 transition-colors">
+          {{ isPasswordVisible ? 'Masquer' : 'Afficher' }} les mots de passe
+        </button>
 
         @if (errorMessage()) {
           <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">

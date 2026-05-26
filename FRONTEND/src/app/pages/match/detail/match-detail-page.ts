@@ -6,11 +6,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map, switchMap, of, catchError } from 'rxjs';
 
-import { MatchListItem, MatchStatus } from '../../../shared/models/match.models';
+import { MatchListItem } from '../../../shared/models/match.models';
 import { MatchService } from '../../../services/match.service';
 import { MatchStatusBadge } from '../../../components/match-status-badge/match-status-badge';
 import { stageLabel } from '../../../shared/utils/stage-label';
@@ -64,18 +63,6 @@ export class MatchDetailPage {
   protected readonly isScheduled = computed(() => this.match()?.status === 'scheduled');
   protected readonly hasPrediction = computed(() => this.match()?.prediction.hasPrediction ?? false);
   protected readonly result = computed(() => this.match()?.result ?? null);
-
-  protected readonly pointsEarned = computed(() => {
-    const m = this.match();
-    if (!m || !m.result || !m.prediction.hasPrediction) return null;
-    const { homeScore: rh, awayScore: ra } = m.result;
-    const { homeScore: ph, awayScore: pa } = m.prediction;
-    if (ph === null || pa === null) return null;
-    if (ph === rh && pa === ra) return 3;
-    const outcome = (rh > ra ? 'H' : rh < ra ? 'A' : 'D');
-    const predOutcome = (ph > pa ? 'H' : ph < pa ? 'A' : 'D');
-    return outcome === predOutcome ? 1 : 0;
-  });
 
   protected readonly pageTitle = computed(() => {
     const m = this.match();

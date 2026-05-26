@@ -87,11 +87,9 @@
                   </div>
                 </div>
                 <div class="border-t border-gray-200 pt-3 text-center">
-                  @if (pointsEarned() === 3) {
-                    <span class="inline-flex items-center gap-1 font-inter font-bold text-sm text-green-600">+3 pts Exact !</span>
-                  } @else if (pointsEarned() === 1) {
-                    <span class="inline-flex items-center gap-1 font-inter font-bold text-sm text-amber-600">+1 pts</span>
-                  } @else if (pointsEarned() === 0) {
+                  @if (m.pointsEarned != null && m.pointsEarned > 0) {
+                    <span class="inline-flex items-center gap-1 font-inter font-bold text-sm text-green-600">+{{ m.pointsEarned }} pts</span>
+                  } @else if (m.pointsEarned === 0) {
                     <span class="inline-flex items-center gap-1 font-inter text-sm text-gray-400">+0 pt</span>
                   }
                 </div>
