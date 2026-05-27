@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, catchError, of, map } from 'rxjs';
+import { Observable, from, catchError, of, map, first } from 'rxjs';
 
 import { SupabaseService } from '../core/services/supabase.service';
 import { MatchListItem, MatchStatus } from '../shared/models/match.models';
@@ -15,12 +15,14 @@ interface MatchListRpcRow {
   away_team_flag: string | null;
   kickoff_at: string;
   stage: string;
+  group_name: string | null;
   status: MatchStatus;
   user_home_score: number | null;
   user_away_score: number | null;
   user_is_boosted: boolean | null;
   result_home_score: number | null;
   result_away_score: number | null;
+  points_earned: number | null;
 }
 
 function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
@@ -28,6 +30,7 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
     id: row.match_id,
     kickoff: row.kickoff_at,
     stage: row.stage,
+    group: row.group_name ?? undefined,
     status: row.status,
     homeTeam: {
       name: row.home_team_name,
@@ -44,12 +47,23 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
       awayScore: row.user_away_score,
       hasPrediction: row.user_home_score !== null,
     },
+    result: row.result_home_score != null && row.result_away_score != null
+      ? { homeScore: row.result_home_score, awayScore: row.result_away_score }
+      : undefined,
+    pointsEarned: row.points_earned ?? undefined,
   };
 }
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
   private readonly supabase = inject(SupabaseService);
+
+  getMatchById(id: string): Observable<MatchListItem | null> {
+    return this.getMatches().pipe(
+      map((matches) => matches.find((m) => m.id === id) ?? null),
+      first(),
+    );
+  }
 
   getMatches(): Observable<MatchListItem[]> {
     return from(this.supabase.client.rpc('get_match_list')).pipe(

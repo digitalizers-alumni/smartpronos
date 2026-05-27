@@ -6,7 +6,6 @@ import { MatchStatus } from '../../shared/models/match.models';
   selector: 'app-match-status-badge',
   standalone: true,
   templateUrl: './match-status-badge.html',
-  styleUrl: './match-status-badge.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchStatusBadge {
@@ -15,11 +14,11 @@ export class MatchStatusBadge {
   protected label(): string {
     switch (this.status()) {
       case 'scheduled':
-        return 'Ouvert';
+        return 'À pronostiquer';
       case 'locked':
-        return 'Verrouillé';
+        return 'Pronos clos';
       case 'finished':
-        return 'Terminé';
+        return 'Match joué';
       default:
         return '';
     }

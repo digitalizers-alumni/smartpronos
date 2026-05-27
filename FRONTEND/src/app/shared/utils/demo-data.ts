@@ -16,7 +16,8 @@ export const DEMO_MATCHES: MatchListItem[] = [
     id: 'wc-2026-g1',
     kickoff: '2026-06-14T17:00:00Z',
     competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe A',
+    stage: 'Phase de groupes',
+    group: 'A',
     venue: 'Azteca · Mexico City',
     status: 'scheduled',
     homeTeam: {
@@ -35,7 +36,8 @@ export const DEMO_MATCHES: MatchListItem[] = [
     id: 'wc-2026-g2',
     kickoff: '2026-06-14T20:00:00Z',
     competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe B',
+    stage: 'Phase de groupes',
+    group: 'B',
     venue: 'SoFi Stadium · Inglewood',
     status: 'scheduled',
     homeTeam: {
@@ -54,7 +56,8 @@ export const DEMO_MATCHES: MatchListItem[] = [
     id: 'wc-2026-g3',
     kickoff: '2026-06-15T18:00:00Z',
     competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe C',
+    stage: 'Phase de groupes',
+    group: 'C',
     venue: 'Mercedes-Benz · Atlanta',
     status: 'locked',
     homeTeam: {
@@ -73,7 +76,8 @@ export const DEMO_MATCHES: MatchListItem[] = [
     id: 'wc-2026-g4',
     kickoff: '2026-06-10T16:00:00Z',
     competition: 'Coupe du Monde 2026',
-    stage: 'Phase de groupes · Groupe D',
+    stage: 'Phase de groupes',
+    group: 'D',
     venue: 'Hard Rock · Miami',
     status: 'finished',
     homeTeam: {
@@ -87,6 +91,7 @@ export const DEMO_MATCHES: MatchListItem[] = [
       flagUrl: 'https://flagcdn.com/w160/us.png',
     },
     prediction: { homeScore: 3, awayScore: 2, hasPrediction: true },
+    result: { homeScore: 3, awayScore: 1 },
   },
 ];
 

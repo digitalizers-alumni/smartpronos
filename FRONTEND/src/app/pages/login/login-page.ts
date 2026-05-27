@@ -8,14 +8,14 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login-page.html',
-  styleUrl: './login-page.scss',
 })
 export class LoginPage {
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   protected hidePassword = true;
   protected errorMessage = signal('');
+  protected submitting = signal(false);
 
   protected readonly loginForm;
 
@@ -23,30 +23,24 @@ export class LoginPage {
     this.loginForm = this.fb.nonNullable.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      remember: [true],
     });
   }
 
-  protected togglePasswordVisibility(): void {
-    this.hidePassword = !this.hidePassword;
-  }
-
   protected async submit(): Promise<void> {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
+    if (this.loginForm.invalid || this.submitting()) return;
 
     this.errorMessage.set('');
+    this.submitting.set(true);
 
     try {
       const { email, password } = this.loginForm.getRawValue();
-      await this.auth.signIn(email, password);
+      await this.authService.signIn(email, password);
       await this.router.navigate(['/home', 'match-list']);
-    } catch (err) {
-      this.errorMessage.set(
-        err instanceof Error ? err.message : 'Erreur de connexion',
-      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Identifiants incorrects.';
+      this.errorMessage.set(msg);
+    } finally {
+      this.submitting.set(false);
     }
   }
 }

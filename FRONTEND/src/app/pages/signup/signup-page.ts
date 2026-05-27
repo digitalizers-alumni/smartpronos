@@ -1,71 +1,117 @@
 import { Component, signal, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TeamService, Team } from '../../services/team.service';
+
+function passwordsMatch(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password');
+  const confirm = control.get('confirmPassword');
+  if (password && confirm && password.value !== confirm.value) {
+    return { passwordsMismatch: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-signup-page',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './signup-page.html',
-  styleUrl: './signup-page.scss',
 })
 export class SignupPage {
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly teamService = inject(TeamService);
 
   protected isPasswordVisible = false;
   protected errorMessage = signal('');
+  protected submitting = signal(false);
 
   protected readonly signupForm;
 
+  protected step = signal<'form' | 'team'>('form');
+  protected teams = signal<Team[]>([]);
+  protected selectedTeamId = signal<string | null>(null);
+  protected savingTeam = signal(false);
+
   constructor(private readonly fb: FormBuilder) {
     this.signupForm = this.fb.nonNullable.group({
-      fullname: ['', [Validators.required, Validators.minLength(2)]],
+      firstname: ['', [Validators.required, Validators.minLength(2)]],
+      lastname: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-    });
+      confirmPassword: ['', [Validators.required]],
+    }, { validators: passwordsMatch });
   }
 
-  protected togglePasswordVisibility(): void {
-    this.isPasswordVisible = !this.isPasswordVisible;
-  }
+  protected needsEmailConfirmation = signal(false);
 
   protected async submit(): Promise<void> {
-    if (this.signupForm.invalid) {
-      this.signupForm.markAllAsTouched();
-      return;
-    }
+    if (this.signupForm.invalid || this.submitting()) return;
 
     this.errorMessage.set('');
+    this.submitting.set(true);
 
     try {
       const { email, password } = this.signupForm.getRawValue();
-      await this.auth.signUp(email, password);
-      await this.router.navigate(['/home', 'match-list']);
-    } catch (err) {
-      this.errorMessage.set(
-        err instanceof Error ? err.message : "Erreur d'inscription",
-      );
+      const result = await this.authService.signUp(email, password);
+      if (result?.session) {
+        this.teamService.getTeams().subscribe({
+          next: (teams) => {
+            this.teams.set(teams);
+            this.step.set('team');
+            this.submitting.set(false);
+          },
+          error: () => {
+            this.router.navigate(['/home', 'match-list']);
+          },
+        });
+      } else {
+        this.needsEmailConfirmation.set(true);
+        this.submitting.set(false);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Inscription impossible.';
+      this.errorMessage.set(msg);
+      this.submitting.set(false);
     }
   }
 
-  protected getControlError(controlName: 'fullname' | 'email' | 'password'): string | null {
-    const control = this.signupForm.controls[controlName];
-    if (!control.touched || control.valid) {
-      return null;
+  protected selectTeam(teamId: string): void {
+    this.selectedTeamId.set(this.selectedTeamId() === teamId ? null : teamId);
+  }
+
+  protected async confirmTeam(): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      await this.router.navigate(['/home', 'match-list']);
+      return;
     }
-    if (control.hasError('required')) {
-      return 'Ce champ est requis';
-    }
-    if (control.hasError('email')) {
-      return 'Email invalide';
-    }
-    if (control.hasError('minlength')) {
-      return controlName === 'password'
-        ? 'Minimum 8 caractères'
-        : 'Minimum 2 caractères';
-    }
+
+    this.savingTeam.set(true);
+    this.teamService.setFavoriteTeam(teamId).subscribe({
+      next: () => this.router.navigate(['/home', 'match-list']),
+      error: () => this.router.navigate(['/home', 'match-list']),
+    });
+  }
+
+  protected async skipConfirmation(): Promise<void> {
+    await this.authService.signOut().catch(() => {});
+    await this.router.navigate(['/home', 'match-list']);
+  }
+
+  protected async skipTeamPicker(): Promise<void> {
+    await this.router.navigate(['/home', 'match-list']);
+  }
+
+  protected getControlError(controlName: string): string | null {
+    const control = this.signupForm.get(controlName);
+    if (!control || !control.touched) return null;
+    if (control.hasError('required')) return 'Ce champ est requis';
+    if (control.hasError('email')) return 'Email invalide';
+    if (control.hasError('minlength')) return 'Minimum 8 caractères';
+    if (controlName === 'confirmPassword' && this.signupForm.hasError('passwordsMismatch') && control.touched) return 'Les mots de passe ne correspondent pas';
     return null;
   }
 }

@@ -1,145 +1,187 @@
-<main class="signup-page">
-  <div
-    class="background-stadium"
-    role="img"
-    aria-label="A wide-angle, hyper-realistic view of a massive football stadium at night."
-  >
-    <div class="background-overlay"></div>
-  </div>
-
-  <section class="content-canvas">
-    <div class="registration-card">
-      <div class="glass-highlight"></div>
-
-      <header class="header-section">
-        <h1>
-          REJOIGNEZ
-          <br />
-          <span>L'ARÈNE</span>
+<div class="flex flex-col h-full w-full bg-tribbo-bg px-8 py-12 md:py-16">
+  <div class="flex flex-col w-full max-w-sm mx-auto flex-1">
+    <!-- Header -->
+    <div class="flex flex-col items-center mb-10">
+      <button routerLink="/" class="mb-8 hover:opacity-80 transition-opacity">
+        <img src="assets/logo-tribbo.png" class="w-14 h-14 object-contain" alt="Tribbo" />
+      </button>
+      @if (step() === 'form') {
+        <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
+          Créer un<br />compte
         </h1>
-        <p>Créez votre compte SmartPronos 2026</p>
-      </header>
+      } @else {
+        <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
+          Ton équipe<br />de coeur
+        </h1>
+      }
+      <div class="h-1 w-12 bg-tribbo-primary mt-4 rounded-full"></div>
+      @if (step() === 'team') {
+        <p class="font-inter text-xs text-gray-400 mt-4 text-center leading-relaxed">
+          Choisis l'équipe que tu soutiens<br />pour personnaliser ton expérience
+        </p>
+      }
+    </div>
 
-      <form class="registration-form" [formGroup]="signupForm" (ngSubmit)="submit()">
-        <div class="input-group">
-          <label for="fullname">Nom complet</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined input-icon">person</span>
-            <input
-              id="fullname"
-              formControlName="fullname"
-              type="text"
-              placeholder="Ex: Kylian Mbappé"
-              autocomplete="name"
-            />
-          </div>
-          @if (getControlError('fullname'); as msg) {
-            <small class="input-error">{{ msg }}</small>
-          }
-        </div>
-
-        <div class="input-group">
-          <label for="email">Adresse Email</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined input-icon">mail</span>
-            <input
-              id="email"
-              formControlName="email"
-              type="email"
-              placeholder="champion@worldcup.com"
-              autocomplete="email"
-            />
-          </div>
-          @if (getControlError('email'); as msg) {
-            <small class="input-error">{{ msg }}</small>
-          }
-        </div>
-
-        <div class="input-group">
-          <label for="password">Mot de passe</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined input-icon">lock</span>
-            <input
-              id="password"
-              formControlName="password"
-              [type]="isPasswordVisible ? 'text' : 'password'"
-              placeholder="••••••••"
-              autocomplete="new-password"
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              (click)="togglePasswordVisibility()"
-              [attr.aria-label]="
-                isPasswordVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
-              "
-            >
-              <span class="material-symbols-outlined">
-                {{ isPasswordVisible ? 'visibility' : 'visibility_off' }}
+    @if (needsEmailConfirmation()) {
+      <div class="flex flex-col items-center gap-6 py-8">
+        <span class="text-6xl">✉️</span>
+        <p class="font-inter text-sm text-gray-500 text-center leading-relaxed">
+          Un email de confirmation t'a été envoyé.<br />
+          Clique sur le lien pour activer ton compte.
+        </p>
+        <button (click)="skipConfirmation()"
+          class="w-full bg-gray-100 text-gray-500 font-inter text-sm font-medium py-4 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-[0.98] mt-4">
+          Mode démo — Ignorer
+        </button>
+      </div>
+    } @else if (step() === 'team') {
+      <!-- Team picker -->
+      <div class="flex-1 overflow-y-auto -mx-2 px-2">
+        <div class="grid grid-cols-3 gap-3">
+          @for (team of teams(); track team.id) {
+            <button type="button"
+              (click)="selectTeam(team.id)"
+              class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-[0.97]"
+              [class.border-tribbo-primary]="selectedTeamId() === team.id"
+              [class.border-gray-100]="selectedTeamId() !== team.id"
+              [class.bg-tribbo-primary/5]="selectedTeamId() === team.id"
+              [class.bg-white]="selectedTeamId() !== team.id"
+              [class.shadow-sm]="selectedTeamId() !== team.id"
+              [class.shadow-md]="selectedTeamId() === team.id">
+              @if (team.flag_url) {
+                <img [src]="team.flag_url" [alt]="team.name" class="w-10 h-10 rounded-full object-cover shadow-sm" loading="lazy" />
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-400 font-bold">
+                  {{ team.code }}
+                </div>
+              }
+              <span class="font-inter text-[11px] text-gray-600 text-center leading-tight line-clamp-2">
+                {{ team.name }}
               </span>
             </button>
-          </div>
-          @if (getControlError('password'); as msg) {
-            <small class="input-error">{{ msg }}</small>
           }
         </div>
+      </div>
 
-        <div class="submit-container">
-          @if (errorMessage(); as msg) {
-            <small class="input-error input-error--api">{{ msg }}</small>
+      <div class="flex flex-col gap-3 pt-6">
+        <button type="button" (click)="confirmTeam()" [disabled]="savingTeam()"
+          class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (savingTeam()) {
+            Sauvegarde...
+          } @else {
+            {{ selectedTeamId() ? 'Confirmer' : 'Passer' }}
           }
-          <button type="submit" class="submit-btn" [disabled]="signupForm.invalid">
-            CRÉER MON COMPTE
-            <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
           </button>
+        <button type="button" (click)="skipTeamPicker()"
+          class="font-space text-[11px] uppercase tracking-tight text-gray-400 hover:text-gray-500 transition-colors text-center">
+          Passer cette étape
+        </button>
+      </div>
+    } @else {
+      <form [formGroup]="signupForm" (ngSubmit)="submit()" class="flex flex-col gap-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+              Prénom
+            </label>
+            <input
+              type="text"
+              formControlName="firstname"
+              placeholder="JEAN"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('firstname')?.touched && signupForm.get('firstname')?.invalid"
+              required
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+              Nom
+            </label>
+            <input
+              type="text"
+              formControlName="lastname"
+              placeholder="DUPONT"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('lastname')?.touched && signupForm.get('lastname')?.invalid"
+              required
+            />
+          </div>
         </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+            Email professionnel
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="JEAN.DUPONT@DIGITALIZERS.FR"
+            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+            required
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+            Mot de passe
+          </label>
+          <input
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••••••"
+            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+            required
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+            Confirmer le mot de passe
+          </label>
+          <input
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="••••••••••••"
+            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+            [class.border-red-300]="signupForm.get('confirmPassword')?.touched && (signupForm.get('confirmPassword')?.invalid || signupForm.hasError('passwordsMismatch'))"
+            required
+          />
+        </div>
+
+        <button type="button" (click)="isPasswordVisible = !isPasswordVisible"
+          class="font-space text-[10px] uppercase tracking-widest text-gray-400 text-left -mt-2 hover:text-gray-500 transition-colors">
+          {{ isPasswordVisible ? 'Masquer' : 'Afficher' }} les mots de passe
+        </button>
+
+        @if (errorMessage()) {
+          <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p class="font-inter text-xs text-red-600">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          class="w-full bg-tribbo-primary text-white font-archivo text-sm uppercase tracking-wider py-5 rounded-xl shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)] active:scale-[0.98] transition-all hover:brightness-110 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (submitting()) {
+            Inscription...
+          } @else {
+            Créer mon compte
+          }
+        </button>
       </form>
+    }
 
-      <div class="divider" aria-hidden="true">
-        <div class="line"></div>
-        <span>Ou</span>
-        <div class="line"></div>
-      </div>
-
-      <div class="social-signup">
-        <button type="button" class="social-btn">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              fill="#4285F4"
-            ></path>
-            <path
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              fill="#34A853"
-            ></path>
-            <path
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              fill="#FBBC05"
-            ></path>
-            <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              fill="#EA4335"
-            ></path>
-          </svg>
-          <span>Google</span>
-        </button>
-
-        <button type="button" class="social-btn">
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="apple-svg">
-            <path
-              d="M16.365 7.022c-.015.01-.035.015-.05.025-1.57.805-2.585 2.45-2.585 4.31 0 2.505 1.95 4.415 4.355 4.675-.025.075-.05.15-.08.225-1.07 3.12-3.32 6.745-6.025 6.745-1.22 0-2.455-.77-3.905-.77-1.42 0-2.64.765-3.9.765C1.65 23 0 18.235 0 13.91c0-4.04 2.22-7.39 5.6-7.39 1.41 0 2.65.75 3.93.75 1.25 0 2.45-.75 3.92-.75.98 0 1.96.22 2.915.5zM11.53.003c.01-.002.025-.003.04-.003C13.882 0 16.03 2.102 16.03 4.406c0 2.3-2.148 4.405-4.46 4.405-.01 0-.025 0-.04-.002C9.218 8.81 7.07 6.708 7.07 4.404 7.07 2.102 9.218 0 11.53 0z"
-            ></path>
-          </svg>
-          <span>Apple</span>
-        </button>
-      </div>
-
-      <footer class="card-footer">
-        <p>
-          Déjà un compte ?
-          <a routerLink="/login">Se connecter</a>
-        </p>
-      </footer>
+    <!-- Footer -->
+    <div class="mt-auto pt-10 flex flex-col items-center">
+      <button
+        routerLink="/login"
+        class="font-space text-[11px] uppercase tracking-tight text-gray-400 group"
+      >
+        Déjà inscrit&nbsp;?
+        <span class="text-tribbo-primary font-bold group-hover:underline">Se connecter</span>
+      </button>
     </div>
-  </section>
-</main>
+  </div>
+</div>

@@ -1,67 +1,62 @@
-<a
-  class="match-card"
-  [routerLink]="['/match', match().id, 'prediction-form']"
+<div
+  [routerLink]="['/match', match().id, 'detail']"
+  class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full min-h-[240px] flex flex-col relative overflow-hidden"
 >
-  <div class="match-card__header">
-    <div class="match-card__time">
-      <span class="material-symbols-outlined match-card__time-icon">schedule</span>
-      <time [attr.datetime]="match().kickoff">
-        {{ match().kickoff | date: "HH:mm" : 'UTC' : 'fr-FR' }}
-      </time>
-      <span class="match-card__time-zone">UTC</span>
-    </div>
-    <app-match-status-badge [status]="match().status" />
-  </div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
 
-  <div class="match-card__teams">
-    <div class="match-card__team match-card__team--home">
-      @if (match().homeTeam.flagUrl; as flag) {
-        <img
-          [src]="flag"
-          [alt]="'Drapeau ' + match().homeTeam.name"
-          class="match-card__flag"
-          width="40"
-          height="28"
-        />
+  <div class="flex items-center justify-between mb-4 text-xs text-gray-500 font-inter font-medium relative">
+    <span class="flex items-center gap-1.5">📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
+    <div class="flex gap-1.5">
+      @if (match().stage) {
+        <span class="bg-gray-50 px-2.5 py-1 rounded-full">{{ stageLabel() }}</span>
       }
-      <div class="match-card__team-text">
-        <span class="match-card__team-name">{{ match().homeTeam.name }}</span>
-        <span class="match-card__team-code">{{ match().homeTeam.shortCode }}</span>
-      </div>
-    </div>
-
-    <span class="match-card__vs" aria-hidden="true">VS</span>
-
-    <div class="match-card__team match-card__team--away">
-      <div class="match-card__team-text match-card__team-text--end">
-        <span class="match-card__team-name">{{ match().awayTeam.name }}</span>
-        <span class="match-card__team-code">{{ match().awayTeam.shortCode }}</span>
-      </div>
-      @if (match().awayTeam.flagUrl; as flag) {
-        <img
-          [src]="flag"
-          [alt]="'Drapeau ' + match().awayTeam.name"
-          class="match-card__flag"
-          width="40"
-          height="28"
-        />
+      @if (match().group) {
+        <span class="bg-tribbo-primary/10 text-tribbo-primary px-2.5 py-1 rounded-full font-semibold">Groupe {{ match().group }}</span>
       }
     </div>
   </div>
 
-  @if (match().stage) {
-    <p class="match-card__meta">{{ match().stage }}</p>
-  }
-
-  <div class="match-card__prediction">
-    <span class="material-symbols-outlined match-card__prediction-icon">sports_soccer</span>
-    <div class="match-card__prediction-text">
-      <span class="match-card__prediction-summary">{{ predictionLine() }}</span>
-      <span class="match-card__prediction-hint">{{ predictionHint() }}</span>
+  <div class="flex items-center justify-between flex-1 relative">
+    <div class="flex flex-col items-center gap-2 flex-1">
+      <img [src]="match().homeTeam.flagUrl || ''" class="w-12 h-12 rounded-full object-cover" alt="" />
+      <span class="font-archivo text-sm text-tribbo-text text-center leading-tight">{{ match().homeTeam.name }}</span>
+    </div>
+    <div class="px-3 font-space text-gray-300 font-bold text-xl">VS</div>
+    <div class="flex flex-col items-center gap-2 flex-1">
+      <img [src]="match().awayTeam.flagUrl || ''" class="w-12 h-12 rounded-full object-cover" alt="" />
+      <span class="font-archivo text-sm text-tribbo-text text-center leading-tight">{{ match().awayTeam.name }}</span>
     </div>
   </div>
 
-  <span class="match-card__cta">
-    <span class="material-symbols-outlined">chevron_right</span>
-  </span>
-</a>
+  <div class="mt-3 pt-3 border-t border-gray-100 relative">
+    @if (match().prediction.hasPrediction) {
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Mon prono</span>
+        <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.homeScore }}</span>
+        <span class="font-space text-gray-300">-</span>
+        <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.awayScore }}</span>
+      </div>
+    } @else {
+      <div class="flex items-center justify-center mb-3">
+        <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
+      </div>
+    }
+    <div
+      class="w-full text-center font-inter font-semibold text-sm py-3 rounded-xl transition-all"
+      [class.bg-tribbo-primary]="match().status === 'scheduled'"
+      [class.text-white]="match().status === 'scheduled'"
+      [class.bg-gray-100]="match().status !== 'scheduled'"
+      [class.text-gray-400]="match().status !== 'scheduled'"
+    >
+      @if (match().status === 'finished') {
+        Match terminé
+      } @else if (match().status === 'locked') {
+        Pronos clos
+      } @else if (match().prediction.hasPrediction) {
+        Modifier mon prono
+      } @else {
+        Faire mon prono
+      }
+    </div>
+  </div>
+</div>

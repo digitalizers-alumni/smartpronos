@@ -1,2 +1,81 @@
-<router-outlet />
+<div class="h-screen w-full flex flex-col bg-tribbo-bg md:bg-gray-100">
+  <!-- Desktop Top Navigation Bar -->
+  @if (showAppChrome()) {
+    <header class="fixed top-0 left-0 right-0 z-40 hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0">
+      <a (click)="navigateTo('/home/match-list')" class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="assets/logo-tribbo.png" class="w-10 h-10 object-contain" alt="Tribbo" />
+        <span class="font-archivo text-lg text-tribbo-text uppercase tracking-tight">Tribbo</span>
+      </a>
+      <nav class="flex items-center gap-1">
+        <a (click)="navigateTo('/home/match-list')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/home/match-list')"
+           [class.font-semibold]="isActive('/home/match-list')"
+           [class.bg-tribbo-primary/5]="isActive('/home/match-list')"
+           [class.text-gray-500]="!isActive('/home/match-list')"
+        >Accueil</a>
+         <a (click)="navigateTo('/leaderboard')"
+            class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+            [class.text-tribbo-primary]="isActive('/leaderboard')"
+            [class.font-semibold]="isActive('/leaderboard')"
+            [class.bg-tribbo-primary/5]="isActive('/leaderboard')"
+            [class.text-gray-500]="!isActive('/leaderboard')"
+         >Classement</a>
+         <a (click)="navigateTo('/company')"
+            class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+            [class.text-tribbo-primary]="isActive('/company')"
+            [class.font-semibold]="isActive('/company')"
+            [class.bg-tribbo-primary/5]="isActive('/company')"
+            [class.text-gray-500]="!isActive('/company')"
+         >Tribu</a>
+        <a (click)="navigateTo('/profile')"
+           class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
+           [class.text-tribbo-primary]="isActive('/profile')"
+           [class.font-semibold]="isActive('/profile')"
+           [class.bg-tribbo-primary/5]="isActive('/profile')"
+           [class.text-gray-500]="!isActive('/profile')"
+        >Profil</a>
+      </nav>
+      <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+        <span class="material-symbols-outlined text-xl">notifications</span>
+      </button>
+    </header>
+  }
 
+  <!-- Mobile TopAppBar -->
+  @if (showAppChrome()) {
+    <div class="fixed top-0 left-0 right-0 z-40 flex md:hidden shrink-0">
+      <app-top-app-bar />
+    </div>
+  }
+
+  <!-- Scrollable Content Area -->
+  <main class="flex-1 overflow-y-auto overflow-x-hidden"
+        [class.pt-14]="showAppChrome()"
+        [class.md:pt-16]="showAppChrome()"
+        [class.pb-16]="showAppChrome()"
+        [class.md:pb-0]="showAppChrome()">
+    <div class="mx-auto w-full"
+         [class.md:max-w-lg]="isAuthScreen()"
+         [class.md:max-w-7xl]="showAppChrome()">
+      <router-outlet />
+    </div>
+
+
+  </main>
+
+  <!-- Desktop Footer -->
+  @if (showAppChrome()) {
+    <footer class="hidden md:flex shrink-0 h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2 z-10">
+      <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
+      <img src="assets/logo-digitalizers.png" class="h-5 opacity-40" alt="Digitalizers" />
+    </footer>
+  }
+
+  <!-- Mobile Bottom Navigation (fixed at bottom) -->
+  @if (showAppChrome()) {
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex md:hidden">
+      <app-bottom-nav />
+    </nav>
+  }
+</div>

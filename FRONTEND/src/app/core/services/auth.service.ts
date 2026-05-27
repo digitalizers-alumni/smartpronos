@@ -23,6 +23,9 @@ export class AuthService {
       password,
     });
     if (error) throw error;
+    if (data?.session) {
+      this.currentUser.set(data.session.user);
+    }
     return data;
   }
 
@@ -32,7 +35,19 @@ export class AuthService {
       password,
     });
     if (error) throw error;
+    if (data?.session) {
+      this.currentUser.set(data.session.user);
+    }
     return data;
+  }
+
+  async restoreSession(): Promise<boolean> {
+    const { data } = await this.supabase.client.auth.getSession();
+    if (data.session) {
+      this.currentUser.set(data.session.user);
+      return true;
+    }
+    return false;
   }
 
   async signOut() {
