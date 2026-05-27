@@ -26,10 +26,12 @@ jobs:
         run: npm install -g serve wait-on
 
       - name: Start app
-        run: serve -s FRONTEND/dist -l 4200 &
-
+        run: npx serve -s FRONTEND/dist -l 4200 &
+        working-directory: FRONTEND
+  
       - name: Wait for app
-        run: wait-on http://localhost:4200
+        run: npx wait-on http://localhost:4200 --timeout 30000
+        working-directory: FRONTEND
 
       - name: Run Cypress
         run: npx cypress run
