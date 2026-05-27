@@ -7,17 +7,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-<<<<<<< HEAD
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, of, catchError, tap } from 'rxjs';
-=======
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
->>>>>>> 94498ad (Modify rxfs import and noimplicitAny has been added to False)
+import { map, switchMap, catchError, tap, of } from 'rxjs';
 
 import { PredictionForm } from '../../components/prediction-form/prediction-form';
-
 import {
   PredictionFormValue,
   PredictionFormTeam,
@@ -78,7 +72,6 @@ export class PredictionFormPage {
       });
   }
 
-<<<<<<< HEAD
   protected readonly homeTeam = computed<PredictionFormTeam>(() => {
     const m = this.match();
     if (!m) return { name: '—', shortCode: '' };
@@ -88,12 +81,6 @@ export class PredictionFormPage {
       flagUrl: m.homeTeam.flagUrl,
     };
   });
-=======
-protected readonly match = computed<MatchInfo>(() => {
-    const id = this.matchIdParam();
-    return { ...DEMO_MATCH, id: (id ?? DEMO_MATCH.id) as string };
-});
->>>>>>> 94498ad (Modify rxfs import and noimplicitAny has been added to False)
 
   protected readonly awayTeam = computed<PredictionFormTeam>(() => {
     const m = this.match();
