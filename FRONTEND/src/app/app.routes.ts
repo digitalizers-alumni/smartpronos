@@ -58,6 +58,11 @@ export const routes: Routes = [
       import('./pages/profile/profile-page').then((m) => m.ProfilePage),
   },
   {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./pages/auth-callback/auth-callback-page').then((m) => m.AuthCallbackPage),
+  },
+  {
     path: '**',
     redirectTo: '/home/match-list',
   },

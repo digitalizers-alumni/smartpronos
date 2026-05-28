@@ -29,10 +29,6 @@
           Un email de confirmation t'a été envoyé.<br />
           Clique sur le lien pour activer ton compte.
         </p>
-        <button (click)="skipConfirmation()"
-          class="w-full bg-gray-100 text-gray-500 font-inter text-sm font-medium py-4 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-[0.98] mt-4">
-          Mode démo — Ignorer
-        </button>
       </div>
     } @else if (step() === 'team') {
       <!-- Team picker -->
@@ -130,8 +126,12 @@
             formControlName="password"
             placeholder="••••••••••••"
             class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+            [class.border-red-300]="signupForm.get('password')?.touched && signupForm.get('password')?.invalid"
             required
           />
+          @if (signupForm.get('password')?.touched && signupForm.get('password')?.invalid) {
+            <p class="font-inter text-xs text-red-500 mt-1">{{ getControlError('password') }}</p>
+          }
         </div>
 
         <div class="flex flex-col gap-1.5">

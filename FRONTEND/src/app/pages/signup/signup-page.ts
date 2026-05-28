@@ -13,6 +13,15 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   return null;
 }
 
+function passwordComplexity(control: AbstractControl): ValidationErrors | null {
+  const value: string = control.value || '';
+  const errors: Record<string, boolean> = {};
+  if (!/[A-Z]/.test(value)) errors['missingUppercase'] = true;
+  if (!/[a-z]/.test(value)) errors['missingLowercase'] = true;
+  if (!/[0-9]/.test(value)) errors['missingDigit'] = true;
+  return Object.keys(errors).length ? errors : null;
+}
+
 @Component({
   selector: 'app-signup-page',
   standalone: true,
@@ -40,7 +49,7 @@ export class SignupPage {
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(8), passwordComplexity]],
       confirmPassword: ['', [Validators.required]],
     }, { validators: passwordsMatch });
   }
@@ -96,11 +105,6 @@ export class SignupPage {
     });
   }
 
-  protected async skipConfirmation(): Promise<void> {
-    await this.authService.signOut().catch(() => {});
-    await this.router.navigate(['/home', 'match-list']);
-  }
-
   protected async skipTeamPicker(): Promise<void> {
     await this.router.navigate(['/home', 'match-list']);
   }
@@ -111,6 +115,9 @@ export class SignupPage {
     if (control.hasError('required')) return 'Ce champ est requis';
     if (control.hasError('email')) return 'Email invalide';
     if (control.hasError('minlength')) return 'Minimum 8 caractères';
+    if (control.hasError('missingUppercase')) return 'Doit contenir une majuscule';
+    if (control.hasError('missingLowercase')) return 'Doit contenir une minuscule';
+    if (control.hasError('missingDigit')) return 'Doit contenir un chiffre';
     if (controlName === 'confirmPassword' && this.signupForm.hasError('passwordsMismatch') && control.touched) return 'Les mots de passe ne correspondent pas';
     return null;
   }
