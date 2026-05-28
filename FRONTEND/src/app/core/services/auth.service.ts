@@ -55,4 +55,17 @@ export class AuthService {
     if (error) throw error;
     this.currentUser.set(null);
   }
+
+  async resetPassword(email: string) {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(
+      email,
+      { redirectTo: `${window.location.origin}/auth/update-password` },
+    );
+    if (error) throw error;
+  }
+
+  async updatePassword(newPassword: string) {
+    const { error } = await this.supabase.client.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
 }

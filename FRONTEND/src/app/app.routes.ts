@@ -63,6 +63,11 @@ export const routes: Routes = [
       import('./pages/auth-callback/auth-callback-page').then((m) => m.AuthCallbackPage),
   },
   {
+    path: 'auth/update-password',
+    loadComponent: () =>
+      import('./pages/update-password/update-password-page').then((m) => m.UpdatePasswordPage),
+  },
+  {
     path: '**',
     redirectTo: '/home/match-list',
   },
