@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
         routerLink="/"
         class="flex items-center gap-2 hover:opacity-80 transition-opacity"
       >
-        <img src="assets/logo-tribbo.png" class="w-9 h-9 object-contain" alt="Tribbo" />
+        <img src="assets/logo-tribbo-mark.svg" class="w-9 h-9 object-contain" alt="Tribbo" />
         <span class="font-archivo text-base text-tribbo-text uppercase tracking-tight leading-none">Tribbo</span>
       </button>
       <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
