@@ -81,12 +81,14 @@ export class ProfilePage {
     this.showDeleteConfirm.set(true);
     this.deleteConfirmText.set('');
     this.deleteError.set('');
+    document.body.style.overflow = 'hidden';
   }
 
   protected closeDeleteConfirm(): void {
     this.showDeleteConfirm.set(false);
     this.deleteConfirmText.set('');
     this.deleteError.set('');
+    document.body.style.overflow = '';
   }
 
   protected async confirmDelete(): Promise<void> {
@@ -97,6 +99,7 @@ export class ProfilePage {
     this.teamService.deleteMyAccount().subscribe({
       next: async () => {
         this.authService.currentUser.set(null);
+        document.body.style.overflow = '';
         await this.router.navigateByUrl('/');
       },
       error: (err) => {
