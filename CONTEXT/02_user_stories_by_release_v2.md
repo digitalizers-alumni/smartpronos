@@ -54,7 +54,7 @@ Les stories backend et data référencent le schéma v2 produit lors de la sessi
 - D-005 : pas de stockage des points
 - D-006 : teams libres reportées post-MVP
 - D-007 : statut match calculé dynamiquement
-- D-008 : membres sans prono exclus de la moyenne entreprise
+- D-008 : membres sans prono exclus de la moyenne de la Tribu
 - D-009 : risques DB acceptés pour le MVP
 - D-010 : profil créé via trigger sur `auth.users`
 - D-011 : invite_code 8 chars alphanum (pas d'I/O/0/1)
@@ -64,7 +64,7 @@ Les stories backend et data référencent le schéma v2 produit lors de la sessi
 
 # 🟦 RELEASE R0 — Walking Skeleton & Foundations
 
-> **Premier slice E2E minimal.** Un utilisateur peut s'inscrire, voir un match du référentiel, et soumettre un prono persisté. Pas encore de scoring, pas de leaderboard, pas d'entreprise — mais tous les teams contribuent dès cette release : DevOps (infra), Frontend (shell + login + match list + prono form), Backend (auth, matchs, pronos basiques, RLS), Data (référentiel équipes/matchs), QA (auth E2E).
+> **Premier slice E2E minimal.** Un utilisateur peut s'inscrire, voir un match du référentiel, et soumettre un prono persisté. Pas encore de scoring, pas de leaderboard, pas de Tribu — mais tous les teams contribuent dès cette release : DevOps (infra), Frontend (shell + login + match list + prono form), Backend (auth, matchs, pronos basiques, RLS), Data (référentiel équipes/matchs), QA (auth E2E).
 
 ---
 
@@ -1854,7 +1854,7 @@ afin de rendre visible la bataille sociale inter-Tribus.
 - Le score Tribu est basé sur la moyenne des points des membres
 - Le nombre de membres peut être retourné
 - Les Tribus sans score sont gérées proprement
-- Le classement inter-Tribu exclut les Tribu-nations (seules les Tribus d'entreprise/groupe concourent)
+- Le classement inter-Tribu exclut les Tribu-nations (seules les Tribus créées par les utilisateurs, hors Tribu-nation, concourent)
 ```
 
 #### Tables / vues concernées
@@ -1890,8 +1890,8 @@ afin que le frontend puisse générer un lien d’invitation.
 #### Critères d’acceptation
 
 ```txt
-- Chaque entreprise possède un invite_code unique
-- Le code permet de retrouver l’entreprise
+- Chaque Tribu possède un invite_code unique
+- Le code permet de retrouver la Tribu
 - Le code ne contient pas d’information sensible
 - Le lien peut être reconstruit côté frontend
 - Tout membre peut générer et partager le lien d'invitation
@@ -2283,7 +2283,7 @@ afin de comparer les choix une fois le match lancé.
 - Sur un match verrouillé/terminé, un accès "Voir les pronos de ta Tribu" est disponible
 - L'écran liste chaque membre avec son prono (et résultat/points si match terminé)
 - Les données consomment US-BE-031
-- Cet écran remplace le recap d'entreprise post-match
+- Cet écran remplace le recap post-match
 ```
 
 #### Pages, composants et services concernés
@@ -2671,7 +2671,7 @@ En tant qu’utilisateur, je veux que l’application reste stable même en cas 
 
 # 🟥 RELEASE R4 — Viral Growth Layer
 
-> **Activer la boucle virale.** CTA d'invitation contextuel, statut ambassadeur visible, badges et microcopy fun, tracking des événements clés (signup → first prono → first invite → converted). Tous les teams contribuent.
+> **Activer la boucle virale.** CTA d'invitation contextuel, badges et microcopy fun, tracking des événements clés (signup → first prono → first invite). Tous les teams contribuent.
 
 ---
 
@@ -2969,7 +2969,7 @@ Moyenne
 #### Fichiers, configurations et services concernés
 
 - Service tracking : à définir (PostHog, Plausible, ou équivalent simple)
-- Événements clés : `signup`, `first_prediction`, `invite_sent`, `invite_converted`, `boost_activated`, `match_predicted`
+- Événements clés : `signup`, `first_prediction`, `invite_sent`, `tribu_joined`, `boost_activated`, `match_predicted`
 - Fichier : `src/lib/analytics.ts`
 - Variables d'env : `ANALYTICS_KEY`
 
@@ -3064,7 +3064,7 @@ afin que le frontend puisse afficher une vue rivalité 1-to-1 sans logique méti
   - Résultat officiel (si match terminé)
   - Points gagnés par chacun
 - Retourne aussi le score cumulé : "A: 47 - B: 38" sur les matchs joués
-- L'appelant et la cible doivent appartenir à la même entreprise (sinon refus)
+- L'appelant et la cible doivent appartenir à la même Tribu (sinon refus)
 - Le calcul des points reste strictement côté backend
 ```
 
@@ -3110,7 +3110,7 @@ afin de respecter le droit à l'effacement (RGPD article 17).
 - L'utilisateur authentifié confirme son intention
 - À la suppression :
   - Le profil est supprimé
-  - L'appartenance aux entreprises est supprimée
+  - L'appartenance aux Tribus est supprimée
   - Les pronos sont supprimés (ou anonymisés si statistiquement utiles)
   - Le token d'authentification est invalidé
 - L'opération est définitive
@@ -3161,9 +3161,9 @@ afin qu'il puisse se retirer en cas d'erreur d'adhésion ou de changement de sit
 - L'utilisateur conserve toujours sa Tribu-nation de base
 - Ses pronos restent intacts (l'historique de jeu n'est pas affecté)
 - Le score de Tribu est recalculé sans l'utilisateur sortant
-- Cas particulier — l'utilisateur est le créateur de l'entreprise :
+- Cas particulier — l'utilisateur est le créateur de la Tribu :
   règle à trancher avec le PO (transmission de la propriété, refus,
-  ou suppression de l'entreprise si dernier membre)
+  ou suppression de la Tribu si dernier membre)
 - L'opération est traçable côté backend
 ```
 
@@ -3267,7 +3267,7 @@ afin d'attirer mes collègues via du brag externe (Slack, LinkedIn, WhatsApp).
   (1200x630 paysage ou 1080x1080 carré) contenant :
   - Pseudo de l'utilisateur
   - Rang actuel (ex: "2ème sur 87")
-  - Logo / nom entreprise
+  - Logo / nom de la Tribu
   - Microcopy fun (ex: "🔥 Top performer chez Patek SA")
   - Branding minimal "Pronostic 2026"
 - Sur mobile : utilisation de l'API Web Share native si disponible
@@ -3379,7 +3379,7 @@ afin de pouvoir corriger une mauvaise adhésion ou marquer un changement d'emplo
   (profil ou settings)
 - Confirmation explicite :
   "Tu ne feras plus partie de [Tribu]. Confirmer ?"
-- Après confirmation : redirection normale vers l'app (pas d'état vide "sans entreprise")
+- Après confirmation : redirection normale vers l'app (pas d'état vide "sans Tribu")
 - Mes pronos restent intacts et continuent à être comptés
   dans le classement global
 - État géré dans l'UI (pas d'appel infini si déjà retiré)
@@ -3659,678 +3659,32 @@ En tant que présentateur, je veux que l’application fonctionne parfaitement e
 
 # 🛡️ COMPLÉMENTS BACKLOG — Couverture fonctionnelle & conformité
 
-> **Pourquoi cette section existe.** L'audit du backlog (post-MOAT) révèle
-> 5 trous fonctionnels et de conformité que le découpage initial par release
-> n'avait pas adressés. Trois sont des oublis du parcours utilisateur (Mes pronos,
-> logout, vue match terminé), deux sont des cas d'usage réels manquants
-> (quitter une entreprise, suppression de compte). Ce dernier point est
-> **bloquant légal** pour une mise en prod sur le marché suisse / UE :
-> l'article 17 du RGPD impose le droit à l'effacement.
->
-> Les 5 features se traduisent en 7 stories (les 2 features avec couplage
-> backend/frontend sont scindées). Chaque story indique sa **release recommandée**
-> pour intégration au plan existant.
-
 ---
-
-### US-FE-031 — Historique
-
-En tant qu'utilisateur,
-je veux voir mon historique d'activité de pronostics en un seul endroit,
-afin de suivre ma progression sur les matchs passés.
-
-#### Critères d'acceptation
-
-```txt
-- Page dédiée "Historique" accessible depuis la navigation principale
-- Liste les pronos passés de l'utilisateur, triés par date de match
-  (le plus récent en haut)
-- Pour chaque prono : équipes, date, mon score, statut du match
-  (terminé uniquement)
-- Pour les matchs terminés : afficher également le résultat officiel
-  et les points gagnés
-- Indicateur visuel pour les pronos boostés
-- Les pronos à venir / verrouillés n'apparaissent pas dans cette vue
-- État vide explicatif si aucun historique n'est disponible
-- Mobile-first
-- Aucun calcul côté frontend (consomme l'endpoint US-BE-019)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/predictions/mine
-- components/prediction-row (réutilisable)
-- services/prediction.service
-```
-
-#### Vision link
-
-```txt
-"Voir ses pronos" — US-008 (02_user_stories.md, parcours utilisateur critique MVP)
-```
-
-#### Release recommandée
-
-```txt
-R3 (Matchs & Pronostics) pour la version basique, enrichie en R4
-avec les résultats et points
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-### US-FE-032 — Déconnexion / logout
-
-En tant qu'utilisateur,
-je veux pouvoir me déconnecter de l'application,
-afin de protéger mon compte sur des appareils partagés.
-
-#### Critères d'acceptation
-
-```txt
-- Bouton "Se déconnecter" accessible depuis la page profil
-- Au clic : confirmation simple ("Es-tu sûr ?") puis déconnexion effective
-- Redirection vers la page de login
-- Le token de session est invalidé côté serveur (pas seulement côté client)
-- Aucune donnée utilisateur ne reste accessible après déconnexion
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/profile/view (bouton intégré)
-- services/auth.service (méthode logout)
-```
-
-#### Vision link
-
-```txt
-"L'utilisateur peut se déconnecter" — US-QA-001
-```
-
-#### Release recommandée
-
-```txt
-R1 (Authentification & Profil) — complète US-FE-001 et US-BE-001/002
-```
-
-#### Priorité
-
-```txt
-P0
-```
-
----
-
-### US-FE-033 — Vue match terminé
-
-En tant qu'utilisateur,
-je veux voir clairement mon prono, le résultat officiel et les points gagnés
-sur un match terminé,
-afin de comprendre comment mon score s'est construit.
-
-#### Critères d'acceptation
-
-```txt
-- Sur la fiche match (US-FE-007), si le match est terminé :
-  - Mon prono affiché côte à côte avec le résultat officiel
-  - Indicateur visuel clair : score exact / bon résultat / mauvais
-  - Points gagnés sur ce match (avec bonus boost x2 si applicable)
-- Si je n'ai pas fait de prono sur ce match : message explicite
-  "Tu n'as pas joué ce match"
-- Microcopy adaptative :
-  "🎯 Score exact !" / "👍 Bon résultat" / "Pas pour cette fois"
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/match/detail (variante "finished")
-- components/match-result-card
-```
-
-#### Vision link
-
-```txt
-"Recevoir des points / Voir mon classement" — étapes 10-11 du parcours
-utilisateur critique (02_user_stories.md)
-```
-
-#### Release recommandée
-
-```txt
-R4 (Résultats, Scoring & Leaderboards) — dépend de US-BE-012 et US-BE-013
-```
-
-#### Priorité
-
-```txt
-P0
-```
-
----
-
-### US-BE-028 — Suppression de compte (RGPD)
-
-En tant que backend,
-je veux permettre à un utilisateur de supprimer son compte et toutes ses données,
-afin de respecter le droit à l'effacement (RGPD article 17).
-
-#### Critères d'acceptation
-
-```txt
-- Endpoint sécurisé acceptant une demande de suppression
-- L'utilisateur authentifié confirme son intention
-- À la suppression :
-  - Le profil est supprimé
-  - L'appartenance aux entreprises est supprimée
-  - Les pronos sont supprimés (ou anonymisés si statistiquement utiles)
-  - Le token d'authentification est invalidé
-- L'opération est définitive
-- Une trace minimale (sans données personnelles) peut être conservée pour audit
-- Confirmation envoyée par email avant suppression effective
-```
-
-#### Vision link
-
-```txt
-RGPD article 17 — droit à l'effacement (obligation légale, marché suisse + UE)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — au minimum avant mise en prod publique
-```
-
-#### Schéma v2 — éléments concernés
-
-- Cascade DELETE déjà en place : `auth.users` → `profiles` → `company_members` + `predictions` (toutes les FK ON DELETE CASCADE)
-- Endpoint déclenche : `auth.admin.deleteUser()` côté Supabase
-- Pas d'impact sur `match_results` (immuables, FK uniquement vers `matches`)
-- Pas de soft-delete (D-009)
-
-#### Priorité
-
-```txt
-P0 (bloquant légal pour mise en prod)
-```
-
----
-
-### US-FE-034 — Suppression de compte + mentions légales / privacy policy
-
-En tant qu'utilisateur,
-je veux pouvoir consulter la politique de confidentialité et supprimer mon compte
-si je le souhaite,
-afin de garder le contrôle sur mes données personnelles.
-
-#### Critères d'acceptation
-
-```txt
-- Page dédiée "Confidentialité" accessible depuis le profil ou le pied de page
-- Texte clair sur :
-  - Quelles données sont collectées
-  - À quoi elles servent
-  - Combien de temps elles sont conservées
-  - Comment exercer mes droits (accès, rectification, suppression)
-- Bouton "Supprimer mon compte" sur la page profil :
-  - Double confirmation explicite
-    ("Cette action est irréversible. Confirmer ?")
-  - Saisie du mot de passe ou re-confirmation par email
-  - Feedback clair après suppression effective
-- Si tracking activé (US-DO-010) : bandeau de consentement cookies
-  au premier login
-- Lien vers la politique de confidentialité visible depuis le pied de page
-  ou la page de connexion
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/legal/privacy
-- pages/profile/delete-account
-- components/cookie-consent-banner
-- services/user.service
-```
-
-#### Vision link
-
-```txt
-RGPD — obligation légale (marché suisse + UE)
-Conformité indispensable pour une mise en prod
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — au minimum avant mise en prod publique
-```
-
-#### Priorité
-
-```txt
-P0 (bloquant légal pour mise en prod)
-```
-
----
-
-### US-BE-029 — Quitter une Tribu
-
-En tant que backend,
-je veux permettre à un utilisateur de quitter une Tribu,
-afin qu'il puisse se retirer en cas d'erreur d'adhésion ou de changement de situation.
-
-#### Critères d'acceptation
-
-```txt
-- Endpoint accepte une demande de retrait pour l'utilisateur authentifié
-- L'utilisateur n'est plus listé comme membre de la Tribu quittée
-- L'utilisateur conserve toujours sa Tribu-nation de base
-- Ses pronos restent intacts (l'historique de jeu n'est pas affecté)
-- Le score de Tribu est recalculé sans l'utilisateur sortant
-- Cas particulier — l'utilisateur est le créateur de l'entreprise :
-  règle à trancher avec le PO (transmission de la propriété, refus,
-  ou suppression de l'entreprise si dernier membre)
-- L'opération est traçable côté backend
-```
-
-#### Vision link
-
-```txt
-Cas d'usage réel manquant : changement d'employeur, erreur d'adhésion
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — peut techniquement être en R2 mais pas bloquant pour la démo
-```
-
-#### Schéma v2 — éléments concernés
-
-- DELETE simple sur `company_members` (pas de cascade)
-- Les `predictions` restent intactes (FK vers `profiles`, pas vers `companies`)
-- Vue `company_scores` recalcule automatiquement (D-005)
-- Cas créateur : `companies.created_by` reste, mais l'utilisateur n'est plus membre — règle UX à trancher
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-### US-FE-035 — Quitter une Tribu
-
-En tant qu'utilisateur,
-je veux pouvoir quitter une Tribu dans laquelle je suis,
-afin de pouvoir corriger une mauvaise adhésion ou marquer un changement d'employeur.
-
-#### Critères d'acceptation
-
-```txt
-- Bouton "Quitter cette Tribu" accessible depuis la page Tribu
-  (profil ou settings)
-- Confirmation explicite :
-  "Tu ne feras plus partie de [Tribu]. Confirmer ?"
-- Après confirmation : redirection normale vers l'app (pas d'état vide "sans entreprise")
-- Mes pronos restent intacts et continuent à être comptés
-  dans le classement global
-- État géré dans l'UI (pas d'appel infini si déjà retiré)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/profile/view ou pages/company/settings
-- services/company.service
-```
-
-#### Vision link
-
-```txt
-Cas d'usage manquant du persona Employé d'entreprise (02_user_stories.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-029
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
+> Couverture fonctionnelle & conformité. Stories définies une seule fois dans leur release ; index ci-dessous.
+
+- US-FE-031 — Historique (R1)
+- US-FE-032 — Déconnexion / logout (R1)
+- US-FE-033 — Vue match terminé (R1)
+- US-BE-028 — Suppression de compte (RGPD) (R5)
+- US-FE-034 — Suppression de compte + mentions légales / privacy (R5)
+- US-BE-029 — Quitter une Tribu (R5)
+- US-FE-035 — Quitter une Tribu (R5)
 ---
 
 # 🌟 STORIES MOAT — Différenciation produit (compétition sociale & viralité)
 
-> **Pourquoi cette section existe.** Le `00_vision.md` définit le vrai produit
-> comme une *"battle sociale entre entreprises"* — le football est *"un prétexte"*.
-> Or l'audit du backlog révèle que la couche utilitaire (auth, pronos, scoring)
-> rassemble ~50 stories tandis que les piliers de différenciation
-> — onboarding éclair, rivalité inter-entreprises, boucle d'invitation, statut
-> ambassadeur, mesure du succès — n'en ont quasiment pas. Cette section comble
-> ce déséquilibre.
->
-> Chaque story indique sa **release recommandée** pour intégration dans le
-> plan de livraison existant. Aucune ne va en R6 : ce sont des éléments MVP.
-
 ---
+> Différenciation produit (compétition sociale & viralité). Stories définies une seule fois dans leur release ; index ci-dessous.
 
-### US-FE-022 — Onboarding "30 secondes"
-
-En tant que nouvel utilisateur,
-je veux comprendre le jeu en moins de 30 secondes au premier lancement,
-afin de me lancer immédiatement sans aide ni doc.
-
-#### Critères d'acceptation
-
-```txt
-- Au premier login, 3 cards swipables (ou écran unique condensé) :
-  1) "Prédis le score" — exemple visuel d'un prono
-  2) "Gagne des points" — barème simple (5 / 2 / 0) + boost x2
-  3) "Bats ton entreprise rivale" — preview du leaderboard entreprises
-- Skippable à tout moment via "Passer"
-- N'apparaît qu'une seule fois par utilisateur (flag stocké côté profil)
-- Compatible mobile-first (swipe horizontal natif)
-- Texte fun et bref (vision : "léger, jamais corporate rigide")
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/onboarding/welcome
-- components/onboarding-card
-- services/user.service (flag has_seen_onboarding)
-```
-
-#### Vision link
-
-```txt
-"Comprendre le jeu en moins de 30 secondes" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R1 (Authentification & Profil) — juste après création du profil
-```
-
-#### Priorité
-
-```txt
-P0
-```
-
+- US-FE-022 — Onboarding « 30 secondes » (R3)
+- US-FE-024 — CTA d’invitation post-action (R4)
+- US-DO-010 — Tracking minimal des événements clés (R4)
+- US-FE-026 — Comparaison head-to-head dans une Tribu (R5)
+- US-FE-030 — Partage externe d’un rang ou d’un exploit (R5)
+- US-BE-027 — Comparaison head-to-head entre deux utilisateurs (R5)
 ---
 
 
-### US-FE-024 — CTA d'invitation post-action (boucle virale)
-
-En tant qu'utilisateur,
-je veux pouvoir inviter un collègue dans le flux de mes actions positives,
-afin que le geste soit naturel plutôt qu'un détour intentionnel.
-
-#### Critères d'acceptation
-
-```txt
-- Après confirmation d'un prono : micro-CTA non bloquant
-  "Défie un collègue sur ce match"
-- Après gain de points (passage match → finished) : micro-CTA
-  "Tu progresses. Invite un collègue à te suivre."
-- Après franchissement d'un palier (top 10, top 3) : CTA contextuel
-  "Tu es 3ème. Tes collègues savent ?"
-- Le CTA réutilise share-link (US-FE-016) : un tap = lien copié + toast
-- Le CTA peut être ignoré sans friction (croix discrète)
-- Plafond : un même utilisateur ne voit pas plus de 1 CTA par session
-  pour éviter le spam
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- components/invite-cta-toast
-- components/share-link (réutilisé)
-- services/user.service (compteur de CTA vus par session)
-```
-
-#### Vision link
-
-```txt
-"Effet réseau via invitations" — 00_vision.md
-"Si les gens invitent → énorme succès" — critère de succès projet
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — peut techniquement démarrer dès R3 si un prono existe
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-
-### US-DO-010 — Tracking minimal des événements clés produit
-
-En tant qu'équipe produit,
-je veux mesurer 5 événements critiques pour valider les KPI de la vision,
-afin de savoir si le produit est un succès au-delà du fait qu'il fonctionne.
-
-#### Critères d'acceptation
-
-```txt
-- 5 événements instrumentés a minima :
-  - account_created          (signup réussi)
-  - first_prediction_made    (premier prono soumis)
-  - invite_sent              (lien copié)
-  - tribu_joined             (rejoint une Tribu)
-- Outillage simple : Plausible, Umami, ou table dédiée Supabase
-  (pas de Mixpanel / Amplitude au MVP — overkill 3 semaines)
-- Aucune donnée personnelle envoyée à un tiers (RGPD)
-- Dashboard accessible (URL ou page Supabase) listant ces compteurs
-- Au moment de la démo : capacité à dire "X comptes, Y pronos, Z invitations"
-```
-
-#### Vision link
-
-```txt
-"Si les gens jouent → succès / Si les gens invitent → énorme succès"
-50-500 utilisateurs potentiels — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish & Démo) — instrumentable plus tôt mais utile en démo
-```
-
-#### Importance
-
-```txt
-Moyenne
-```
-
----
-
-#### Fichiers, configurations et services concernés
-
-- Service tracking : à définir (PostHog, Plausible, ou équivalent simple)
-- Événements clés : `signup`, `first_prediction`, `invite_sent`, `tribu_joined`, `boost_activated`, `match_predicted`
-- Fichier : `src/lib/analytics.ts`
-- Variables d'env : `ANALYTICS_KEY`
-### US-FE-026 — Comparaison head-to-head dans une Tribu
-
-En tant qu'utilisateur,
-je veux comparer mes pronos match par match avec un collègue spécifique,
-afin de matérialiser une rivalité 1-to-1 au-delà du classement collectif.
-
-#### Critères d'acceptation
-
-```txt
-- Sur le leaderboard de Tribu (US-FE-014), un tap sur un membre ouvre
-  une vue comparative dédiée
-- Vue mobile-first listant chaque match commun où les 2 utilisateurs ont prédit :
-  - Mon prono / son prono / résultat officiel (si match terminé)
-  - Indicateur visuel clair : qui a gagné le match (icône, couleur)
-  - Points gagnés par chacun
-- En tête de page, score cumulé : "Toi 47 - Marc 38" sur les matchs joués
-- Lien retour clair vers le leaderboard de Tribu
-- État vide géré : "Pas encore assez de matchs joués en commun"
-- Aucun calcul côté frontend (consomme l'endpoint US-BE-027)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/comparison/head-to-head/:userId
-- components/h2h-match-row
-- services/comparison.service
-```
-
-#### Vision link
-
-```txt
-"Comparer son score avec ses collègues" — persona Employé d'entreprise
-(02_user_stories.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-027 et des leaderboards de R4
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-
-### US-FE-030 — Partage externe d'un rang ou d'un exploit
-
-En tant qu'utilisateur,
-je veux pouvoir partager une image sympathique de mon rang ou de mon dernier exploit,
-afin d'attirer mes collègues via du brag externe (Slack, LinkedIn, WhatsApp).
-
-#### Critères d'acceptation
-
-```txt
-- Sur le profil et après gain de points, un bouton "Partager" est disponible
-- Tap → génération côté client (canvas/SVG) d'une image format social
-  (1200x630 paysage ou 1080x1080 carré) contenant :
-  - Pseudo de l'utilisateur
-  - Rang actuel (ex: "2ème sur 87")
-  - Logo / nom entreprise
-  - Microcopy fun (ex: "🔥 Top performer chez Patek SA")
-  - Branding minimal "Pronostic 2026"
-- Sur mobile : utilisation de l'API Web Share native si disponible
-  (partage direct vers Slack/WhatsApp/Messages)
-- Sur desktop : bouton "Télécharger" qui sauvegarde le PNG localement
-- Aucune donnée sensible dans l'image (pas d'email, pas de pseudo de tiers)
-- Génération frontend uniquement au MVP (pas de service backend OG)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/profile/view (bouton intégré)
-- components/share-card-image (canvas de génération)
-- services/share.service (utilise navigator.share si disponible)
-```
-
-#### Vision link
-
-```txt
-"Effet réseau via invitations" — 00_vision.md (élargi à la viralité externe par brag)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish)
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-
-### US-BE-027 — Comparaison head-to-head entre deux utilisateurs
-
-En tant que backend,
-je veux fournir la comparaison match-par-match entre deux utilisateurs,
-afin que le frontend puisse afficher une vue rivalité 1-to-1 sans logique métier embarquée.
-
-#### Critères d'acceptation
-
-```txt
-- Endpoint accepte deux identifiants utilisateur (l'appelant + une cible)
-- Retourne, match par match (uniquement les matchs où les 2 ont prédit) :
-  - Heure et équipes du match
-  - Prono utilisateur A
-  - Prono utilisateur B
-  - Résultat officiel (si match terminé)
-  - Points gagnés par chacun
-- Retourne aussi le score cumulé : "A: 47 - B: 38" sur les matchs joués
-- L'appelant et la cible doivent appartenir à la même entreprise (sinon refus)
-- Le calcul des points reste strictement côté backend
-```
-
-#### Vision link
-
-```txt
-Support technique de US-FE-026 (Head-to-head) —
-persona Employé : "Comparer avec ses collègues" (02_user_stories.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend des leaderboards et résultats de R4
-```
-
-#### Schéma v2 — éléments concernés
-
-- Nouvelle RPC : `get_head_to_head(other_user_id)` (`SECURITY DEFINER`)
-- Vérification d'appartenance commune via `company_members`
-- JOIN `predictions` (filtré sur les deux utilisateurs) ⨯ `match_results`
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
----
 
 
 # 📋 Récapitulatif par release (vertical thin slices)
