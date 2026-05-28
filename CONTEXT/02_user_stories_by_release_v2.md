@@ -26,7 +26,7 @@ Backlog complet **réorganisé en slices verticaux E2E**, où chaque release imp
 |---|---|---|
 | **R0** | Walking Skeleton & Foundations | ✅ |
 | **R1** | Solo Player Loop | ✅ |
-| **R2** | Social Battle (Entreprises & Leaderboards) | ✅ (sauf Data) |
+| **R2** | Social Battle (Tribus & Leaderboards) | ✅ (sauf Data) |
 | **R3** | Engagement Layer | ✅ (sauf QA) |
 | **R4** | Viral Growth Layer | ✅ |
 | **R5** | Differentiation + Compliance | ✅ (sauf Data) |
@@ -82,7 +82,7 @@ afin que l’application puisse l’identifier dans les classements.
 #### Critères d’acceptation
 
 ```txt
-- Un utilisateur authentifié possède une ligne dans profiles
+- Un utilisateur authentifié (email + mot de passe) possède une ligne dans profiles
 - Le profil contient au minimum : id, email, username
 - Le profil est lié à auth.users
 - Si le profil existe déjà, il n’est pas recréé
@@ -124,6 +124,7 @@ afin que son nom soit affiché correctement dans les leaderboards.
 - Le champ username est obligatoire
 - Le username est utilisé dans les leaderboards
 - Un utilisateur ne peut pas modifier le profil d’un autre utilisateur
+- Le flux reste compatible avec l'authentification email + mot de passe (pas de magic link)
 ```
 
 #### Tables concernées
@@ -338,8 +339,10 @@ afin d'accéder rapidement à l'application.
 
 ```txt
 - L'utilisateur peut entrer son email + password sur la page auth/login
+- L'utilisateur peut basculer entre connexion et inscription depuis le même écran
+- Un lien "mot de passe oublié" déclenche le reset via Supabase Auth
 - une requete vers le backend est effectué pour auth
-- L'utilisateur accède à l'application après validation du lien
+- L'utilisateur accède à l'application après validation email+mot de passe
 ```
 
 #### Pages et services concernés
@@ -405,6 +408,7 @@ afin de faire mes pronostics.
 
 ```txt
 - La page home/match-list affiche les matchs groupés par date (ou autre critère, à definir)
+- Le premier match est mis en avant pour les nouveaux joueurs (CTA d'amorçage)
 - Des filtres de statut sont disponibles (open/locked/finished)
 - Un composant match-card affiche les équipes, l'heure, le statut et le résumé du prono
 - Un composant match-status-badge affiche l'état (open/locked/finished)
@@ -1099,7 +1103,10 @@ afin de mieux réfléchir à mon pronostic.
 #### Critères d'acceptation
 
 ```txt
-- La page match/detail affiche les équipes, date, heure et texte de contexte
+- La page match/detail affiche les équipes, date, heure et un bloc "Avant le match"
+- Le bloc "Avant le match" contient : forme récente, historique, absence clé
+- Le bloc "Avant le match" ne révèle jamais le prono
+- Le bloc est visible avant verrouillage et masqué une fois le match terminé
 - Les données sont récupérées via une requête GET unique
 ```
 
@@ -1213,25 +1220,26 @@ P0
 ---
 
 
-### US-FE-031 — Page "Mes pronos"
+### US-FE-031 — Historique
 
 
 En tant qu'utilisateur,
-je veux voir l'ensemble de mes pronos en un seul endroit,
-afin de suivre ma progression et de revoir mes choix passés.
+je veux voir mon historique d'activité de pronostics en un seul endroit,
+afin de suivre ma progression sur les matchs passés.
 
 #### Critères d'acceptation
 
 ```txt
-- Page dédiée "Mes pronos" accessible depuis la navigation principale
-- Liste tous les pronos de l'utilisateur, triés par date de match
+- Page dédiée "Historique" accessible depuis la navigation principale
+- Liste les pronos passés de l'utilisateur, triés par date de match
   (le plus récent en haut)
 - Pour chaque prono : équipes, date, mon score, statut du match
-  (ouvert / verrouillé / terminé)
+  (terminé uniquement)
 - Pour les matchs terminés : afficher également le résultat officiel
   et les points gagnés
 - Indicateur visuel pour les pronos boostés
-- État vide explicatif si aucun prono n'a été fait
+- Les pronos à venir / verrouillés n'apparaissent pas dans cette vue
+- État vide explicatif si aucun historique n'est disponible
 - Mobile-first
 - Aucun calcul côté frontend (consomme l'endpoint US-BE-019)
 ```
@@ -1261,6 +1269,37 @@ avec les résultats et points
 
 ```txt
 P1
+```
+
+---
+
+### US-FE-040 — Choix de l'équipe = Tribu de base
+
+En tant que nouvel utilisateur,
+je veux choisir l'équipe que je soutiens,
+afin de définir ma Tribu de base dès l'onboarding.
+
+#### Critères d'acceptation
+
+```txt
+- L'écran onboarding pose la question "Quelle équipe soutiens-tu ?"
+- Le choix d'équipe est stocké sur le profil (supported_team)
+- Le choix déclenche l'auto-join de la Tribu-nation (US-BE-030)
+- Après ce choix, aucun état "sans Tribu" n'existe
+```
+
+#### Pages, composants et services concernés
+
+```txt
+- pages/onboarding/team-pick
+- services/user.service
+- services/company.service
+```
+
+#### Priorité
+
+```txt
+P0
 ```
 
 ---
@@ -1449,7 +1488,6 @@ automatique des retards et procédure de fallback manuel,
 - Table : `match_results` (l'insertion déclenche tout)
 - Vue : `user_scores` (recalcul automatique via SQL, D-005)
 - Vue : `matches_with_status` (statut `finished` automatique, D-007)
-- Aucun webhook ni cron au MVP (D-009)
 
 #### Schéma v2 — éléments concernés
 
@@ -1581,9 +1619,9 @@ En tant qu’utilisateur, je veux que mes points soient calculés correctement a
 
 ---
 
-# 🟨 RELEASE R2 — Social Battle (Entreprises & Leaderboards)
+# 🟨 RELEASE R2 — Social Battle (Tribus & Leaderboards)
 
-> **Le pilier social s'active.** Création / adhésion à une entreprise, partage de liens d'invitation, et les trois leaderboards (global, entreprise, inter-entreprises). C'est à partir de R2 que le MOAT *"battle sociale"* devient visible. Tous les teams sauf Data sont actifs.
+> **Le pilier social s'active.** Création / adhésion à une Tribu, partage de liens d'invitation, et les trois leaderboards (global, Tribu active, inter-Tribus). C'est à partir de R2 que le MOAT *"battle sociale"* devient visible. Tous les teams sauf Data sont actifs.
 
 ---
 
@@ -1591,20 +1629,21 @@ En tant qu’utilisateur, je veux que mes points soient calculés correctement a
 ## Backend
 
 
-### US-BE-003 — Créer une entreprise
+### US-BE-003 — Créer une Tribu
 
 
 En tant que backend,  
-je veux permettre à un utilisateur de créer une entreprise,  
-afin qu’il puisse inviter ses collègues.
+je veux permettre à un utilisateur de créer une Tribu,  
+afin qu’il puisse inviter d'autres membres.
 
 #### Critères d’acceptation
 
 ```txt
-- Une entreprise peut être créée avec un nom
+- Une Tribu peut être créée avec un nom
 - Un invite_code unique est généré
 - Le créateur est enregistré dans created_by
-- Le créateur devient automatiquement membre de l’entreprise
+- Le créateur devient automatiquement membre de la Tribu
+- Création self-service (aucun type, aucun badge, aucune validation TRIBBO)
 ```
 
 #### Tables concernées
@@ -1617,7 +1656,7 @@ company_members
 #### Règle importante
 
 ```txt
-Une entreprise doit toujours avoir un invite_code unique
+Une Tribu doit toujours avoir un invite_code unique
 ```
 
 #### Schéma v2 — éléments concernés
@@ -1635,18 +1674,18 @@ P0
 ---
 
 
-### US-BE-004 — Rejoindre une entreprise via invite_code
+### US-BE-004 — Rejoindre une Tribu via invite_code
 
 
 En tant que backend,  
-je veux ajouter un utilisateur à une entreprise via un code d’invitation,  
+je veux ajouter un utilisateur à une Tribu via un code d’invitation,  
 afin qu’il puisse rejoindre directement la bonne équipe.
 
 #### Critères d’acceptation
 
 ```txt
 - Le backend reçoit un invite_code
-- Le backend retrouve l’entreprise correspondante
+- Le backend retrouve la Tribu correspondante
 - L’utilisateur est ajouté dans company_members
 - Si l’utilisateur est déjà membre, aucune duplication n’est créée
 - Si le code est invalide, une erreur claire est retournée
@@ -1680,17 +1719,17 @@ P0
 ---
 
 
-### US-BE-005 — Récupérer les membres d’une entreprise
+### US-BE-005 — Récupérer les membres d’une Tribu
 
 
 En tant que backend,  
-je veux fournir la liste des membres d’une entreprise,  
+je veux fournir la liste des membres d’une Tribu,  
 afin que le frontend puisse afficher qui participe.
 
 #### Critères d’acceptation
 
 ```txt
-- Le backend retourne les membres d’une entreprise
+- Le backend retourne les membres d’une Tribu
 - Chaque membre contient : user_id, username, avatar_url optionnel
 - Le score peut être inclus si disponible
 - Les données retournées sont lisibles par les membres
@@ -1708,7 +1747,7 @@ user_scores
 
 - Table : `company_members` + JOIN `profiles`
 - Vue : `user_scores` (D-005) pour les points des membres
-- RLS : lecture autorisée pour les membres de l'entreprise
+- RLS : lecture autorisée pour les membres de la Tribu
 
 #### Priorité
 
@@ -1734,6 +1773,7 @@ afin que le frontend puisse afficher la compétition individuelle.
 - Le total_points est retourné
 - Le rang est calculé ou facilement exploitable
 - Les égalités sont gérées avec les scores exacts si disponible
+- Chaque joueur est labellisé par sa Tribu de base (nation soutenue : drapeau + pays)
 ```
 
 #### Tables / vues concernées
@@ -1760,18 +1800,18 @@ P0
 ---
 
 
-### US-BE-015 — Fournir le leaderboard d’entreprise
+### US-BE-015 — Fournir le leaderboard de la Tribu active
 
 
 En tant que backend,  
-je veux fournir le classement des membres d’une entreprise,  
-afin que les collègues puissent se comparer entre eux.
+je veux fournir le classement des membres de la Tribu active,  
+afin que les membres puissent se comparer entre eux.
 
 #### Critères d’acceptation
 
 ```txt
-- Le backend reçoit un company_id
-- Il retourne uniquement les membres de cette entreprise
+- Le backend reçoit un company_id correspondant à la Tribu active
+- Il retourne uniquement les membres de cette Tribu active
 - Les membres sont triés par total_points DESC
 - Le username et les points sont retournés
 - L’utilisateur courant peut identifier sa position
@@ -1800,20 +1840,21 @@ P0
 ---
 
 
-### US-BE-016 — Fournir le classement des entreprises
+### US-BE-016 — Fournir le classement des Tribus
 
 
 En tant que backend,  
-je veux fournir le classement des entreprises,  
-afin de rendre visible la bataille sociale inter-entreprises.
+je veux fournir le classement des Tribus,  
+afin de rendre visible la bataille sociale inter-Tribus.
 
 #### Critères d’acceptation
 
 ```txt
-- Les entreprises sont triées par score moyen DESC
-- Le score entreprise est basé sur la moyenne des points des membres
+- Les Tribus sont triées par score moyen DESC
+- Le score Tribu est basé sur la moyenne des points des membres
 - Le nombre de membres peut être retourné
-- Les entreprises sans score sont gérées proprement
+- Les Tribus sans score sont gérées proprement
+- Le classement inter-Tribu exclut les Tribu-nations (seules les Tribus d'entreprise/groupe concourent)
 ```
 
 #### Tables / vues concernées
@@ -1839,7 +1880,7 @@ P0
 ---
 
 
-### US-BE-017 — Générer un lien d’invitation entreprise
+### US-BE-017 — Générer un lien d’invitation Tribu
 
 
 En tant que backend,  
@@ -1853,6 +1894,7 @@ afin que le frontend puisse générer un lien d’invitation.
 - Le code permet de retrouver l’entreprise
 - Le code ne contient pas d’information sensible
 - Le lien peut être reconstruit côté frontend
+- Tout membre peut générer et partager le lien d'invitation
 ```
 
 #### Tables concernées
@@ -1875,21 +1917,117 @@ P0
 
 ---
 
+### US-BE-030 — Tribu d'équipe nationale + auto-join
+
+En tant que backend,
+je veux rattacher automatiquement chaque utilisateur à sa Tribu-nation,
+afin de garantir une Tribu de base dès le choix d'équipe.
+
+#### Critères d’acceptation
+
+```txt
+- À la sélection d'équipe (US-FE-040), l'utilisateur rejoint automatiquement la Tribu partagée de sa nation
+- La Tribu-nation devient la Tribu par défaut de l'utilisateur
+- Une seule Tribu-nation existe par pays soutenu
+- Le label nation est exploitable par le leaderboard global
+- Le profil stocke supported_team en FK vers teams
+```
+
+#### Tables concernées
+
+```txt
+profiles
+teams
+companies
+company_members
+```
+
+#### Priorité
+
+```txt
+P0
+```
+
+---
+
+### US-BE-031 — Exposer les pronos des membres après verrouillage
+
+En tant que backend,
+je veux exposer les pronos des membres de la Tribu uniquement après kickoff,
+afin de respecter la règle de masquage avant verrouillage.
+
+#### Critères d’acceptation
+
+```txt
+- Pour un match donné, les pronos des membres de la Tribu sont masqués avant coup d'envoi
+- Après coup d'envoi, les pronos des membres deviennent visibles
+- Les données alimentent l'écran FE "Pronos de la Tribu" (US-FE-037)
+- Le calcul des points reste strictement côté backend
+```
+
+#### Tables concernées
+
+```txt
+predictions
+matches
+company_members
+profiles
+```
+
+#### Priorité
+
+```txt
+P1
+```
+
+---
+
+### US-BE-033 — Tribu active (multi-Tribu)
+
+En tant que backend,
+je veux gérer une Tribu active par utilisateur,
+afin que les vues sociales se basent sur un contexte Tribu explicite.
+
+#### Critères d’acceptation
+
+```txt
+- Le profil stocke active_company_id
+- La valeur par défaut d'active_company_id est la Tribu-nation
+- Une RPC set_active_company(id) permet de changer l'active parmi les Tribus de l'utilisateur
+- Rivalité, pronos de Tribu et onglet "Ma Tribu" se basent sur l'active
+```
+
+#### Tables concernées
+
+```txt
+profiles
+company_members
+companies
+```
+
+#### Priorité
+
+```txt
+P1
+```
+
+---
+
 
 ## Frontend
 
 
-### US-FE-003 — Join company via link
+### US-FE-003 — Join Tribu via link
 
 
-En tant qu'employé,
-je veux rejoindre mon entreprise via un lien d'invitation,
-afin de participer à la compétition avec mes collègues.
+En tant qu'utilisateur,
+je veux rejoindre ma Tribu via un lien d'invitation,
+afin de participer à la compétition avec les autres membres.
 
 #### Critères d'acceptation
 
 ```txt
-- L'utilisateur arrive sur onboarding/company-join avec le nom de l'entreprise affiché
+- L'utilisateur arrive sur onboarding/company-join avec le nom de la Tribu affiché
 - L'utilisateur confirme son appartenance en un clic
 - L'adhésion est envoyée via company.service avec l'invite code
 ```
@@ -1910,19 +2048,20 @@ P1
 ---
 
 
-### US-FE-004 — Create company
+### US-FE-004 — Create Tribu
 
 
-En tant qu'ambassadeur,
-je veux créer une entreprise et générer un lien d'invitation,
-afin d'inviter mes collègues à participer.
+En tant qu'utilisateur,
+je veux créer une Tribu et générer un lien d'invitation,
+afin d'inviter d'autres membres à participer.
 
 #### Critères d'acceptation
 
 ```txt
-- L'utilisateur peut entrer le nom de l'entreprise sur company/create
+- L'utilisateur peut entrer le nom de la Tribu sur company/create
 - Un invite code est généré côté backend et affiché
-- Un composant company-badge affiche le nom, la couleur et l'icône
+- Le formulaire reste unique (nom -> créer), sans choix de type
+- Aucune "demande à TRIBBO" n'est requise
 - Le créateur devient automatiquement membre
 ```
 
@@ -1943,11 +2082,11 @@ P1
 ---
 
 
-### US-FE-005 — View company members
+### US-FE-005 — View Tribu members
 
 
 En tant qu'utilisateur,
-je veux voir les membres de mon entreprise et leurs scores,
+je veux voir les membres de ma Tribu et leurs scores,
 afin de savoir qui participe et me comparer.
 
 #### Critères d'acceptation
@@ -1984,9 +2123,10 @@ afin de me comparer à tout le monde.
 #### Critères d'acceptation
 
 ```txt
-- La page leaderboard/global affiche le rang, pseudo et points
+- La page leaderboard/global affiche le rang, pseudo, points et Tribu de base (drapeau + pays)
 - Le composant leaderboard-table est réutilisé avec les données globales
 - Les données sont récupérées via une requête GET
+- La ligne "toi" reflète l'équipe choisie (nation soutenue)
 ```
 
 #### Pages, composants et services concernés
@@ -2005,18 +2145,18 @@ P0
 ---
 
 
-### US-FE-014 — Company leaderboard
+### US-FE-014 — Tribu leaderboard
 
 
 En tant qu'utilisateur,
-je veux voir le classement des membres de mon entreprise,
-afin de me comparer à mes collègues.
+je veux voir le classement des membres de ma Tribu active,
+afin de me comparer aux membres de cette Tribu.
 
 #### Critères d'acceptation
 
 ```txt
-- La page leaderboard/company affiche uniquement les membres de l'entreprise de l'utilisateur
-- Les données sont filtrées par company_id côté backend
+- La page leaderboard/company affiche uniquement les membres de la Tribu active de l'utilisateur
+- Les données sont filtrées par company_id (Tribu active) côté backend
 - Le composant leaderboard-table est réutilisé
 ```
 
@@ -2036,19 +2176,20 @@ P0
 ---
 
 
-### US-FE-015 — Companies leaderboard
+### US-FE-015 — Tribus leaderboard
 
 
 En tant qu'utilisateur,
-je veux voir le classement des entreprises,
+je veux voir le classement des Tribus,
 afin de suivre la compétition collective.
 
 #### Critères d'acceptation
 
 ```txt
-- La page leaderboard/companies affiche le nom de l'entreprise et le score moyen
-- Le composant leaderboard-table est réutilisé avec les données d'entreprise
+- La page leaderboard/companies affiche le nom de la Tribu et le score moyen
+- Le composant leaderboard-table est réutilisé avec les données de Tribu
 - Les données sont récupérées via une requête GET
+- Les Tribu-nations n'apparaissent pas dans ce classement
 ```
 
 #### Pages, composants et services concernés
@@ -2072,7 +2213,7 @@ P0
 
 En tant qu'utilisateur,
 je veux partager un lien d'invitation,
-afin de faire rejoindre mes collègues à mon entreprise.
+afin de faire rejoindre n'importe quel membre à ma Tribu.
 
 #### Critères d'acceptation
 
@@ -2103,7 +2244,7 @@ P0
 
 
 En tant que nouvel utilisateur,
-je veux rejoindre la bonne entreprise depuis un lien partagé,
+je veux rejoindre la bonne Tribu depuis un lien partagé,
 afin de commencer sans configuration compliquée.
 
 #### Critères d'acceptation
@@ -2111,8 +2252,8 @@ afin de commencer sans configuration compliquée.
 ```txt
 - La landing page invitation/join à /invite/:token permet l'auto-join après login
 - Le token d'invitation est validé via une requête GET
-- L'utilisateur rejoint l'entreprise via une requête POST après confirmation
-- Après onboarding, l'utilisateur rejoint automatiquement l'entreprise cible
+- L'utilisateur rejoint la Tribu via une requête POST après confirmation
+- Après onboarding, l'utilisateur rejoint automatiquement la Tribu cible
 ```
 
 #### Pages et services concernés
@@ -2126,6 +2267,68 @@ afin de commencer sans configuration compliquée.
 
 ```txt
 P0
+```
+
+---
+
+### US-FE-037 — Pronos de la Tribu sur un match verrouillé
+
+En tant qu'utilisateur,
+je veux voir les pronos de ma Tribu sur un match verrouillé/terminé,
+afin de comparer les choix une fois le match lancé.
+
+#### Critères d'acceptation
+
+```txt
+- Sur un match verrouillé/terminé, un accès "Voir les pronos de ta Tribu" est disponible
+- L'écran liste chaque membre avec son prono (et résultat/points si match terminé)
+- Les données consomment US-BE-031
+- Cet écran remplace le recap d'entreprise post-match
+```
+
+#### Pages, composants et services concernés
+
+```txt
+- pages/match/tribu-predictions
+- components/tribu-prediction-row
+- services/prediction.service
+```
+
+#### Priorité
+
+```txt
+P1
+```
+
+---
+
+### US-FE-038 — Multi-Tribu + sélecteur de Tribu active
+
+En tant qu'utilisateur,
+je veux appartenir à plusieurs Tribus et choisir ma Tribu active,
+afin de piloter la vue sociale selon mon contexte.
+
+#### Critères d'acceptation
+
+```txt
+- Un sélecteur permet de choisir entre Tribu-nation et Tribus rejointes
+- La Tribu active persiste côté profil (US-BE-033)
+- Les écrans sociaux (classement, onglet Tribu, pronos Tribu) suivent la Tribu active
+- Le rang utilisateur peut différer selon la Tribu sélectionnée
+```
+
+#### Pages, composants et services concernés
+
+```txt
+- components/active-tribu-switcher
+- services/company.service
+- services/leaderboard.service
+```
+
+#### Priorité
+
+```txt
+P1
 ```
 
 ---
@@ -2172,6 +2375,8 @@ En tant qu’utilisateur, je veux voir un classement à jour afin de connaître 
 - Le classement est mis à jour après calcul
 - Les positions sont correctes
 - Pas d’incohérences entre utilisateurs
+- Le classement global affiche la Tribu de base (nation) de chaque joueur
+- Le classement/onglet Tribu dépend de la Tribu active de l'utilisateur
 
 #### Fichiers de tests et scénarios concernés
 
@@ -2184,7 +2389,7 @@ En tant qu’utilisateur, je veux voir un classement à jour afin de connaître 
 
 # 🟧 RELEASE R3 — Engagement Layer
 
-> **Activer l'engagement quotidien.** Boost stratégique, onboarding 30 secondes, bandeau de rivalité inter-entreprises sur la home, et bandeau match-day pour activer la DAU sans push. Première vague de stories MOAT. Backend, Frontend, Data (contexte match), DevOps (uptime monitoring).
+> **Activer l'engagement quotidien.** Boost stratégique, onboarding 30 secondes et centre de notifications in-app pour activer la DAU sans push. Backend, Frontend, Data (contexte match), DevOps (uptime monitoring).
 
 ---
 
@@ -2196,16 +2401,17 @@ En tant qu’utilisateur, je veux voir un classement à jour afin de connaître 
 
 
 En tant que backend,  
-je veux permettre à un utilisateur d’activer un seul boost sur un prono,  
-afin de doubler ses points sur un match stratégique.
+je veux permettre à un utilisateur d’activer jusqu'à 5 boosts sur le tournoi,  
+afin de doubler ses points sur des matchs stratégiques.
 
 #### Critères d’acceptation
 
 ```txt
-- Un utilisateur peut avoir maximum 1 prediction avec is_boosted = true
+- Un utilisateur peut utiliser jusqu'à 5 boosts sur l'ensemble du tournoi
 - Le boost peut être activé uniquement avant deadline
 - Le boost ne peut pas être déplacé après verrouillage du match boosté
 - Le boost est pris en compte dans le calcul des points
+- Le backend retourne le nombre de boosts restants au format X/5
 ```
 
 #### Tables concernées
@@ -2217,7 +2423,7 @@ matches
 
 #### Schéma v2 — éléments concernés
 
-- Index unique partiel : `one_boost_per_user` = `UNIQUE (user_id) WHERE is_boosted = true` — garantit atomiquement 1 seul boost actif par utilisateur
+- Le backend applique un plafond à 5 boosts par utilisateur sur le tournoi (retour du compteur restant X/5)
 - Boost perdu si match annulé (D-012) — pas de mécanisme de restitution au MVP
 
 #### Priorité
@@ -2308,8 +2514,40 @@ afin de me lancer immédiatement sans aide ni doc.
 ```txt
 - Au premier login, 3 cards swipables (ou écran unique condensé) :
   1) "Prédis le score" — exemple visuel d'un prono
-  2) "Gagne des points" — barème simple (5 / 2 / 0) + boost x2
-  3) "Bats ton entreprise rivale" — preview du leaderboard entreprises
+  2) "Gagne des points" — barème simple (5 / 2 / 0) + "5 boosts x2 pour tout le tournoi"
+  3) "Bats tes collègues" — visuel podium / classement (pas de trophée)
+### US-FE-036 — Centre de notifications (in-app)
+
+En tant qu'utilisateur,
+je veux un centre de notifications dans l'app,
+afin d'être informé des moments clés sans push.
+
+#### Critères d'acceptation
+
+```txt
+- Une cloche avec pastille "non lu" est visible dans l'interface
+- Une liste regroupe les notifications : rivalité / jour de match / résultat / invitation
+- Les notifications sont in-app uniquement (pas de push) pour le MVP
+- Les anciennes logiques de bandeaux home sont remplacées par ce centre
+- Les données proviennent des flux existants (classements, matchs, résultats)
+```
+
+#### Pages, composants et services concernés
+
+```txt
+- components/notifications-bell
+- pages/notifications/center
+- services/notifications.service
+```
+
+#### Priorité
+
+```txt
+P1
+```
+
+---
+
 - Skippable à tout moment via "Passer"
 - N'apparaît qu'une seule fois par utilisateur (flag stocké côté profil)
 - Compatible mobile-first (swipe horizontal natif)
@@ -2345,109 +2583,6 @@ P0
 ---
 
 
-### US-FE-023 — Bandeau de rivalité inter-entreprises (home)
-
-
-En tant qu'utilisateur,
-je veux voir en permanence où mon entreprise se situe par rapport aux autres,
-afin de ressentir la compétition collective au-delà de mon score perso.
-
-#### Critères d'acceptation
-
-```txt
-- En haut de la home, bandeau dynamique affichant :
-  - Rang de mon entreprise (ex: "4ème sur 12")
-  - Écart au rival le plus proche au-dessus (ex: "à 23 pts du podium")
-  - OU écart au poursuivant si déjà sur le podium
-- Variation du ton selon la position :
-  - Top 3 : "Ton entreprise tient le podium 🔥"
-  - Milieu : "Ton entreprise peut grimper. 23 pts à rattraper."
-  - Bas : "Ton entreprise compte sur toi."
-- Lien vers le classement entreprises au tap
-- Texte calculé côté backend (pas de logique côté frontend)
-- État vide géré : "Pas assez d'entreprises classées pour le moment"
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (bandeau en tête)
-- components/company-rivalry-banner
-- services/leaderboard.service
-```
-
-#### Vision link
-
-```txt
-"Battle sociale entre entreprises" / piliers : "Compétition inter-entreprises",
-"Leaderboards collectifs" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — nécessite leaderboards entreprises de R4
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-
-### US-FE-028 — Match-day re-engagement in-app
-
-
-En tant qu'utilisateur,
-je veux voir un état fort à l'ouverture les jours de match,
-afin que l'app me donne envie de jouer sans dépendre d'une notification push.
-
-#### Critères d'acceptation
-
-```txt
-- À l'ouverture de l'app, si un ou plusieurs matchs ont kickoff dans les
-  12 prochaines heures, un bandeau visible affiche :
-  - Nombre de matchs du jour (ex: "3 matchs ce soir")
-  - CTA direct "Faire mes pronos →" qui scroll vers les matchs ouverts
-- Variation du ton selon mon état :
-  - Aucun prono fait : "Ton entreprise compte sur toi. 3 matchs ce soir."
-  - Quelques pronos faits : "Ne lâche pas. Encore 2 pronos à faire."
-  - Tous les pronos faits : "Tu es prêt. Que le meilleur gagne 🔥"
-- Le bandeau disparaît après le coup d'envoi du dernier match du jour
-- Dismissable une fois par session pour les utilisateurs qui veulent l'ignorer
-- Utilise les données déjà exposées par US-BE-008 (pas de nouvel endpoint)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (bandeau en tête)
-- components/match-day-banner
-- services/match.service
-```
-
-#### Vision link
-
-```txt
-"Si les gens jouent → succès" — critère de succès projet (00_vision.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish)
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 
 ## Data
@@ -2637,52 +2772,6 @@ P1
 ---
 
 
-### US-BE-025 — Tracking des invitations (backend ambassadeur)
-
-
-En tant que backend,
-je veux tracer qui a invité qui,
-afin que le frontend puisse rendre visible le statut d'ambassadeur et
-de mesurer la viralité.
-
-#### Critères d'acceptation
-
-```txt
-- Lorsqu'un utilisateur rejoint via invite_code, on enregistre l'inviteur
-- Un utilisateur peut récupérer le nombre de personnes qu'il a invitées
-  qui ont effectivement créé un profil
-- Un utilisateur peut récupérer le nombre de ses invités qui ont fait
-  au moins un prono (= invitation "convertie")
-- Données exposées : invites_sent_count, invites_converted_count
-- Aucune donnée personnelle d'autres utilisateurs n'est exposée
-  (pas la liste des pseudos, juste les compteurs)
-```
-
-#### Vision link
-
-```txt
-"Effet réseau via invitations", persona "Ambassadeur" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de l'invitation existante (US-BE-004, US-BE-017)
-```
-
-#### Schéma v2 — éléments concernés
-
-- Nouvelle vue/agrégat : invitations envoyées et converties par ambassadeur
-- Source : table à ajouter (`invitations` ou colonnes sur `company_members.referred_by`) selon design final
-- Compatible D-005 : pas de stockage de compteurs dérivables
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 
 ## Frontend
@@ -2804,109 +2893,6 @@ P1
 ---
 
 
-### US-FE-025 — Statut ambassadeur sur le profil
-
-
-En tant qu'utilisateur,
-je veux voir combien de collègues j'ai fait rejoindre,
-afin de ressentir la fierté d'être un moteur de mon entreprise.
-
-#### Critères d'acceptation
-
-```txt
-- Sur la page profil, section "Ambassadeur" affichant :
-  - Nombre de personnes invitées (créées un profil)
-  - Nombre d'invitations converties (au moins 1 prono fait)
-  - Badge automatique au-delà de seuils simples :
-    1+ → "Recruteur", 5+ → "Ambassadeur", 10+ → "Capitaine d'entreprise"
-- Tooltip pédagogique : "Tes invités jouent → ton entreprise monte"
-- Si 0 invité : état d'incitation "Lance ta première invitation"
-  qui ouvre directement le flux de partage (réutilise share-link)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/profile/view (nouvelle section)
-- components/ambassador-stats
-- components/share-link (réutilisé pour le state vide)
-- services/user.service
-```
-
-#### Vision link
-
-```txt
-Persona "Ambassadeur" — 02_user_stories.md
-"Effet réseau via invitations" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-025
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-
-### US-FE-029 — Onboarding ambassadeur (post-création d'entreprise)
-
-
-En tant qu'ambassadeur (créateur d'entreprise),
-je veux être guidé sur les premières actions à effectuer après création,
-afin de ne pas me retrouver seul dans un état mort sans savoir comment activer la rivalité.
-
-#### Critères d'acceptation
-
-```txt
-- Immédiatement après création d'une entreprise (US-FE-004), une checklist
-  apparaît avec 3 actions prioritaires :
-  1) "Invite 3 collègues" — lien direct vers share-link (US-FE-016)
-     → coche dès qu'1 invité a converti (consomme US-BE-025)
-  2) "Active ton boost stratégique" — lien vers la liste des matchs
-     → coche dès qu'un boost est activé
-  3) "Défie une autre entreprise" — lien vers le classement entreprises
-     → coche après 1 visite
-- Chaque item coché disparaît visuellement
-- Indicateur de progression visible (1/3, 2/3, 3/3)
-- La checklist disparaît complètement quand les 3 sont cochés OU après dismiss
-- Microcopy fun : "Tu es le moteur. Voici comment lancer la machine."
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/company/dashboard ou pages/home/match-list (carte intégrée)
-- components/ambassador-checklist
-- services/user.service (état de complétion par utilisateur)
-```
-
-#### Vision link
-
-```txt
-Persona Ambassadeur : "Motiver son équipe à participer" — 02_user_stories.md
-"Si les gens invitent → énorme succès" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — peut techniquement démarrer dès R2 si tracking d'invitation présent
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 
 ## DevOps
@@ -2953,8 +2939,7 @@ afin de savoir si le produit est un succès au-delà du fait qu'il fonctionne.
   - account_created          (signup réussi)
   - first_prediction_made    (premier prono soumis)
   - invite_sent              (lien copié)
-  - invite_converted         (un invité crée un profil OU fait un prono)
-  - company_joined           (rejoint une entreprise)
+  - tribu_joined             (rejoint une Tribu)
 - Outillage simple : Plausible, Umami, ou table dédiée Supabase
   (pas de Mixpanel / Amplitude au MVP — overkill 3 semaines)
 - Aucune donnée personnelle envoyée à un tiers (RGPD)
@@ -3020,54 +3005,29 @@ En tant qu’utilisateur, je veux une interface claire et utilisable afin d’av
 
 # 🟪 RELEASE R5 — Differentiation + Compliance
 
-> **Stories MOAT de différenciation + conformité RGPD.** Head-to-head avec un collègue, recap d'entreprise post-match, partage externe d'un rang. En parallèle : suppression de compte (RGPD article 17, **bloquant légal**) et option *quitter une entreprise*.
-
----
-
-
-## Backend
-
-
-### US-BE-026 — Agrégation stats entreprise par match
-
+> **Stories MOAT de différenciation + conformité RGPD.** Head-to-head intra-Tribu, back-office résultats admin, partage externe d'un rang. En parallèle : suppression de compte (RGPD article 17, **bloquant légal**) et option *quitter une Tribu*.
+### US-BE-032 — Rôle admin (identité)
 
 En tant que backend,
-je veux fournir les statistiques d'une entreprise sur un match donné,
-afin que le frontend puisse afficher un recap post-match sans recalculer côté client.
+je veux définir un rôle admin,
+afin de protéger la correction de résultats et le back-office.
 
 #### Critères d'acceptation
 
 ```txt
-- Endpoint accepte un identifiant d'entreprise + un identifiant de match
-- Retourne pour ce match :
-  - Nombre de pronos faits par les membres de l'entreprise
-  - Nombre de scores exacts
-  - Nombre de bons résultats
-  - Pseudo + points du top performer du match
-  - Score moyen de l'entreprise sur ce match
-- Retourne null/vide si le match n'est pas terminé
-- Les calculs sont strictement côté backend (règle non-négociable)
-- L'utilisateur appelant doit appartenir à l'entreprise demandée (sinon refus)
+- Le profil expose is_admin (ou claim JWT équivalent)
+- Le rôle admin est provisionné hors-app (seed/console)
+- Les opérations de correction de résultats refusent les non-admin
+- Le back-office résultats est réservé aux admins
 ```
 
-#### Vision link
+#### Tables concernées
 
 ```txt
-Support technique de US-FE-027 (Recap post-match) —
-pilier "Battle sociale entre entreprises" (00_vision.md)
+profiles
+match_results
+match_alerts
 ```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend des résultats officiels de R4
-```
-
-#### Schéma v2 — éléments concernés
-
-- Nouvelle RPC : `get_company_match_stats(company_id, match_id)` (`SECURITY DEFINER`)
-- Aggregations sur `predictions` + `match_results` filtrés
-- Vue temporaire ou inline — calcul à la volée (D-005)
 
 #### Priorité
 
@@ -3076,6 +3036,14 @@ P1
 ```
 
 ---
+
+
+---
+
+
+## Backend
+
+
 
 
 ### US-BE-027 — Comparaison head-to-head entre deux utilisateurs
@@ -3178,20 +3146,21 @@ P0 (bloquant légal pour mise en prod)
 ---
 
 
-### US-BE-029 — Quitter une entreprise
+### US-BE-029 — Quitter une Tribu
 
 
 En tant que backend,
-je veux permettre à un utilisateur de quitter une entreprise,
+je veux permettre à un utilisateur de quitter une Tribu,
 afin qu'il puisse se retirer en cas d'erreur d'adhésion ou de changement de situation.
 
 #### Critères d'acceptation
 
 ```txt
 - Endpoint accepte une demande de retrait pour l'utilisateur authentifié
-- L'utilisateur n'est plus listé comme membre de l'entreprise
+- L'utilisateur n'est plus listé comme membre de la Tribu quittée
+- L'utilisateur conserve toujours sa Tribu-nation de base
 - Ses pronos restent intacts (l'historique de jeu n'est pas affecté)
-- Le score d'entreprise est recalculé sans l'utilisateur sortant
+- Le score de Tribu est recalculé sans l'utilisateur sortant
 - Cas particulier — l'utilisateur est le créateur de l'entreprise :
   règle à trancher avec le PO (transmission de la propriété, refus,
   ou suppression de l'entreprise si dernier membre)
@@ -3229,7 +3198,7 @@ P1
 ## Frontend
 
 
-### US-FE-026 — Comparaison head-to-head avec un collègue
+### US-FE-026 — Comparaison head-to-head dans une Tribu
 
 
 En tant qu'utilisateur,
@@ -3239,14 +3208,14 @@ afin de matérialiser une rivalité 1-to-1 au-delà du classement collectif.
 #### Critères d'acceptation
 
 ```txt
-- Sur le leaderboard d'entreprise (US-FE-014), un tap sur un membre ouvre
+- Sur le leaderboard de Tribu (US-FE-014), un tap sur un membre ouvre
   une vue comparative dédiée
 - Vue mobile-first listant chaque match commun où les 2 utilisateurs ont prédit :
   - Mon prono / son prono / résultat officiel (si match terminé)
   - Indicateur visuel clair : qui a gagné le match (icône, couleur)
   - Points gagnés par chacun
 - En tête de page, score cumulé : "Toi 47 - Marc 38" sur les matchs joués
-- Lien retour clair vers le leaderboard d'entreprise
+- Lien retour clair vers le leaderboard de Tribu
 - État vide géré : "Pas encore assez de matchs joués en commun"
 - Aucun calcul côté frontend (consomme l'endpoint US-BE-027)
 ```
@@ -3281,56 +3250,6 @@ P1
 ---
 
 
-### US-FE-027 — Recap d'entreprise post-match
-
-
-En tant qu'utilisateur,
-je veux voir comment mon entreprise a performé sur un match qui vient de se terminer,
-afin de transformer chaque résultat en moment de cohésion d'équipe.
-
-#### Critères d'acceptation
-
-```txt
-- Sur la home, après qu'un match passe à finished, une carte recap apparaît
-- La carte affiche pour mon entreprise sur ce match :
-  - Nombre de scores exacts (ex: "4 scores exacts")
-  - Nombre de bons résultats (ex: "7 bons résultats")
-  - Top performer du match (pseudo + points gagnés)
-  - Score moyen de l'entreprise sur ce match
-- Persistante pendant 24h après la fin du match, puis disparaît
-- Tap sur la carte → ouvre la fiche match avec détails complets
-- Microcopy adaptative : "Patek SA a brillé" si bon perf, "On peut faire mieux" sinon
-- État vide géré : si moins de 2 membres ont joué, ne pas afficher la carte
-- Aucun calcul côté frontend (consomme l'endpoint US-BE-026)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (intégration carte)
-- components/company-match-recap-card
-- services/company.service
-```
-
-#### Vision link
-
-```txt
-"Battle sociale entre entreprises" / "Leaderboards collectifs" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-026 et des résultats officiels de R4
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 
 ### US-FE-030 — Partage externe d'un rang ou d'un exploit
@@ -3446,22 +3365,21 @@ P0 (bloquant légal pour mise en prod)
 ---
 
 
-### US-FE-035 — Quitter une entreprise
+### US-FE-035 — Quitter une Tribu
 
 
 En tant qu'utilisateur,
-je veux pouvoir quitter une entreprise dans laquelle je suis,
+je veux pouvoir quitter une Tribu dans laquelle je suis,
 afin de pouvoir corriger une mauvaise adhésion ou marquer un changement d'employeur.
 
 #### Critères d'acceptation
 
 ```txt
-- Bouton "Quitter cette entreprise" accessible depuis la page entreprise
+- Bouton "Quitter cette Tribu" accessible depuis la page Tribu
   (profil ou settings)
 - Confirmation explicite :
-  "Tu ne feras plus partie de [Entreprise]. Confirmer ?"
-- Après confirmation : redirection vers une page d'état
-  "Tu n'es plus dans une entreprise — rejoins-en une nouvelle"
+  "Tu ne feras plus partie de [Tribu]. Confirmer ?"
+- Après confirmation : redirection normale vers l'app (pas d'état vide "sans entreprise")
 - Mes pronos restent intacts et continuent à être comptés
   dans le classement global
 - État géré dans l'UI (pas d'appel infini si déjà retiré)
@@ -3484,6 +3402,38 @@ Cas d'usage manquant du persona Employé d'entreprise (02_user_stories.md)
 
 ```txt
 R5 (Polish) — dépend de US-BE-029
+```
+
+#### Priorité
+
+```txt
+P1
+```
+
+---
+
+### US-FE-039 — Back-office résultats (admin)
+
+En tant qu'admin,
+je veux un back-office dédié aux résultats,
+afin de superviser la synchro et corriger les anomalies.
+
+#### Critères d'acceptation
+
+```txt
+- L'accès est strictement réservé aux admins (US-BE-032)
+- Le back-office affiche le statut API football (dernière synchro, état cron)
+- Les alertes de matchs en retard (match_alerts) sont visibles
+- Une correction manuelle de résultat est possible, puis recalcul automatique des points
+- Le back-office est séparé de l'application joueur
+```
+
+#### Pages, composants et services concernés
+
+```txt
+- pages/admin/results
+- services/admin-results.service
+- services/match-alerts.service
 ```
 
 #### Priorité
@@ -3556,25 +3506,26 @@ P1
 ## QA
 
 
-### US-QA-006 — Parcours utilisateur complet
+### US-QA-006 — Tests prototype final
 
 
 **User Story**  
-En tant qu’utilisateur, je veux pouvoir utiliser l’application de bout en bout sans erreur.
+En tant qu’équipe QA, je veux valider les scénarios critiques du prototype final.
 
 **Critères d’acceptation**
-- Créer un compte → OK
-- Se connecter → OK
-- Faire un prono → OK
-- Voir ses points → OK
-- Voir le classement → OK
-- Aucun bug bloquant sur le parcours
+- Auth email + mot de passe fonctionnelle
+- Boost = 5 (la 6e tentative est refusée)
+- Pronos masqués avant verrouillage, révélés après kickoff
+- Correction de résultat accessible admin-only
+- Auto-join Tribu-nation au choix d'équipe
+- Classement global labellisé par nation
+- Notifications in-app fonctionnelles
 
 #### Fichiers de tests et scénarios concernés
 
-- Suite E2E : `tests/e2e/critical-journey.spec.ts`
-- Scénario complet : signup → company → prono → result → score → leaderboard → invite
-- Critère : aucun bug bloquant sur le parcours
+- Suite E2E : `tests/e2e/prototype-final.spec.ts`
+- Scénario : auth → team pick → tribu → prono lock/unlock → leaderboard → notifications → admin correction
+- Critère : aucune régression bloquante sur les parcours critiques
 
 **Priorité** : 🔴 Critique
 
@@ -3722,24 +3673,25 @@ En tant que présentateur, je veux que l’application fonctionne parfaitement e
 
 ---
 
-### US-FE-031 — Page "Mes pronos"
+### US-FE-031 — Historique
 
 En tant qu'utilisateur,
-je veux voir l'ensemble de mes pronos en un seul endroit,
-afin de suivre ma progression et de revoir mes choix passés.
+je veux voir mon historique d'activité de pronostics en un seul endroit,
+afin de suivre ma progression sur les matchs passés.
 
 #### Critères d'acceptation
 
 ```txt
-- Page dédiée "Mes pronos" accessible depuis la navigation principale
-- Liste tous les pronos de l'utilisateur, triés par date de match
+- Page dédiée "Historique" accessible depuis la navigation principale
+- Liste les pronos passés de l'utilisateur, triés par date de match
   (le plus récent en haut)
 - Pour chaque prono : équipes, date, mon score, statut du match
-  (ouvert / verrouillé / terminé)
+  (terminé uniquement)
 - Pour les matchs terminés : afficher également le résultat officiel
   et les points gagnés
 - Indicateur visuel pour les pronos boostés
-- État vide explicatif si aucun prono n'a été fait
+- Les pronos à venir / verrouillés n'apparaissent pas dans cette vue
+- État vide explicatif si aucun historique n'est disponible
 - Mobile-first
 - Aucun calcul côté frontend (consomme l'endpoint US-BE-019)
 ```
@@ -3969,19 +3921,20 @@ P0 (bloquant légal pour mise en prod)
 
 ---
 
-### US-BE-029 — Quitter une entreprise
+### US-BE-029 — Quitter une Tribu
 
 En tant que backend,
-je veux permettre à un utilisateur de quitter une entreprise,
+je veux permettre à un utilisateur de quitter une Tribu,
 afin qu'il puisse se retirer en cas d'erreur d'adhésion ou de changement de situation.
 
 #### Critères d'acceptation
 
 ```txt
 - Endpoint accepte une demande de retrait pour l'utilisateur authentifié
-- L'utilisateur n'est plus listé comme membre de l'entreprise
+- L'utilisateur n'est plus listé comme membre de la Tribu quittée
+- L'utilisateur conserve toujours sa Tribu-nation de base
 - Ses pronos restent intacts (l'historique de jeu n'est pas affecté)
-- Le score d'entreprise est recalculé sans l'utilisateur sortant
+- Le score de Tribu est recalculé sans l'utilisateur sortant
 - Cas particulier — l'utilisateur est le créateur de l'entreprise :
   règle à trancher avec le PO (transmission de la propriété, refus,
   ou suppression de l'entreprise si dernier membre)
@@ -4015,21 +3968,20 @@ P1
 
 ---
 
-### US-FE-035 — Quitter une entreprise
+### US-FE-035 — Quitter une Tribu
 
 En tant qu'utilisateur,
-je veux pouvoir quitter une entreprise dans laquelle je suis,
+je veux pouvoir quitter une Tribu dans laquelle je suis,
 afin de pouvoir corriger une mauvaise adhésion ou marquer un changement d'employeur.
 
 #### Critères d'acceptation
 
 ```txt
-- Bouton "Quitter cette entreprise" accessible depuis la page entreprise
+- Bouton "Quitter cette Tribu" accessible depuis la page Tribu
   (profil ou settings)
 - Confirmation explicite :
-  "Tu ne feras plus partie de [Entreprise]. Confirmer ?"
-- Après confirmation : redirection vers une page d'état
-  "Tu n'es plus dans une entreprise — rejoins-en une nouvelle"
+  "Tu ne feras plus partie de [Tribu]. Confirmer ?"
+- Après confirmation : redirection normale vers l'app (pas d'état vide "sans entreprise")
 - Mes pronos restent intacts et continuent à être comptés
   dans le classement global
 - État géré dans l'UI (pas d'appel infini si déjà retiré)
@@ -4126,56 +4078,6 @@ P0
 
 ---
 
-### US-FE-023 — Bandeau de rivalité inter-entreprises (home)
-
-En tant qu'utilisateur,
-je veux voir en permanence où mon entreprise se situe par rapport aux autres,
-afin de ressentir la compétition collective au-delà de mon score perso.
-
-#### Critères d'acceptation
-
-```txt
-- En haut de la home, bandeau dynamique affichant :
-  - Rang de mon entreprise (ex: "4ème sur 12")
-  - Écart au rival le plus proche au-dessus (ex: "à 23 pts du podium")
-  - OU écart au poursuivant si déjà sur le podium
-- Variation du ton selon la position :
-  - Top 3 : "Ton entreprise tient le podium 🔥"
-  - Milieu : "Ton entreprise peut grimper. 23 pts à rattraper."
-  - Bas : "Ton entreprise compte sur toi."
-- Lien vers le classement entreprises au tap
-- Texte calculé côté backend (pas de logique côté frontend)
-- État vide géré : "Pas assez d'entreprises classées pour le moment"
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (bandeau en tête)
-- components/company-rivalry-banner
-- services/leaderboard.service
-```
-
-#### Vision link
-
-```txt
-"Battle sociale entre entreprises" / piliers : "Compétition inter-entreprises",
-"Leaderboards collectifs" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — nécessite leaderboards entreprises de R4
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 ### US-FE-024 — CTA d'invitation post-action (boucle virale)
 
@@ -4227,100 +4129,6 @@ P1
 
 ---
 
-### US-BE-025 — Tracking des invitations (backend ambassadeur)
-
-En tant que backend,
-je veux tracer qui a invité qui,
-afin que le frontend puisse rendre visible le statut d'ambassadeur et
-de mesurer la viralité.
-
-#### Critères d'acceptation
-
-```txt
-- Lorsqu'un utilisateur rejoint via invite_code, on enregistre l'inviteur
-- Un utilisateur peut récupérer le nombre de personnes qu'il a invitées
-  qui ont effectivement créé un profil
-- Un utilisateur peut récupérer le nombre de ses invités qui ont fait
-  au moins un prono (= invitation "convertie")
-- Données exposées : invites_sent_count, invites_converted_count
-- Aucune donnée personnelle d'autres utilisateurs n'est exposée
-  (pas la liste des pseudos, juste les compteurs)
-```
-
-#### Vision link
-
-```txt
-"Effet réseau via invitations", persona "Ambassadeur" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de l'invitation existante (US-BE-004, US-BE-017)
-```
-
-#### Schéma v2 — éléments concernés
-
-- Nouvelle vue/agrégat : invitations envoyées et converties par ambassadeur
-- Source : table à ajouter (`invitations` ou colonnes sur `company_members.referred_by`) selon design final
-- Compatible D-005 : pas de stockage de compteurs dérivables
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-### US-FE-025 — Statut ambassadeur sur le profil
-
-En tant qu'utilisateur,
-je veux voir combien de collègues j'ai fait rejoindre,
-afin de ressentir la fierté d'être un moteur de mon entreprise.
-
-#### Critères d'acceptation
-
-```txt
-- Sur la page profil, section "Ambassadeur" affichant :
-  - Nombre de personnes invitées (créées un profil)
-  - Nombre d'invitations converties (au moins 1 prono fait)
-  - Badge automatique au-delà de seuils simples :
-    1+ → "Recruteur", 5+ → "Ambassadeur", 10+ → "Capitaine d'entreprise"
-- Tooltip pédagogique : "Tes invités jouent → ton entreprise monte"
-- Si 0 invité : état d'incitation "Lance ta première invitation"
-  qui ouvre directement le flux de partage (réutilise share-link)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/profile/view (nouvelle section)
-- components/ambassador-stats
-- components/share-link (réutilisé pour le state vide)
-- services/user.service
-```
-
-#### Vision link
-
-```txt
-Persona "Ambassadeur" — 02_user_stories.md
-"Effet réseau via invitations" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-025
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 ### US-DO-010 — Tracking minimal des événements clés produit
 
@@ -4335,8 +4143,7 @@ afin de savoir si le produit est un succès au-delà du fait qu'il fonctionne.
   - account_created          (signup réussi)
   - first_prediction_made    (premier prono soumis)
   - invite_sent              (lien copié)
-  - invite_converted         (un invité crée un profil OU fait un prono)
-  - company_joined           (rejoint une entreprise)
+  - tribu_joined             (rejoint une Tribu)
 - Outillage simple : Plausible, Umami, ou table dédiée Supabase
   (pas de Mixpanel / Amplitude au MVP — overkill 3 semaines)
 - Aucune donnée personnelle envoyée à un tiers (RGPD)
@@ -4368,10 +4175,10 @@ Moyenne
 #### Fichiers, configurations et services concernés
 
 - Service tracking : à définir (PostHog, Plausible, ou équivalent simple)
-- Événements clés : `signup`, `first_prediction`, `invite_sent`, `invite_converted`, `boost_activated`, `match_predicted`
+- Événements clés : `signup`, `first_prediction`, `invite_sent`, `tribu_joined`, `boost_activated`, `match_predicted`
 - Fichier : `src/lib/analytics.ts`
 - Variables d'env : `ANALYTICS_KEY`
-### US-FE-026 — Comparaison head-to-head avec un collègue
+### US-FE-026 — Comparaison head-to-head dans une Tribu
 
 En tant qu'utilisateur,
 je veux comparer mes pronos match par match avec un collègue spécifique,
@@ -4380,14 +4187,14 @@ afin de matérialiser une rivalité 1-to-1 au-delà du classement collectif.
 #### Critères d'acceptation
 
 ```txt
-- Sur le leaderboard d'entreprise (US-FE-014), un tap sur un membre ouvre
+- Sur le leaderboard de Tribu (US-FE-014), un tap sur un membre ouvre
   une vue comparative dédiée
 - Vue mobile-first listant chaque match commun où les 2 utilisateurs ont prédit :
   - Mon prono / son prono / résultat officiel (si match terminé)
   - Indicateur visuel clair : qui a gagné le match (icône, couleur)
   - Points gagnés par chacun
 - En tête de page, score cumulé : "Toi 47 - Marc 38" sur les matchs joués
-- Lien retour clair vers le leaderboard d'entreprise
+- Lien retour clair vers le leaderboard de Tribu
 - État vide géré : "Pas encore assez de matchs joués en commun"
 - Aucun calcul côté frontend (consomme l'endpoint US-BE-027)
 ```
@@ -4421,157 +4228,6 @@ P1
 
 ---
 
-### US-FE-027 — Recap d'entreprise post-match
-
-En tant qu'utilisateur,
-je veux voir comment mon entreprise a performé sur un match qui vient de se terminer,
-afin de transformer chaque résultat en moment de cohésion d'équipe.
-
-#### Critères d'acceptation
-
-```txt
-- Sur la home, après qu'un match passe à finished, une carte recap apparaît
-- La carte affiche pour mon entreprise sur ce match :
-  - Nombre de scores exacts (ex: "4 scores exacts")
-  - Nombre de bons résultats (ex: "7 bons résultats")
-  - Top performer du match (pseudo + points gagnés)
-  - Score moyen de l'entreprise sur ce match
-- Persistante pendant 24h après la fin du match, puis disparaît
-- Tap sur la carte → ouvre la fiche match avec détails complets
-- Microcopy adaptative : "Patek SA a brillé" si bon perf, "On peut faire mieux" sinon
-- État vide géré : si moins de 2 membres ont joué, ne pas afficher la carte
-- Aucun calcul côté frontend (consomme l'endpoint US-BE-026)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (intégration carte)
-- components/company-match-recap-card
-- services/company.service
-```
-
-#### Vision link
-
-```txt
-"Battle sociale entre entreprises" / "Leaderboards collectifs" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend de US-BE-026 et des résultats officiels de R4
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-### US-FE-028 — Match-day re-engagement in-app
-
-En tant qu'utilisateur,
-je veux voir un état fort à l'ouverture les jours de match,
-afin que l'app me donne envie de jouer sans dépendre d'une notification push.
-
-#### Critères d'acceptation
-
-```txt
-- À l'ouverture de l'app, si un ou plusieurs matchs ont kickoff dans les
-  12 prochaines heures, un bandeau visible affiche :
-  - Nombre de matchs du jour (ex: "3 matchs ce soir")
-  - CTA direct "Faire mes pronos →" qui scroll vers les matchs ouverts
-- Variation du ton selon mon état :
-  - Aucun prono fait : "Ton entreprise compte sur toi. 3 matchs ce soir."
-  - Quelques pronos faits : "Ne lâche pas. Encore 2 pronos à faire."
-  - Tous les pronos faits : "Tu es prêt. Que le meilleur gagne 🔥"
-- Le bandeau disparaît après le coup d'envoi du dernier match du jour
-- Dismissable une fois par session pour les utilisateurs qui veulent l'ignorer
-- Utilise les données déjà exposées par US-BE-008 (pas de nouvel endpoint)
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/home/match-list (bandeau en tête)
-- components/match-day-banner
-- services/match.service
-```
-
-#### Vision link
-
-```txt
-"Si les gens jouent → succès" — critère de succès projet (00_vision.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish)
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
-
-### US-FE-029 — Onboarding ambassadeur (post-création d'entreprise)
-
-En tant qu'ambassadeur (créateur d'entreprise),
-je veux être guidé sur les premières actions à effectuer après création,
-afin de ne pas me retrouver seul dans un état mort sans savoir comment activer la rivalité.
-
-#### Critères d'acceptation
-
-```txt
-- Immédiatement après création d'une entreprise (US-FE-004), une checklist
-  apparaît avec 3 actions prioritaires :
-  1) "Invite 3 collègues" — lien direct vers share-link (US-FE-016)
-     → coche dès qu'1 invité a converti (consomme US-BE-025)
-  2) "Active ton boost stratégique" — lien vers la liste des matchs
-     → coche dès qu'un boost est activé
-  3) "Défie une autre entreprise" — lien vers le classement entreprises
-     → coche après 1 visite
-- Chaque item coché disparaît visuellement
-- Indicateur de progression visible (1/3, 2/3, 3/3)
-- La checklist disparaît complètement quand les 3 sont cochés OU après dismiss
-- Microcopy fun : "Tu es le moteur. Voici comment lancer la machine."
-```
-
-#### Pages, composants et services concernés
-
-```txt
-- pages/company/dashboard ou pages/home/match-list (carte intégrée)
-- components/ambassador-checklist
-- services/user.service (état de complétion par utilisateur)
-```
-
-#### Vision link
-
-```txt
-Persona Ambassadeur : "Motiver son équipe à participer" — 02_user_stories.md
-"Si les gens invitent → énorme succès" — 00_vision.md
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — peut techniquement démarrer dès R2 si tracking d'invitation présent
-```
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 ### US-FE-030 — Partage externe d'un rang ou d'un exploit
 
@@ -4625,53 +4281,6 @@ P1
 
 ---
 
-### US-BE-026 — Agrégation stats entreprise par match
-
-En tant que backend,
-je veux fournir les statistiques d'une entreprise sur un match donné,
-afin que le frontend puisse afficher un recap post-match sans recalculer côté client.
-
-#### Critères d'acceptation
-
-```txt
-- Endpoint accepte un identifiant d'entreprise + un identifiant de match
-- Retourne pour ce match :
-  - Nombre de pronos faits par les membres de l'entreprise
-  - Nombre de scores exacts
-  - Nombre de bons résultats
-  - Pseudo + points du top performer du match
-  - Score moyen de l'entreprise sur ce match
-- Retourne null/vide si le match n'est pas terminé
-- Les calculs sont strictement côté backend (règle non-négociable)
-- L'utilisateur appelant doit appartenir à l'entreprise demandée (sinon refus)
-```
-
-#### Vision link
-
-```txt
-Support technique de US-FE-027 (Recap post-match) —
-pilier "Battle sociale entre entreprises" (00_vision.md)
-```
-
-#### Release recommandée
-
-```txt
-R5 (Polish) — dépend des résultats officiels de R4
-```
-
-#### Schéma v2 — éléments concernés
-
-- Nouvelle RPC : `get_company_match_stats(company_id, match_id)` (`SECURITY DEFINER`)
-- Aggregations sur `predictions` + `match_results` filtrés
-- Vue temporaire ou inline — calcul à la volée (D-005)
-
-#### Priorité
-
-```txt
-P1
-```
-
----
 
 ### US-BE-027 — Comparaison head-to-head entre deux utilisateurs
 
@@ -4738,37 +4347,37 @@ P1
 ## 🟩 R1 — Solo Player Loop
 
 - **Backend** : US-BE-008, US-BE-010, US-BE-012, US-BE-013
-- **Frontend** : US-FE-007, US-FE-009, US-FE-010, US-FE-012, US-FE-031, US-FE-032, US-FE-033
+- **Frontend** : US-FE-007, US-FE-009, US-FE-010, US-FE-012, US-FE-031, US-FE-032, US-FE-033, US-FE-040
 - **Data** : US-DA-006, US-DA-007, US-DA-008
 - **DevOps** : US-DO-004, US-DO-005
 - **QA** : US-QA-002, US-QA-003, US-QA-004
 
-## 🟨 R2 — Social Battle (Entreprises & Leaderboards)
+## 🟨 R2 — Social Battle (Tribus & Leaderboards)
 
-- **Backend** : US-BE-003, US-BE-004, US-BE-005, US-BE-014, US-BE-015, US-BE-016, US-BE-017
-- **Frontend** : US-FE-003, US-FE-004, US-FE-005, US-FE-013, US-FE-014, US-FE-015, US-FE-016, US-FE-017
+- **Backend** : US-BE-003, US-BE-004, US-BE-005, US-BE-014, US-BE-015, US-BE-016, US-BE-017, US-BE-030, US-BE-031, US-BE-033
+- **Frontend** : US-FE-003, US-FE-004, US-FE-005, US-FE-013, US-FE-014, US-FE-015, US-FE-016, US-FE-017, US-FE-037, US-FE-038
 - **DevOps** : US-DO-006
 - **QA** : US-QA-005
 
 ## 🟧 R3 — Engagement Layer
 
 - **Backend** : US-BE-011, US-BE-019
-- **Frontend** : US-FE-011, US-FE-022, US-FE-023, US-FE-028
+- **Frontend** : US-FE-011, US-FE-022, US-FE-036
 - **Data** : US-DA-011
 - **DevOps** : US-DO-007
 - **QA** : US-QA-007
 
 ## 🟥 R4 — Viral Growth Layer
 
-- **Backend** : US-BE-020, US-BE-021, US-BE-022, US-BE-025
-- **Frontend** : US-FE-018, US-FE-019, US-FE-024, US-FE-025, US-FE-029
+- **Backend** : US-BE-020, US-BE-021, US-BE-022
+- **Frontend** : US-FE-018, US-FE-019, US-FE-024
 - **DevOps** : US-DO-008, US-DO-010
 - **QA** : US-QA-008
 
 ## 🟪 R5 — Differentiation + Compliance
 
-- **Backend** : US-BE-026, US-BE-027, US-BE-028, US-BE-029
-- **Frontend** : US-FE-026, US-FE-027, US-FE-030, US-FE-034, US-FE-035
+- **Backend** : US-BE-027, US-BE-028, US-BE-029, US-BE-032
+- **Frontend** : US-FE-026, US-FE-030, US-FE-034, US-FE-035, US-FE-039
 - **Data** : US-DA-012
 - **DevOps** : US-DO-009
 - **QA** : US-QA-006
@@ -4788,7 +4397,6 @@ Quelques détails d’origine à noter pour vérification ultérieure (rien n’
 - **US-DO-007** : l’endpoint `/health` mentionne `HTTP 2002` (probablement coquille pour `HTTP 200` / `2xx`).
 - **US-FE-006** : la mention `(ou autre critère, à definir)` reste à clarifier avec le PO.
 - **US-DO-003** : les noms de tables Supabase utilisés ici (`users`, `matchs`, `pronostics`, `scores`, `classement`, `groupes`) diffèrent du data model défini dans `03_data_model.md` (`profiles`, `matches`, `predictions`, `match_results`, `companies`, `company_members`, `teams`). À aligner.
-- **US-FE-001** vs **vision** : le frontend prévoit `email + password`, alors que la vision et les user stories produit (`US-001`) prévoient un `magic link`. À trancher avec le PO.
 
 ---
 
