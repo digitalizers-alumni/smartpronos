@@ -1,11 +1,104 @@
-<div class="flex flex-col h-full w-full bg-tribbo-bg items-center justify-center px-8">
-  <div class="flex flex-col items-center gap-6">
-    <span class="text-6xl">✅</span>
-    <h1 class="font-archivo text-2xl text-tribbo-text uppercase tracking-tight text-center">
-      Compte activé
-    </h1>
-    <p class="font-inter text-sm text-gray-500 text-center">
-      Redirection en cours...
-    </p>
+@if (authLoading()) {
+  <div class="flex items-center justify-center h-full w-full bg-tribbo-bg">
+    <div class="font-inter text-gray-400 text-sm">Vérification...</div>
   </div>
-</div>
+} @else {
+  <div class="flex flex-col h-full w-full bg-tribbo-bg">
+    <!-- Header -->
+    <div class="flex-shrink-0 px-6 pt-14 pb-3">
+      <p class="font-space text-[11px] uppercase tracking-widest text-tribbo-primary font-bold">
+        Première connexion
+      </p>
+      <h1 class="font-archivo text-3xl text-tribbo-text leading-tight mt-2">
+        Quelle équipe<br />soutiens-tu ? ⚽
+      </h1>
+      <p class="font-inter text-sm text-gray-500 leading-relaxed mt-3">
+        Ton équipe de cœur sera mise en avant et tu pourras filtrer tes matchs en un tap.
+      </p>
+      <!-- Search -->
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2.5 mt-4 shadow-sm">
+        <span class="material-symbols-outlined text-gray-400 text-[19px]">search</span>
+        <input type="text" placeholder="Rechercher un pays…"
+          [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+          class="w-full border-none outline-none bg-transparent font-inter text-sm text-tribbo-text placeholder:text-gray-300"
+        />
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="flex-1 overflow-y-auto px-6 pb-4">
+      @if (teamsLoading()) {
+        <div class="flex items-center justify-center py-12">
+          <div class="font-inter text-gray-400 text-sm">Chargement des équipes...</div>
+        </div>
+      } @else {
+        <div class="grid grid-cols-3 gap-3">
+          @for (team of filteredTeams(); track team.id) {
+            <button type="button" (click)="selectTeam(team.id)"
+              class="relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all active:scale-[0.97]"
+              [class.border-tribbo-primary]="selectedTeamId() === team.id"
+              [class.border-gray-100]="selectedTeamId() !== team.id"
+              [class.bg-tribbo-primary/5]="selectedTeamId() === team.id"
+              [class.bg-white]="selectedTeamId() !== team.id"
+              [class.shadow-md]="selectedTeamId() === team.id"
+              [class.shadow-sm]="selectedTeamId() !== team.id">
+              @if (team.flag_url) {
+                <img [src]="team.flag_url" [alt]="team.name" class="w-10 h-10 rounded-full object-cover shadow-sm" loading="lazy" />
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-400 font-bold">
+                  {{ team.code }}
+                </div>
+              }
+              <span class="font-inter text-[11px] text-gray-600 text-center leading-tight line-clamp-2">
+                {{ team.name }}
+              </span>
+              <span class="font-space text-[9px] text-gray-400 font-bold">{{ team.code }}</span>
+              @if (selectedTeamId() === team.id) {
+                <span class="material-symbols-outlined fill text-tribbo-primary text-[18px] absolute top-1.5 right-1.5">check_circle</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex-shrink-0 px-6 pt-3 pb-6 bg-white border-t border-gray-100">
+      @if (errorMessage()) {
+        <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-3">
+          <p class="font-inter text-xs text-red-600">{{ errorMessage() }}</p>
+        </div>
+      }
+      @if (selectedTeam(); as team) {
+        <div class="flex items-center justify-center gap-2 mb-3">
+          @if (team.flag_url) {
+            <img [src]="team.flag_url" class="w-5 h-5 rounded-full object-cover" alt="" />
+          }
+          <span class="font-inter text-sm text-tribbo-text">
+            Tu soutiens <strong>{{ team.name }}</strong>
+          </span>
+        </div>
+      }
+      <button (click)="confirmTeam()"
+        [disabled]="!selectedTeamId() || saving()"
+        class="w-full font-archivo text-sm uppercase tracking-wider py-4 rounded-xl transition-all active:scale-[0.98] disabled:cursor-not-allowed"
+        [class.bg-tribbo-primary]="selectedTeamId()"
+        [class.bg-gray-200]="!selectedTeamId()"
+        [class.text-white]="selectedTeamId()"
+        [class.text-gray-400]="!selectedTeamId()"
+        [class.shadow-[0_12px_28px_-8px_rgba(29,77,255,0.4)]]="selectedTeamId()">
+        @if (saving()) {
+          Sauvegarde...
+        } @else if (selectedTeam(); as team) {
+          Allez {{ team.name }} ! 🚀
+        } @else {
+          Choisis ton équipe
+        }
+      </button>
+      <button (click)="skipTeam()"
+        class="w-full font-space text-[11px] uppercase tracking-tight text-gray-400 hover:text-gray-500 transition-colors text-center mt-3">
+        Passer cette étape
+      </button>
+    </div>
+  </div>
+}
