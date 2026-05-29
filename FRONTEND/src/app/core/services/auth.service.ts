@@ -22,7 +22,7 @@ export class AuthService {
       email,
       password,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) throw error;
