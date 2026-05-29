@@ -69,7 +69,7 @@ describe('US-QA-001 — Authentification', () => {
     });
 
     it('inscription reussie avec session → redirection', () => {
-      cy.intercept('POST', '**/auth/v1/signup', {
+      cy.intercept('POST', '**/auth/v1/signup**', {
         statusCode: 200,
         body: {
           access_token: 'new-token',
@@ -91,7 +91,7 @@ describe('US-QA-001 — Authentification', () => {
     });
 
     it('affiche ecran confirmation email si pas de session', () => {
-      cy.intercept('POST', '**/auth/v1/signup', {
+      cy.intercept('POST', '**/auth/v1/signup**', {
         statusCode: 200,
         body: { id: 'new-user', email: 'new@test.com' },
       }).as('signupNoSession');
