@@ -1,0 +1,72 @@
+<section class="login-page">
+  <div class="login-page__bg">
+    <img
+      src="https://lh3.googleusercontent.com/aida/ADBb0ujN3EmImteoSe_B8COGSeoFieNl6eJHcPQXi7x5BKpeMR8htBqn8uASyvHuCWBY6itimiyIy2B4mvxcDMyn6JIGEuofzwW7mzCF-NAC0x_0Al3zNFp2IYTcyM0qGyt5hiX0nRN027ZvC-MB_Oo5Gdegk1XbfDcb7PS1XCMtft_R_mH-lU7m5bYrg_dzXW9z1feCURwuFUKouE-MfFFf9I3hffRNtaBybi1-1q-EzvdUVOvB7edZq18r8A"
+      alt="World Cup stadium"
+      class="login-page__bg-img"
+    />
+    <div class="login-page__bg-overlay"></div>
+  </div>
+
+  <div class="login-page__content">
+    <a routerLink="/" class="login-page__back">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Retour accueil
+    </a>
+
+    <div class="login-card">
+      <h1 class="login-card__title">Connexion</h1>
+      <p class="login-card__subtitle">
+        Rejoins ta ligue, reprends tes pronostics et grimpe au classement.
+      </p>
+
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="submit()">
+        <label class="login-form__field">
+          <span>Email</span>
+          <input type="email" formControlName="email" placeholder="ton@email.com" />
+          @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+            <small class="login-form__error">Email invalide.</small>
+          }
+        </label>
+
+        <label class="login-form__field">
+          <span>Mot de passe</span>
+          <div class="login-form__password-wrap">
+            <input
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="********"
+            />
+            <button
+              type="button"
+              class="login-form__toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+            >
+              <span class="material-symbols-outlined">
+                {{ hidePassword ? 'visibility' : 'visibility_off' }}
+              </span>
+            </button>
+          </div>
+          @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+            <small class="login-form__error">
+              Le mot de passe doit contenir au moins 6 caracteres.
+            </small>
+          }
+        </label>
+
+        <label class="login-form__remember">
+          <input type="checkbox" formControlName="remember" />
+          Se souvenir de moi
+        </label>
+
+        <button class="login-form__submit" type="submit">Se connecter</button>
+      </form>
+
+      <div class="login-card__meta">
+        <a href="#">Mot de passe oublie ?</a>
+        <a routerLink="/signup">Creer un compte</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -132,7 +132,6 @@ Points du match x2
 - ❌ Impossible d’ajouter un boost après verrouillage
 - ❌ Impossible de déplacer un boost après verrouillage
 - ❌ Un seul match boosté par utilisateur
-- ❌ Aucun recrédit automatique si un match est annulé hors MVP
 
 ### Implémentation
 
@@ -140,7 +139,7 @@ Points du match x2
 predictions.is_boosted = true | false
 
 contrainte :
-index unique partiel one_boost_per_user
+count(is_boosted=true par user) <= 1
 ```
 
 ---
@@ -169,11 +168,8 @@ Tri identique au global
 #### Méthode MVP (recommandée)
 
 ```
-Score entreprise = moyenne des points des membres actifs
+Score entreprise = moyenne des points des membres
 ```
-
-Un membre actif est un membre qui a au moins un score calculé.
-Les membres sans prono restent comptés dans `member_count`, mais sont exclus de `avg_points`.
 
 #### Alternatives (hors MVP)
 
@@ -213,9 +209,6 @@ scheduled : prono ouvert
 locked    : prono fermé
 finished  : résultat disponible
 ```
-
-Le statut n’est pas stocké dans `matches`.
-Il est calculé côté backend via `matches_with_status`.
 
 ### Transition
 

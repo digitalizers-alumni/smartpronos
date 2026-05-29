@@ -75,7 +75,6 @@ Proposée | Validée | Implémentée | Obsolète
 - D-012 — Boost perdu si match annulé
 - D-013 — Statut de match dynamique (upcoming/live/finished)
 - D-014 — Seed des équipes via migration SQL versionnée
-- D-015 — Adoption officielle du data model V2
 
 ---
 
@@ -227,7 +226,7 @@ matches_with_status → vue avec statut dérivé
 **Statut** : Validée
 
 **Liens** :
-- `03.schema.sql` — section "Vues & calculs"
+- `03_data_model.md` — section "Vues & calculs"
 - `05_business_rules.md` — "Calcul des points uniquement côté backend"
 
 ---
@@ -251,7 +250,7 @@ suffisamment le besoin de groupe pour le MVP.
 
 **Pourquoi** :
 - Aligné avec la vision : "battle entre entreprises" comme MOAT
-- Pas de US qui le réclame : `02_user_stories_by_release_v2.md` ne mentionne que des entreprises
+- Pas de US qui le réclame : `02_user_stories.md` ne mentionne que des entreprises
 - Évite scope creep : doubler le système = doubler les leaderboards, RLS, vues, UX
 - Friction utile : l'invite_code structure la rivalité et crée l'effet viral
 
@@ -272,7 +271,7 @@ suffisamment le besoin de groupe pour le MVP.
 **Date** : 2026-05-05
 
 **Contexte** :
-Le `03.schema.sql` initial prévoyait un champ `matches.status`
+Le `03_data_model.md` initial prévoyait un champ `matches.status`
 stocké. Faut-il vraiment stocker ce statut dérivable ?
 
 **Décision** :
@@ -303,12 +302,12 @@ END
 **Impact** :
 - Backend : vue `matches_with_status` exposée au frontend
 - Frontend : consomme la vue, ne calcule pas le statut
-- `03.schema.sql` : retirer `status` de la table `matches`
+- `03_data_model.md` : retirer `status` de la table `matches`
 
 **Statut** : Validée
 
 **Liens** :
-- `03.schema.sql` — table `matches`
+- `03_data_model.md` — table `matches`
 - `05_business_rules.md` — règles de verrouillage et statuts
 - D-005 — pas de stockage des points (même logique)
 
@@ -353,7 +352,7 @@ Deux compteurs exposés :
 
 **Liens** :
 - D-004 — Score entreprise = moyenne des membres
-- `03.schema.sql` — vue `company_scores`
+- `03_data_model.md` — vue `company_scores`
 
 ---
 
@@ -423,7 +422,7 @@ Priorités probables :
 **Statut** : Validée
 
 **Liens** :
-- `03.schema.sql` — référencer cette décision
+- `03_data_model.md` — référencer cette décision
 - `05_business_rules.md` — règles non couvertes par contrainte SQL
 
 ---
@@ -483,14 +482,14 @@ ensuite via US-002.
 - Backend : aucun code applicatif pour créer le profile
 - Frontend : peut compter sur l'existence du profile dès l'auth
 - UX : flow auth → app immédiat, sans étape "création profile"
-- `02_user_stories_by_release_v2.md` US-002 reste valide : l'user modifie
+- `02_user_stories.md` US-002 reste valide : l'user modifie
   son pseudo plus tard
 
 **Statut** : Validée
 
 **Liens** :
-- `03.schema.sql` — section triggers
-- `02_user_stories_by_release_v2.md` — US-001, US-002
+- `03_data_model.md` — section triggers
+- `02_user_stories.md` — US-001, US-002
 
 ---
 
@@ -573,8 +572,8 @@ invite_code text NOT NULL UNIQUE DEFAULT generate_invite_code()
 **Statut** : Validée
 
 **Liens** :
-- `03.schema.sql` — table `companies`, section fonctions helpers
-- `02_user_stories_by_release_v2.md` — US-016, US-017
+- `03_data_model.md` — table `companies`, section fonctions helpers
+- `02_user_stories.md` — US-016, US-017
 
 ---
 
@@ -648,49 +647,8 @@ Aucun de ces points n'est planifié pour le MVP.
 
 **Liens** :
 - `05_business_rules.md` — règles de boost
-- `03.schema.sql` — index `one_boost_per_user`
+- `03_data_model.md` — index `one_boost_per_user`
 - D-002 — Règle de boost (1 par utilisateur)
-
----
-
-### D-015 — Adoption officielle du data model V2
-
-**Date** : 2026-05-12
-
-**Contexte** :
-Le nouveau repo contenait déjà un schéma SQL proche de la V2, mais les
-contrats API et le board restaient partiellement alignés sur l’ancien modèle.
-
-**Décision** :
-- La V2 devient la source officielle du projet
-- `CONTEXT/03.schema.sql` reste la référence DB cible
-- `CONTEXT/09_api_contracts.md` est réaligné sur `get_match_list`,
-  `matches_with_status`, `get_companies_leaderboard`, `exact_count`
-  et `joined_at`
-- Les prochaines slices backend suivent ce contrat V2
-
-**Alternatives considérées** :
-- A. Continuer avec l’ancien contrat jusqu’à la fin du MVP
-- B. Réaligner immédiatement docs + schéma + migration ✅ retenue
-
-**Pourquoi** :
-- Réduit les écarts entre DB, docs et frontend
-- Évite des futures migrations de renommage plus coûteuses
-- Clarifie la source de vérité pour tous les agents et pour la QA
-
-**Impact** :
-- Backend : ajout d’une migration V2 et réalignement des RPC/documents
-- Frontend : changement des noms de contrats à consommer
-- QA : scénarios de test à mettre à jour
-- Data : `kickoff_at` et le statut match suivent la V2
-
-**Statut** : Validée
-
-**Liens** :
-- `CONTEXT/03.schema.sql`
-- `CONTEXT/05_business_rules.md`
-- `CONTEXT/09_api_contracts.md`
-- `CONTEXT/10_execution_board.md`
 
 ---
 
@@ -831,111 +789,3 @@ service gratuit, stable et léger.
 - US-DA-004
 - `DATA/teams_seed.csv`
 - `supabase/migrations/20260511104742_seed_teams.sql`
-
----
-
-### D-015 — Nom français des équipes stocké en base (`name_fr`)
-
-**Date** : 2026-05-12
-
-**Contexte** :
-La US-DA-005 demande un affichage cohérent des équipes côté frontend :
-noms en français et codes standardisés. Aujourd'hui, le mapping FR vit
-dans `DATA/teams_fr.json` côté code, sans source de vérité unique côté DB.
-
-**Décision** :
-Ajouter une colonne `name_fr text NOT NULL UNIQUE` à la table `teams`,
-peuplée via migration depuis le mapping de `DATA/teams_fr.json`.
-La base devient la source de vérité unique pour les noms (EN et FR).
-
-Convention de nommage documentée dans `DATA/naming_conventions.md`.
-
-**Alternatives considérées** :
-- A. Garder le mapping FR dans `teams_fr.json` côté front ❌ 2 sources
-- B. Vue SQL `teams_view` qui ajoute name_fr dynamiquement ❌ complexité inutile
-- C. Colonne `name_fr` en DB peuplée par migration ✅ retenue
-
-**Pourquoi** :
-- Source de vérité unique (DB)
-- Frontend = simple SELECT
-- Migration versionnée, reproductible
-- Cohérent avec les autres champs (name, code, flag_url)
-
-**Impact** :
-- Data : nouvelle colonne + migration `20260512140000_add_team_name_fr.sql`
-- Backend : peut exposer `name_fr` via l'API
-- Frontend : utilise `name_fr` au lieu de mapping JSON côté code
-- QA : 48 valeurs FR uniques, NOT NULL après migration
-
-**Codes (rappel)** :
-On retient les trigrammes FIFA (ENG, GER, NED, POR, KSA, RSA, SUI, URU…)
-plutôt que l'ISO 3166-1 strict, par cohérence avec l'usage métier
-(maillots, retransmissions, comparaisons cross-tournois).
-
-**Statut** : Implémentée
-
-**Liens** :
-- US-DA-005
-- `supabase/migrations/20260512140000_add_team_name_fr.sql`
-- `DATA/naming_conventions.md`
-
----
-
-### D-016 — Sync des scores via Edge Function Supabase
-
-**Date** : 2026-05-12
-
-**Contexte** :
-La US-DA-007 demande une mise à jour automatique des scores des matchs.
-Source de données : football-data.org (API gratuite, compétition WC,
-season 2026, plan gratuit = 10 req/min).
-
-Modèle de données existant :
-- `matches` : métadonnées immuables (kickoff_at, stage, équipes)
-- `match_results` : scores (1 ligne par match terminé, UNIQUE sur match_id)
-- `matches_with_status` : VIEW qui calcule dynamiquement le `status` 
-  (upcoming/live/finished) à partir de `kickoff_at` et de la présence d'un
-  `match_results` (cf D-précédente, US-DA-003)
-
-**Décision** :
-Implémenter une Edge Function Supabase (Deno/TypeScript) `update-scores`
-qui fetch football-data.org et UPSERT dans `match_results` les matchs
-`FINISHED`. Le `status` n'est PAS stocké : la vue `matches_with_status`
-le recalcule à chaque lecture.
-
-Ajouter une colonne `last_synced_at timestamptz` à `match_results` pour
-tracer la dernière synchro par résultat (monitoring).
-
-Périmètre Data : code Edge Function + migration + README. Déploiement,
-secrets et cron = équipe backend.
-
-**Alternatives considérées** :
-- A. Script Python local lancé manuellement ❌ pas automatique
-- B. GitHub Action qui update Supabase ❌ secrets externes
-- C. Edge Function Supabase + cron (pg_cron ou GitHub Action) ✅ retenue
-
-**Pourquoi** :
-- Cohérent avec l'archi existante (séparation matches / match_results / vue)
-- Code et secrets dans Supabase, pas d'infra externe
-- Logs centralisés, cron flexible côté backend
-
-**Impact** :
-- Data : `supabase/functions/update-scores/`, migration `last_synced_at` sur match_results
-- Backend : configure `FOOTBALL_DATA_KEY`, déploie la fonction, choisit le cron
-- Frontend : utilise déjà `matches_with_status`, aucun changement
-- QA : test local via `scripts/test_fetch_scores.py`
-
-**Limitations connues** :
-- Matching basé sur (`home_team_id`, `away_team_id`) après mapping `teams.name`
-- Seuls les matchs `FINISHED` côté football-data.org sont écrits
-- Si les noms divergent → match skippé et loggé. Évolution future possible :
-  table `external_team_mapping`
-
-**Statut** : Implémentée côté Data — En attente de déploiement backend
-
-**Liens** :
-- US-DA-007, US-DA-003
-- `supabase/functions/update-scores/index.ts`
-- `supabase/functions/update-scores/README.md`
-- `supabase/migrations/20260512160000_add_match_sync_columns.sql`
-- `scripts/test_fetch_scores.py`

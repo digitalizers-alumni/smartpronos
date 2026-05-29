@@ -2,12 +2,13 @@
   "name": "smartprono-e2e",
   "version": "1.0.0",
   "private": true,
-  "description": "Tests Cypress end-to-end pour SmartProno (US-QA-001 à 009) — TypeScript.",
+  "description": "Tests Cypress end-to-end pour SmartProno (US-QA-001 à 010) — TypeScript.",
   "scripts": {
     "cy:open": "cypress open --e2e",
     "cy:run": "cypress run",
     "test:smoke": "cypress run --spec 'US_QA_001.cy.ts,US_QA_006.cy.ts'",
     "test:full": "cypress run --spec 'US_QA_00[1-8].cy.ts'",
+    "test:prototype": "cypress run --spec 'US_QA_010.cy.ts'",
     "test:nightly": "cypress run --browser chrome && cypress run --browser firefox && cypress run --browser edge",
     "test:demo": "cypress run --spec 'US_QA_009.cy.ts' --browser chrome",
     "test:perf": "cypress run --spec 'US_QA_008.cy.ts'",
@@ -21,6 +22,7 @@
     "test:us007": "cypress run --spec 'US_QA_007.cy.ts'",
     "test:us008": "cypress run --spec 'US_QA_008.cy.ts'",
     "test:us009": "cypress run --spec 'US_QA_009.cy.ts'",
+    "test:us010": "cypress run --spec 'US_QA_010.cy.ts'",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

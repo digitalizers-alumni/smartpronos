@@ -1,0 +1,578 @@
+@use 'sass:math';
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 40px;
+$spacing-xxl: 64px;
+$container-max: 1280px;
+$radius-default: 0.25rem;
+$radius-lg: 0.5rem;
+$radius-xl: 0.75rem;
+$radius-full: 9999px;
+$header-height: 64px;
+
+@mixin container {
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+@mixin glass-panel {
+  background-color: rgba(21, 34, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@mixin gradient-text {
+  background: linear-gradient(to right, var(--primary-container), var(--error), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin gradient-primary {
+  background-image: linear-gradient(to right, #0055ff, #ffb4ab, #41e56c);
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// ─── Top App Bar ────────────────────────────────────────────────
+.top-app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: $header-height;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-md;
+  background-color: rgba(17, 19, 28, 0.6);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 85, 255, 0.1);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:active {
+      scale: 0.95;
+    }
+  }
+
+  &__icon {
+    font-size: 24px;
+    color: var(--on-surface-variant);
+  }
+
+  &__left &__icon {
+    color: var(--primary);
+  }
+
+  &__title {
+    font-family: 'Anton', sans-serif;
+    font-size: 32px;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    @include gradient-text;
+    font-weight: 400;
+  }
+}
+
+// ─── Hero Section ───────────────────────────────────────────────
+.hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  padding-top: calc($header-height + $spacing-md);
+  overflow: hidden;
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    :host-context(body) & {
+      position: absolute;
+    }
+  }
+
+  &__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+  }
+
+  &__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, var(--background) 90%);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 10;
+    max-width: $container-max;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-xl;
+    width: 100%;
+  }
+
+  &__title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 72px);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--on-surface);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    font-weight: 400;
+  }
+
+  &__title-highlight {
+    @include gradient-text;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+
+  &__subtitle {
+    font-family: 'Anybody', sans-serif;
+    font-size: clamp(1rem, 2.5vw, 18px);
+    line-height: 1.6;
+    color: var(--on-surface-variant);
+    max-width: 600px;
+    font-weight: 500;
+  }
+
+  &__cta-primary {
+    @include gradient-primary;
+    border: none;
+    color: var(--surface-container-lowest);
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-full;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 30px rgba(0, 85, 255, 0.4);
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:active {
+      scale: 0.95;
+    }
+  }
+
+  &__cta-secondary-wrapper {
+    margin-top: $spacing-md;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__cta-secondary {
+    background-color: rgba(17, 19, 28, 0.3);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--on-surface);
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-full;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+      scale: 0.95;
+    }
+  }
+}
+
+// ─── Features Section ───────────────────────────────────────────
+.features {
+  padding: $spacing-xxl $spacing-md;
+  background-color: var(--surface-container-lowest);
+
+  &__container {
+    @include container;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+
+  &__heading {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.75rem, 5vw, 48px);
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-align: center;
+    color: var(--on-surface);
+    font-weight: 400;
+  }
+
+  &__heading-highlight {
+    color: var(--primary);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.feature-card {
+  @include glass-panel;
+  padding: $spacing-lg;
+  border-radius: $radius-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid var(--card-border-color, var(--primary-container));
+
+  &__glow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 128px;
+    height: 128px;
+    background-color: var(--card-icon-color, var(--primary-container));
+    opacity: 0.1;
+    border-radius: 0 0 0 100%;
+    margin-right: -32px;
+    margin-top: -32px;
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+
+  &:hover &__glow {
+    transform: scale(1.1);
+  }
+
+  &__icon {
+    font-size: 36px;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  &__title {
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    color: var(--on-surface);
+    text-transform: uppercase;
+  }
+
+  &__desc {
+    color: var(--on-surface-variant);
+    font-family: 'Anybody', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+// ─── Stats Section ──────────────────────────────────────────────
+.stats {
+  padding: $spacing-xxl $spacing-md;
+  background-color: var(--background);
+  position: relative;
+  overflow: hidden;
+
+  &__bg-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 85, 255, 0.2) 0%,
+      transparent 50%
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &__container {
+    @include container;
+    position: relative;
+    z-index: 10;
+    text-align: center;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    max-width: 56rem;
+    margin: 0 auto;
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.stat-card {
+  @include glass-panel;
+  padding: $spacing-lg;
+  border-radius: $radius-xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+
+  &__value {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 72px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  &__label {
+    font-family: 'Anybody', sans-serif;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+  }
+}
+
+// ─── CTA Section ────────────────────────────────────────────────
+.cta-section {
+  padding: $spacing-xxl $spacing-md;
+  background-color: var(--surface-container-low);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+  &__card {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+    @include glass-panel;
+    padding: $spacing-xl;
+    border-radius: calc($radius-xl + $radius-xl);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  &__accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(
+      to right,
+      var(--error),
+      var(--primary-container),
+      var(--secondary)
+    );
+  }
+
+  &__title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.75rem, 4vw, 48px);
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    color: var(--on-surface);
+    text-transform: uppercase;
+  }
+
+  &__desc {
+    font-family: 'Anybody', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--on-surface-variant);
+    padding-bottom: $spacing-md;
+  }
+
+  &__button {
+    background-color: rgba(17, 19, 28, 0.2);
+    border: 1px solid var(--primary);
+    color: var(--on-surface);
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-full;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: center;
+
+    &:hover {
+      background-color: rgba(0, 85, 255, 0.1);
+    }
+
+    &:active {
+      scale: 0.95;
+    }
+  }
+}
+
+// ─── Footer ─────────────────────────────────────────────────────
+.footer {
+  background-color: var(--surface-container-lowest);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: $spacing-xl $spacing-md;
+  margin-top: auto;
+
+  &__container {
+    @include container;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  &__logo {
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--on-surface-variant);
+    font-weight: 400;
+  }
+
+  &__logo-year {
+    @include gradient-text;
+  }
+
+  &__nav {
+    display: flex;
+    gap: $spacing-md;
+  }
+
+  &__nav-link {
+    font-family: 'Anybody', sans-serif;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-full;
+    background-color: var(--surface-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: all 0.2s;
+
+    &:hover {
+      color: var(--primary);
+      background-color: var(--surface-bright);
+    }
+  }
+
+  &__credits {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.2s;
+
+    &:hover {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+  }
+
+  &__credit-img {
+    height: 24px;
+    object-fit: contain;
+  }
+
+  &__copyright {
+    @include container;
+    margin-top: $spacing-lg;
+    text-align: center;
+    font-family: 'Anybody', sans-serif;
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    opacity: 0.5;
+  }
+}

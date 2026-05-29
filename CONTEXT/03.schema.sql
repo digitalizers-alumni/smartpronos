@@ -56,7 +56,7 @@ $$;
 -- 3.1 profiles
 CREATE TABLE profiles (
   id          uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email       text NOT NULL UNIQUE,
+  email       text NOT NULL,
   username    text NOT NULL UNIQUE,
   avatar_url  text,
   created_at  timestamptz NOT NULL DEFAULT now(),
@@ -67,7 +67,7 @@ CREATE TABLE profiles (
 -- 3.2 companies
 CREATE TABLE companies (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name         text NOT NULL UNIQUE,
+  name         text NOT NULL,
   invite_code  text NOT NULL UNIQUE DEFAULT generate_invite_code(),
   created_by   uuid REFERENCES profiles(id) ON DELETE SET NULL,
   created_at   timestamptz NOT NULL DEFAULT now()
@@ -361,53 +361,6 @@ SELECT
   END AS status
 FROM matches m;
 
--- 7.4 current_user_profile : profil courant enrichi
-CREATE OR REPLACE VIEW current_user_profile AS
-SELECT
-  p.id,
-  p.email,
-  p.username,
-  p.avatar_url,
-  company_data.company_id,
-  company_data.company_name
-FROM profiles p
-LEFT JOIN LATERAL (
-  SELECT
-    cm.company_id,
-    c.name AS company_name
-  FROM company_members cm
-  JOIN companies c ON c.id = cm.company_id
-  WHERE cm.user_id = p.id
-  ORDER BY cm.joined_at
-  LIMIT 1
-) company_data ON true
-WHERE p.id = auth.uid();
-
--- 7.5 company_members_with_scores
-CREATE OR REPLACE VIEW company_members_with_scores AS
-SELECT
-  cm.company_id,
-  cm.user_id,
-  p.username,
-  p.avatar_url,
-  COALESCE(us.total_points, 0) AS total_points,
-  COALESCE(us.exact_count, 0) AS exact_count,
-  cm.joined_at
-FROM company_members cm
-JOIN profiles p ON p.id = cm.user_id
-LEFT JOIN user_scores us ON us.user_id = cm.user_id;
-
--- 7.6 company_invite_info
-CREATE OR REPLACE VIEW company_invite_info AS
-SELECT
-  c.id AS company_id,
-  c.name AS company_name,
-  c.invite_code,
-  COUNT(cm.id)::integer AS member_count
-FROM companies c
-LEFT JOIN company_members cm ON cm.company_id = c.id
-GROUP BY c.id, c.name, c.invite_code;
-
 
 -- ============================================================
 -- 8. RPC (interface frontend)
@@ -415,187 +368,6 @@ GROUP BY c.id, c.name, c.invite_code;
 -- ============================================================
 
 -- 8.1 get_global_leaderboard
-CREATE OR REPLACE FUNCTION create_or_update_profile(p_username text)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_user_id uuid;
-  v_username text;
-  v_profile profiles%rowtype;
-BEGIN
-  v_user_id := auth.uid();
-
-  IF v_user_id IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'NOT_AUTHENTICATED',
-      'message', 'Utilisateur non connecté.'
-    );
-  END IF;
-
-  v_username := nullif(btrim(p_username), '');
-
-  IF v_username IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'USERNAME_REQUIRED',
-      'message', 'Le pseudo est obligatoire.'
-    );
-  END IF;
-
-  IF char_length(v_username) < 2 OR char_length(v_username) > 20 THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'USERNAME_INVALID',
-      'message', 'Le pseudo doit contenir entre 2 et 20 caractères.'
-    );
-  END IF;
-
-  UPDATE profiles
-  SET username = v_username
-  WHERE id = v_user_id
-  RETURNING *
-  INTO v_profile;
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'data', jsonb_build_object(
-      'id', v_profile.id,
-      'email', v_profile.email,
-      'username', v_profile.username,
-      'avatar_url', v_profile.avatar_url,
-      'created_at', v_profile.created_at,
-      'updated_at', v_profile.updated_at
-    )
-  );
-EXCEPTION
-  WHEN unique_violation THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'USERNAME_TAKEN',
-      'message', 'Ce pseudo est déjà utilisé.'
-    );
-END;
-$$;
-
--- 8.1 create_company
-CREATE OR REPLACE FUNCTION create_company(p_name text)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_user_id uuid;
-  v_name text;
-  v_company companies%rowtype;
-BEGIN
-  v_user_id := auth.uid();
-
-  IF v_user_id IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'NOT_AUTHENTICATED',
-      'message', 'Utilisateur non connecté.'
-    );
-  END IF;
-
-  v_name := nullif(btrim(p_name), '');
-
-  IF v_name IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'COMPANY_NAME_REQUIRED',
-      'message', 'Le nom de l’entreprise est obligatoire.'
-    );
-  END IF;
-
-  INSERT INTO companies (name, created_by)
-  VALUES (v_name, v_user_id)
-  RETURNING *
-  INTO v_company;
-
-  INSERT INTO company_members (user_id, company_id)
-  VALUES (v_user_id, v_company.id)
-  ON CONFLICT (user_id, company_id) DO NOTHING;
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'data', jsonb_build_object(
-      'company_id', v_company.id,
-      'name', v_company.name,
-      'invite_code', v_company.invite_code,
-      'invite_url_path', '/join/' || v_company.invite_code
-    )
-  );
-EXCEPTION
-  WHEN unique_violation THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'COMPANY_NAME_TAKEN',
-      'message', 'Cette entreprise existe déjà.'
-    );
-END;
-$$;
-
--- 8.2 join_company_by_invite_code
-CREATE OR REPLACE FUNCTION join_company_by_invite_code(p_invite_code text)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_user_id uuid;
-  v_company companies%rowtype;
-  v_membership_id uuid;
-BEGIN
-  v_user_id := auth.uid();
-
-  IF v_user_id IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'NOT_AUTHENTICATED',
-      'message', 'Utilisateur non connecté.'
-    );
-  END IF;
-
-  SELECT *
-  INTO v_company
-  FROM companies
-  WHERE invite_code = upper(nullif(btrim(p_invite_code), ''));
-
-  IF v_company.id IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'INVALID_INVITE_CODE',
-      'message', 'Ce lien d’invitation est invalide.'
-    );
-  END IF;
-
-  INSERT INTO company_members (user_id, company_id)
-  VALUES (v_user_id, v_company.id)
-  ON CONFLICT (user_id, company_id) DO NOTHING
-  RETURNING id INTO v_membership_id;
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'data', jsonb_build_object(
-      'company_id', v_company.id,
-      'company_name', v_company.name,
-      'membership_status', CASE
-        WHEN v_membership_id IS NULL THEN 'already_member'
-        ELSE 'joined'
-      END
-    )
-  );
-END;
-$$;
-
--- 8.3 get_global_leaderboard
 CREATE OR REPLACE FUNCTION get_global_leaderboard()
 RETURNS TABLE (
   rank bigint,
@@ -624,7 +396,7 @@ AS $$
   ORDER BY rank;
 $$;
 
--- 8.4 get_company_leaderboard
+-- 8.2 get_company_leaderboard
 CREATE OR REPLACE FUNCTION get_company_leaderboard(p_company_id uuid)
 RETURNS TABLE (
   rank bigint,
@@ -655,7 +427,7 @@ AS $$
   ORDER BY rank;
 $$;
 
--- 8.5 get_companies_leaderboard
+-- 8.3 get_companies_leaderboard
 CREATE OR REPLACE FUNCTION get_companies_leaderboard()
 RETURNS TABLE (
   rank bigint,
@@ -685,124 +457,7 @@ AS $$
   ORDER BY rank;
 $$;
 
--- 8.6 upsert_prediction
-CREATE OR REPLACE FUNCTION upsert_prediction(
-  p_match_id uuid,
-  p_home_score integer,
-  p_away_score integer,
-  p_is_boosted boolean DEFAULT false
-)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_user_id uuid;
-  v_kickoff_at timestamptz;
-  v_prediction predictions%rowtype;
-BEGIN
-  v_user_id := auth.uid();
-
-  IF v_user_id IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'NOT_AUTHENTICATED',
-      'message', 'Utilisateur non connecté.'
-    );
-  END IF;
-
-  IF p_home_score IS NULL
-     OR p_away_score IS NULL
-     OR p_home_score < 0
-     OR p_home_score > 99
-     OR p_away_score < 0
-     OR p_away_score > 99 THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'INVALID_SCORE',
-      'message', 'Les scores doivent être des entiers entre 0 et 99.'
-    );
-  END IF;
-
-  SELECT m.kickoff_at
-  INTO v_kickoff_at
-  FROM matches m
-  WHERE m.id = p_match_id;
-
-  IF v_kickoff_at IS NULL THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'MATCH_NOT_FOUND',
-      'message', 'Match introuvable.'
-    );
-  END IF;
-
-  IF now() >= v_kickoff_at - interval '15 minutes' THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'MATCH_LOCKED',
-      'message', 'Le match est verrouillé.'
-    );
-  END IF;
-
-  IF coalesce(p_is_boosted, false) AND EXISTS (
-    SELECT 1
-    FROM predictions p
-    WHERE p.user_id = v_user_id
-      AND p.is_boosted = true
-      AND p.match_id <> p_match_id
-  ) THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'BOOST_ALREADY_USED',
-      'message', 'Le boost est déjà utilisé sur un autre match.'
-    );
-  END IF;
-
-  INSERT INTO predictions (
-    user_id,
-    match_id,
-    home_score,
-    away_score,
-    is_boosted
-  )
-  VALUES (
-    v_user_id,
-    p_match_id,
-    p_home_score,
-    p_away_score,
-    coalesce(p_is_boosted, false)
-  )
-  ON CONFLICT (user_id, match_id) DO UPDATE
-    SET home_score = excluded.home_score,
-        away_score = excluded.away_score,
-        is_boosted = excluded.is_boosted
-  RETURNING *
-  INTO v_prediction;
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'data', jsonb_build_object(
-      'prediction_id', v_prediction.id,
-      'match_id', v_prediction.match_id,
-      'home_score', v_prediction.home_score,
-      'away_score', v_prediction.away_score,
-      'is_boosted', v_prediction.is_boosted,
-      'updated_at', v_prediction.updated_at
-    )
-  );
-EXCEPTION
-  WHEN unique_violation THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error_code', 'BOOST_ALREADY_USED',
-      'message', 'Le boost est déjà utilisé sur un autre match.'
-    );
-END;
-$$;
-
--- 8.7 get_match_list
+-- 8.4 get_match_list
 CREATE OR REPLACE FUNCTION get_match_list()
 RETURNS TABLE (
   match_id uuid,

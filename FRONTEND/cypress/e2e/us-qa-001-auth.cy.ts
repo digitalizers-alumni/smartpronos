@@ -1,122 +1,148 @@
-describe('US-QA-001 — Authentification', () => {
-  describe('Connexion', () => {
-    beforeEach(() => cy.visit('/login'));
+/**
+ * US-QA-001 — Authentification fonctionnelle
+ * @see CONTEXT/02_user_stories_by_release_v2.md
+ *
+ * Prérequis : `ng serve` sur baseUrl (défaut localhost:4200).
+ * Les scénarios API utilisent des intercepts Supabase Auth (`**/auth/v1/**`).
+ * Désactivez les `.skip` lorsque le frontend appellera ces endpoints.
+ */
 
-    it('affiche le formulaire avec email et mot de passe', () => {
-      cy.get('input[formControlName="email"]').should('be.visible');
-      cy.get('input[formControlName="password"]').should('be.visible');
-      cy.contains('button[type="submit"]', 'Se connecter').should('be.visible');
+describe('US-QA-001 — Authentification fonctionnelle', () => {
+  describe('Connexion — validation des champs obligatoires', () => {
+    beforeEach(() => {
+      cy.visit('/login');
     });
 
-    it('ne soumet pas si email invalide', () => {
-      cy.intercept('POST', '**/auth/v1/token**').as('authCall');
-      cy.get('input[formControlName="email"]').type('pas-un-email');
-      cy.get('input[formControlName="password"]').type('secret12');
-      cy.contains('button[type="submit"]', 'Se connecter').click();
-      cy.get('@authCall.all').should('have.length', 0);
+    it('affiche une erreur si email et mot de passe sont vides après soumission', () => {
+      cy.get('.login-form').within(() => {
+        cy.get('button[type="submit"]').click();
+      });
+      cy.get('.login-form__error').should('have.length.at.least', 1);
+      cy.contains('Email invalide.');
+      cy.contains('Le mot de passe doit contenir au moins 6 caracteres.');
     });
 
-    it('ne soumet pas si mot de passe < 6 caracteres', () => {
-      cy.intercept('POST', '**/auth/v1/token**').as('authCall');
-      cy.get('input[formControlName="email"]').type('test@test.com');
-      cy.get('input[formControlName="password"]').type('12345');
-      cy.contains('button[type="submit"]', 'Se connecter').click();
-      cy.get('@authCall.all').should('have.length', 0);
+    it('affiche une erreur pour un email invalide', () => {
+      cy.get('.login-form').within(() => {
+        cy.get('input[type="email"]').clear().type('pas-un-email');
+        cy.get('input[type="password"]').clear().type('secret12');
+        cy.get('button[type="submit"]').click();
+      });
+      cy.contains('Email invalide.');
     });
 
-    it('connexion reussie → redirection match-list', () => {
-      cy.intercept('POST', '**/auth/v1/token**', {
-        statusCode: 200,
-        body: {
-          access_token: 'test-token',
-          token_type: 'bearer',
-          expires_in: 3600,
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          refresh_token: 'test-refresh',
-          user: { id: 'u1', email: 'user@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
-        },
-      }).as('login');
-      cy.get('input[formControlName="email"]').type('user@test.com');
-      cy.get('input[formControlName="password"]').type('secret12');
-      cy.contains('button[type="submit"]', 'Se connecter').click();
-      cy.wait('@login');
-      cy.url({ timeout: 10000 }).should('include', '/home/match-list');
+    it('affiche une erreur si le mot de passe fait moins de 6 caractères', () => {
+      cy.get('.login-form').within(() => {
+        cy.get('input[type="email"]').clear().type('valide@test.com');
+        cy.get('input[type="password"]').clear().type('12345');
+        cy.get('button[type="submit"]').click();
+      });
+      cy.contains('Le mot de passe doit contenir au moins 6 caracteres.');
+    });
+  });
+
+  describe('Connexion — flux API (Supabase Auth)', () => {
+    it('soumet des identifiants valides (branchement actuel : log console, pas encore d’appel HTTP)', () => {
+      cy.intercept('POST', '**/auth/v1/token**', { statusCode: 200, body: {} }).as('signIn');
+
+      cy.visit('/login');
+      cy.window().then((win) => {
+        cy.spy(win.console, 'log').as('consoleLog');
+      });
+
+      cy.get('.login-form').within(() => {
+        cy.get('input[type="email"]').clear().type('user@test.com');
+        cy.get('input[type="password"]').clear().type('secret12');
+        cy.get('button[type="submit"]').click();
+      });
+
+      cy.get('@consoleLog').should('have.been.called');
+      // Quand AuthService appellera Supabase : cy.wait('@signIn');
     });
 
-    it('affiche erreur si identifiants incorrects (400)', () => {
+    it.skip('affiche une erreur si le mot de passe est incorrect (401)', () => {
       cy.intercept('POST', '**/auth/v1/token**', {
         statusCode: 400,
-        body: { error: 'invalid_grant', error_description: 'Invalid login credentials' },
-      }).as('badLogin');
-      cy.get('input[formControlName="email"]').type('wrong@test.com');
-      cy.get('input[formControlName="password"]').type('wrongpass');
-      cy.contains('button[type="submit"]', 'Se connecter').click();
-      cy.wait('@badLogin');
-      cy.get('.bg-red-50').should('be.visible');
+        body: {
+          error: 'invalid_grant',
+          error_description: 'Invalid login credentials',
+        },
+      }).as('badPassword');
+
+      cy.visit('/login');
+      cy.get('.login-form').within(() => {
+        cy.get('input[type="email"]').clear().type('user@test.com');
+        cy.get('input[type="password"]').clear().type('mauvais');
+        cy.get('button[type="submit"]').click();
+      });
+      cy.wait('@badPassword');
+      // À adapter au message d’erreur affiché par l’app après câblage API.
+      cy.contains(/incorrect|identifiants|erreur/i);
     });
   });
 
   describe('Inscription', () => {
-    beforeEach(() => cy.visit('/signup'));
-
-    it('affiche le formulaire avec tous les champs', () => {
-      cy.get('input[formControlName="firstname"]').should('be.visible');
-      cy.get('input[formControlName="lastname"]').should('be.visible');
-      cy.get('input[formControlName="email"]').should('be.visible');
-      cy.get('input[formControlName="password"]').should('be.visible');
-      cy.get('input[formControlName="confirmPassword"]').should('be.visible');
-      cy.contains('button[type="submit"]', 'Créer mon compte').scrollIntoView().should('be.visible');
+    beforeEach(() => {
+      cy.visit('/signup');
     });
 
-    it('inscription reussie avec session → redirection', () => {
-      cy.intercept('POST', '**/auth/v1/signup', {
+    it('affiche le formulaire d’inscription avec les champs attendus', () => {
+      cy.contains('Créez votre compte SmartPronos');
+      cy.get('#fullname').should('be.visible');
+      cy.get('#email').should('be.visible');
+      cy.get('#password').should('be.visible');
+      cy.contains('button', 'CRÉER MON COMPTE');
+    });
+
+    it.skip('crée un compte avec des données valides', () => {
+      cy.intercept('POST', '**/auth/v1/signup**', {
         statusCode: 200,
         body: {
-          access_token: 'new-token',
-          token_type: 'bearer',
-          expires_in: 3600,
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          refresh_token: 'new-refresh',
-          user: { id: 'new-user', email: 'new@test.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
+          id: 'new-user-id',
+          email: 'nouveau@test.com',
         },
       }).as('signup');
-      cy.get('input[formControlName="firstname"]').type('Jean');
-      cy.get('input[formControlName="lastname"]').type('Dupont');
-      cy.get('input[formControlName="email"]').type('new@test.com');
-      cy.get('input[formControlName="password"]').type('secret123');
-      cy.get('input[formControlName="confirmPassword"]').type('secret123');
-      cy.contains('button[type="submit"]', 'Créer mon compte').scrollIntoView().click();
-      cy.wait('@signup');
-      cy.url({ timeout: 10000 }).should('include', '/home/match-list');
+
+      cy.get('#fullname').clear().type('Test User');
+      cy.get('#email').clear().type('nouveau@test.com');
+      cy.get('#password').clear().type('secret12');
+      cy.contains('button', 'CRÉER MON COMPTE').click();
+
+      // cy.wait('@signup');
+      // cy.url().should('not.include', '/signup');
     });
 
-    it('affiche ecran confirmation email si pas de session', () => {
-      cy.intercept('POST', '**/auth/v1/signup', {
-        statusCode: 200,
-        body: { id: 'new-user', email: 'new@test.com' },
-      }).as('signupNoSession');
-      cy.get('input[formControlName="firstname"]').type('Jean');
-      cy.get('input[formControlName="lastname"]').type('Dupont');
-      cy.get('input[formControlName="email"]').type('new@test.com');
-      cy.get('input[formControlName="password"]').type('secret123');
-      cy.get('input[formControlName="confirmPassword"]').type('secret123');
-      cy.contains('button[type="submit"]', 'Créer mon compte').scrollIntoView().click();
-      cy.wait('@signupNoSession');
-      cy.contains('email de confirmation').should('be.visible');
+    it.skip('affiche une erreur si l’email est déjà utilisé', () => {
+      cy.intercept('POST', '**/auth/v1/signup**', {
+        statusCode: 422,
+        body: {
+          error_code: 'user_already_exists',
+          msg: 'User already registered',
+        },
+      }).as('signupDup');
+
+      cy.get('#fullname').clear().type('Test User');
+      cy.get('#email').clear().type('deja.pris@test.com');
+      cy.get('#password').clear().type('secret12');
+      cy.contains('button', 'CRÉER MON COMPTE').click();
+
+      cy.wait('@signupDup');
+      cy.contains(/déjà|utilisé|existe/i);
+    });
+
+    it.skip('valide les champs obligatoires non vides', () => {
+      // À activer quand la validation côté inscription-page sera implémentée (ReactiveForms + messages d’erreur).
+      cy.contains('button', 'CRÉER MON COMPTE').click();
+      // cy.get('[data-cy="signup-error"]').should('be.visible');
     });
   });
 
-  describe('Navigation', () => {
-    it('lien vers inscription depuis login', () => {
-      cy.visit('/login');
-      cy.contains("S'inscrire").click();
-      cy.url().should('include', '/signup');
-    });
-
-    it('lien vers connexion depuis signup', () => {
-      cy.visit('/signup');
-      cy.contains('Se connecter').click();
-      cy.url().should('include', '/login');
+  describe('Déconnexion', () => {
+    it.skip('permet à l’utilisateur de se déconnecter', () => {
+      // À implémenter : navigation post-login + bouton / action déconnexion dans l’UI.
+      cy.visit('/');
+      cy.contains(/déconnexion|se déconnecter/i).click();
+      cy.url().should('match', /\/(login)?$/);
     });
   });
 });

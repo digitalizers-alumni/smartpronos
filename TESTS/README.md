@@ -1,11 +1,11 @@
 # SmartProno — Tests E2E (Cypress + TypeScript)
 
-Tests end-to-end couvrant les 9 user stories de qualité (US-QA-001 à 009) :
+Tests end-to-end couvrant les 10 user stories de qualité (US-QA-001 à 010) :
 authentification, pronos, calcul de points, classement, résilience,
-UI/UX, et scénario de démo.
+UI/UX, alignement prototype, et scénario de démo.
 
-**~150 tests** sur **9 specs** TypeScript, **4 niveaux d'exécution**
-(smoke / full / nightly / demo). Branche : `QA`.
+**~200 tests** sur **10 specs** TypeScript, **5 niveaux d'exécution**
+(smoke / full / nightly / demo / prototype). Branche : `QA`.
 
 ---
 
@@ -39,6 +39,7 @@ TESTS/
 ├── US_QA_007.cy.ts               Résilience (multi-clics, refresh, XSS, …)
 ├── US_QA_008.cy.ts               Qualité UI/UX (responsive, perf)
 ├── US_QA_009.cy.ts               Fiabilité en condition de démo
+├── US_QA_010.cy.ts               Alignement prototype final (Angular + Supabase)
 │
 └── cypress/
     ├── plugins/
@@ -124,6 +125,7 @@ npm run test:smoke               # US-001 + US-006 (~10 min)
 npm run test:full                # US-001 à 008 (~25 min)
 npm run test:nightly             # full × 3 navigateurs (~50 min)
 npm run test:demo                # US-009 uniquement
+npm run test:prototype           # US-010 uniquement (alignement maquettes)
 npm run test:perf                # US-008
 npm run test:resilience          # US-007
 npm run test:us00X               # un spec en particulier (X = 1..9)
@@ -156,7 +158,8 @@ npm run typecheck
 | US-007 Résilience | 22 | Multi-clics, refresh, XSS, SQL injection, navigation rapide, erreurs réseau |
 | US-008 Qualité UI/UX | ~60 | Liens valides, lisibilité, responsive (6 viewports × 7 pages), performances |
 | US-009 Démo | 6 | Scénario complet sur 2 viewports avec réseau dégradé + screenshots |
-| **Total** | **~170** | |
+| US-010 Alignement prototype | ~35 | Écrans MVP, nav, composants, design tokens, états UI, 4 viewports, captures |
+| **Total** | **~200** | |
 
 ---
 
@@ -190,7 +193,8 @@ Sélecteurs `data-cy=*` attendus :
   `prono-history-toggle`, `prono-history-entry`
 - Profil / classement : `user-total-points`, `match-points[data-cy-match-id]`,
   `leaderboard-row[data-cy-current-user]`, `my-rank`
-- Layout : `main-nav`, `burger-menu`, `nav-*`
+- Layout : `main-nav`, `burger-menu`, `nav-dashboard`, `nav-pronos`, `nav-leaderboard`, `nav-profile`
+- Prototype (US-010) : `app-shell`, `match-card`, `match-status-badge`, `match-points`, `empty-state`, `loading-state`, `cancel-prono`
 
 API attendue :
 - `POST /api/auth/signup`, `POST /api/auth/login`, `GET /api/auth/me`
