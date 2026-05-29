@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col items-center mb-10">
       <button routerLink="/" class="mb-8 hover:opacity-80 transition-opacity">
-        <img src="assets/logo-tribbo.png" class="w-14 h-14 object-contain" alt="Tribbo" />
+        <img src="assets/logo-tribbo-mark.svg" class="w-14 h-14 object-contain" alt="Tribbo" />
       </button>
       <h1 class="font-archivo text-3xl md:text-4xl text-tribbo-text uppercase tracking-tight text-center leading-tight">
         Connexion
@@ -31,7 +31,8 @@
           <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
             Mot de passe
           </label>
-          <button type="button" class="font-space text-[10px] uppercase tracking-wider text-tribbo-primary font-bold hover:underline">
+          <button type="button" (click)="openForgotPassword()"
+            class="font-space text-[10px] uppercase tracking-wider text-tribbo-primary font-bold hover:underline">
             Oublié&nbsp;?
           </button>
         </div>
@@ -75,3 +76,49 @@
     </div>
   </div>
 </div>
+
+@if (showForgotPassword()) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" (click)="closeForgotPassword()">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 mx-4" (click)="$event.stopPropagation()">
+      <div class="flex flex-col items-center text-center">
+        <span class="text-4xl mb-4">🔑</span>
+        @if (forgotSent()) {
+          <h2 class="font-archivo text-lg text-tribbo-text uppercase tracking-tight mb-2">Email envoyé</h2>
+          <p class="font-inter text-sm text-gray-500 leading-relaxed mb-6">
+            Vérifie ta boîte mail. Si un compte existe avec cette adresse, tu recevras un lien de réinitialisation.
+          </p>
+          <button (click)="closeForgotPassword()"
+            class="w-full px-4 py-3.5 rounded-xl bg-tribbo-primary text-white font-inter text-sm font-medium hover:brightness-110 transition-all active:scale-[0.98]">
+            OK
+          </button>
+        } @else {
+          <h2 class="font-archivo text-lg text-tribbo-text uppercase tracking-tight mb-2">Mot de passe oublié</h2>
+          <p class="font-inter text-sm text-gray-500 leading-relaxed mb-6">
+            Entre ton email professionnel pour recevoir un lien de réinitialisation.
+          </p>
+          <input type="email" placeholder="JEAN.DUPONT@DIGITALIZERS.FR"
+            [value]="forgotEmail()" (input)="forgotEmail.set($any($event.target).value)"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 font-inter text-sm text-center focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+          />
+          @if (forgotError()) {
+            <p class="font-inter text-xs text-red-500 mt-2">{{ forgotError() }}</p>
+          }
+          <div class="flex gap-3 w-full mt-6">
+            <button (click)="closeForgotPassword()"
+              class="flex-1 px-4 py-3.5 rounded-xl border border-gray-200 text-gray-600 font-inter text-sm font-medium hover:bg-gray-50 transition-all active:scale-[0.98]">
+              Annuler
+            </button>
+            <button (click)="handleForgotPassword()" [disabled]="!forgotEmail() || forgotSubmitting()"
+              class="flex-1 px-4 py-3.5 rounded-xl bg-tribbo-primary text-white font-inter text-sm font-medium hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
+              @if (forgotSubmitting()) {
+                Envoi...
+              } @else {
+                Envoyer
+              }
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

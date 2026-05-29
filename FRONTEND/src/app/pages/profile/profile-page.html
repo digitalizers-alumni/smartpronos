@@ -45,6 +45,12 @@
           <span class="font-inter font-semibold text-sm text-tribbo-text flex-1">Se déconnecter</span>
           <span class="material-symbols-outlined text-[#C7CBD6] text-lg">chevron_right</span>
         </button>
+        <button (click)="openChangePassword()"
+          class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-tribbo-primary/30 transition-all text-left">
+          <span class="material-symbols-outlined text-tribbo-primary text-[21px]">lock</span>
+          <span class="font-inter font-semibold text-sm text-tribbo-text flex-1">Changer mot de passe</span>
+          <span class="material-symbols-outlined text-[#C7CBD6] text-lg">chevron_right</span>
+        </button>
         <button (click)="openDeleteConfirm()"
           class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-red-300 transition-all text-left">
           <span class="material-symbols-outlined text-red-400 text-[21px]">delete</span>
@@ -62,9 +68,9 @@
 
 <!-- Delete confirmation modal -->
 @if (showDeleteConfirm()) {
-  <div class="fixed inset-0 z-50 bg-black/50 flex items-end md:items-center justify-center"
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
     (click)="closeDeleteConfirm()">
-    <div class="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md p-6"
+    <div class="bg-white rounded-2xl w-full max-w-md p-6"
       (click)="$event.stopPropagation()">
       <div class="flex flex-col items-center text-center">
         <span class="text-4xl mb-4">🗑️</span>
@@ -100,6 +106,62 @@
             }
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Change password modal -->
+@if (showChangePassword()) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+    (click)="closeChangePassword()">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-4"
+      (click)="$event.stopPropagation()">
+      <div class="flex flex-col items-center text-center">
+        <span class="text-4xl mb-4">🔑</span>
+        @if (changePasswordSuccess()) {
+          <h2 class="font-archivo text-xl text-tribbo-text uppercase tracking-tight mb-2">Mot de passe mis à jour</h2>
+          <p class="font-inter text-sm text-gray-500 leading-relaxed">
+            Ton mot de passe a bien été modifié.
+          </p>
+        } @else {
+          <h2 class="font-archivo text-xl text-tribbo-text uppercase tracking-tight mb-2">Changer mot de passe</h2>
+          <p class="font-inter text-sm text-gray-500 leading-relaxed mb-6">
+            Minimum 8 caractères, une majuscule, une minuscule et un chiffre.
+          </p>
+          <div class="w-full space-y-3">
+            <input type="password" placeholder="Mot de passe actuel"
+              [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 font-inter text-sm text-center focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+            />
+            <input type="password" placeholder="Nouveau mot de passe"
+              [value]="newPassword()" (input)="newPassword.set($any($event.target).value)"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 font-inter text-sm text-center focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+            />
+            <input type="password" placeholder="Confirmer le mot de passe"
+              [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 font-inter text-sm text-center focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+            />
+          </div>
+          @if (changePasswordError()) {
+            <p class="font-inter text-xs text-red-500 mt-2">{{ changePasswordError() }}</p>
+          }
+          <div class="flex gap-3 w-full mt-6">
+            <button (click)="closeChangePassword()"
+              class="flex-1 px-4 py-3.5 rounded-xl border border-gray-200 text-gray-600 font-inter text-sm font-medium hover:bg-gray-50 transition-all active:scale-[0.98]">
+              Annuler
+            </button>
+            <button (click)="confirmChangePassword()"
+              [disabled]="!currentPassword() || !newPassword() || !confirmPassword() || changingPassword()"
+              class="flex-1 px-4 py-3.5 rounded-xl bg-tribbo-primary text-white font-inter text-sm font-medium hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
+              @if (changingPassword()) {
+                Mise à jour...
+              } @else {
+                Enregistrer
+              }
+            </button>
+          </div>
+        }
       </div>
     </div>
   </div>

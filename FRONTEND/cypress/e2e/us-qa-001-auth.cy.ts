@@ -83,8 +83,8 @@ describe('US-QA-001 — Authentification', () => {
       cy.get('input[formControlName="firstname"]').type('Jean');
       cy.get('input[formControlName="lastname"]').type('Dupont');
       cy.get('input[formControlName="email"]').type('new@test.com');
-      cy.get('input[formControlName="password"]').type('secret123');
-      cy.get('input[formControlName="confirmPassword"]').type('secret123');
+      cy.get('input[formControlName="password"]').type('Secret123');
+      cy.get('input[formControlName="confirmPassword"]').type('Secret123');
       cy.contains('button[type="submit"]', 'Créer mon compte').scrollIntoView().click();
       cy.wait('@signup');
       cy.url({ timeout: 10000 }).should('include', '/home/match-list');
@@ -98,8 +98,8 @@ describe('US-QA-001 — Authentification', () => {
       cy.get('input[formControlName="firstname"]').type('Jean');
       cy.get('input[formControlName="lastname"]').type('Dupont');
       cy.get('input[formControlName="email"]').type('new@test.com');
-      cy.get('input[formControlName="password"]').type('secret123');
-      cy.get('input[formControlName="confirmPassword"]').type('secret123');
+      cy.get('input[formControlName="password"]').type('Secret123');
+      cy.get('input[formControlName="confirmPassword"]').type('Secret123');
       cy.contains('button[type="submit"]', 'Créer mon compte').scrollIntoView().click();
       cy.wait('@signupNoSession');
       cy.contains('email de confirmation').should('be.visible');

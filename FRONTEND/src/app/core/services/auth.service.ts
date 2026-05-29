@@ -21,6 +21,9 @@ export class AuthService {
     const { data, error } = await this.supabase.client.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (error) throw error;
     if (data?.session) {
@@ -54,5 +57,18 @@ export class AuthService {
     const { error } = await this.supabase.client.auth.signOut();
     if (error) throw error;
     this.currentUser.set(null);
+  }
+
+  async resetPassword(email: string) {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(
+      email,
+      { redirectTo: `${window.location.origin}/auth/update-password` },
+    );
+    if (error) throw error;
+  }
+
+  async updatePassword(newPassword: string) {
+    const { error } = await this.supabase.client.auth.updateUser({ password: newPassword });
+    if (error) throw error;
   }
 }

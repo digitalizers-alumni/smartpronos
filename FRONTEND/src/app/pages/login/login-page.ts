@@ -16,6 +16,11 @@ export class LoginPage {
   protected hidePassword = true;
   protected errorMessage = signal('');
   protected submitting = signal(false);
+  protected showForgotPassword = signal(false);
+  protected forgotEmail = signal('');
+  protected forgotSent = signal(false);
+  protected forgotSubmitting = signal(false);
+  protected forgotError = signal('');
 
   protected readonly loginForm;
 
@@ -41,6 +46,36 @@ export class LoginPage {
       this.errorMessage.set(msg);
     } finally {
       this.submitting.set(false);
+    }
+  }
+
+  protected openForgotPassword(): void {
+    this.forgotEmail.set(this.loginForm.get('email')?.value ?? '');
+    this.forgotSent.set(false);
+    this.forgotError.set('');
+    this.showForgotPassword.set(true);
+  }
+
+  protected closeForgotPassword(): void {
+    this.showForgotPassword.set(false);
+    this.forgotSent.set(false);
+    this.forgotError.set('');
+  }
+
+  protected async handleForgotPassword(): Promise<void> {
+    if (!this.forgotEmail()) return;
+
+    this.forgotSubmitting.set(true);
+    this.forgotError.set('');
+
+    try {
+      await this.authService.resetPassword(this.forgotEmail());
+      this.forgotSent.set(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur lors de l\'envoi.';
+      this.forgotError.set(msg);
+    } finally {
+      this.forgotSubmitting.set(false);
     }
   }
 }

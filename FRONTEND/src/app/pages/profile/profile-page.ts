@@ -22,6 +22,13 @@ export class ProfilePage {
   protected readonly deleteConfirmText = signal('');
   protected readonly deleting = signal(false);
   protected readonly deleteError = signal('');
+  protected readonly showChangePassword = signal(false);
+  protected readonly currentPassword = signal('');
+  protected readonly newPassword = signal('');
+  protected readonly confirmPassword = signal('');
+  protected readonly changingPassword = signal(false);
+  protected readonly changePasswordError = signal('');
+  protected readonly changePasswordSuccess = signal(false);
 
   protected readonly displayName = computed(() => {
     const email = this.authService.currentUser()?.email;
@@ -81,12 +88,14 @@ export class ProfilePage {
     this.showDeleteConfirm.set(true);
     this.deleteConfirmText.set('');
     this.deleteError.set('');
+    document.body.style.overflow = 'hidden';
   }
 
   protected closeDeleteConfirm(): void {
     this.showDeleteConfirm.set(false);
     this.deleteConfirmText.set('');
     this.deleteError.set('');
+    document.body.style.overflow = '';
   }
 
   protected async confirmDelete(): Promise<void> {
@@ -97,6 +106,7 @@ export class ProfilePage {
     this.teamService.deleteMyAccount().subscribe({
       next: async () => {
         this.authService.currentUser.set(null);
+        document.body.style.overflow = '';
         await this.router.navigateByUrl('/');
       },
       error: (err) => {
@@ -104,6 +114,76 @@ export class ProfilePage {
         this.deleting.set(false);
       },
     });
+  }
+
+  protected openChangePassword(): void {
+    this.currentPassword.set('');
+    this.newPassword.set('');
+    this.confirmPassword.set('');
+    this.changePasswordError.set('');
+    this.changePasswordSuccess.set(false);
+    this.showChangePassword.set(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  protected closeChangePassword(): void {
+    this.showChangePassword.set(false);
+    document.body.style.overflow = '';
+  }
+
+  protected async confirmChangePassword(): Promise<void> {
+    const pwd = this.newPassword();
+    if (!this.currentPassword()) {
+      this.changePasswordError.set('Tape ton mot de passe actuel');
+      return;
+    }
+    if (pwd !== this.confirmPassword()) {
+      this.changePasswordError.set('Les mots de passe ne correspondent pas');
+      return;
+    }
+    if (pwd.length < 8) {
+      this.changePasswordError.set('Minimum 8 caractères');
+      return;
+    }
+    if (!/[A-Z]/.test(pwd)) {
+      this.changePasswordError.set('Doit contenir une majuscule');
+      return;
+    }
+    if (!/[a-z]/.test(pwd)) {
+      this.changePasswordError.set('Doit contenir une minuscule');
+      return;
+    }
+    if (!/[0-9]/.test(pwd)) {
+      this.changePasswordError.set('Doit contenir un chiffre');
+      return;
+    }
+
+    this.changingPassword.set(true);
+    this.changePasswordError.set('');
+
+    try {
+      const email = this.authService.currentUser()?.email;
+      if (!email) {
+        this.changePasswordError.set('Session invalide, reconnecte-toi.');
+        this.changingPassword.set(false);
+        return;
+      }
+      await this.authService.signIn(email, this.currentPassword());
+      await this.authService.updatePassword(pwd);
+      this.changePasswordSuccess.set(true);
+      setTimeout(() => {
+        this.closeChangePassword();
+      }, 2000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur lors du changement.';
+      if (msg.includes('Invalid login credentials')) {
+        this.changePasswordError.set('Mot de passe actuel incorrect');
+      } else {
+        this.changePasswordError.set(msg);
+      }
+    } finally {
+      this.changingPassword.set(false);
+    }
   }
 
   protected async handleLogout() {
