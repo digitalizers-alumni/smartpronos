@@ -21,6 +21,9 @@ export class AuthService {
     const { data, error } = await this.supabase.client.auth.signUp({
       email,
       password,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (error) throw error;
     if (data?.session) {
