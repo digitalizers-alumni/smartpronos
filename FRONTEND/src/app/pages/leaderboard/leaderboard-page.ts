@@ -1,56 +1,37 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { forkJoin, of, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { AuthService } from '../../core/services/auth.service';
+import {
+  CompaniesLeaderboardRow,
+  CurrentUserCompany,
+  LeaderboardService,
+  LeaderboardUserRow,
+} from '../../services/leaderboard.service';
 
 interface LeaderboardPlayer {
+  id: string;
+  rank: number;
   name: string;
   initials: string;
-  company: string;
+  subtitle: string;
   points: number;
+  exactCount: number;
   isYou: boolean;
 }
 
 interface CompanyRow {
   id: string;
+  rank: number;
   name: string;
   code: string;
-  type: 'company' | 'group';
   members: number;
+  activeMembers: number;
   avgPoints: number;
+  totalPoints: number;
   isMine: boolean;
 }
-
-const GLOBAL_LB: LeaderboardPlayer[] = [
-  { name: 'Sophie L.', initials: 'SL', company: 'Rolex', points: 142, isYou: false },
-  { name: 'Marc D.', initials: 'MD', company: 'Patek Philippe SA', points: 138, isYou: false },
-  { name: 'Léna K.', initials: 'LK', company: 'Omega', points: 131, isYou: false },
-  { name: 'Ryen K.', initials: 'RK', company: 'Audemars Piguet', points: 124, isYou: true },
-  { name: 'Thomas B.', initials: 'TB', company: 'TAG Heuer', points: 118, isYou: false },
-  { name: 'Camille R.', initials: 'CR', company: 'Breitling', points: 112, isYou: false },
-  { name: 'Hugo M.', initials: 'HM', company: 'Genève United FC', points: 107, isYou: false },
-  { name: 'Emma S.', initials: 'ES', company: 'Watch Valley ⌚', points: 98, isYou: false },
-  { name: 'Lucas P.', initials: 'LP', company: 'Patek Philippe SA', points: 92, isYou: false },
-  { name: 'Sarah W.', initials: 'SW', company: 'Rolex', points: 87, isYou: false },
-  { name: 'Alex F.', initials: 'AF', company: 'Omega', points: 76, isYou: false },
-  { name: 'Julie N.', initials: 'JN', company: 'TAG Heuer', points: 63, isYou: false },
-];
-
-const COMPANY_MEMBERS: LeaderboardPlayer[] = [
-  { name: 'Léo P.', initials: 'LP', company: 'Audemars Piguet', points: 157, isYou: false },
-  { name: 'Ryen K.', initials: 'RK', company: 'Audemars Piguet', points: 124, isYou: true },
-  { name: 'Clara M.', initials: 'CM', company: 'Audemars Piguet', points: 109, isYou: false },
-  { name: 'Noah V.', initials: 'NV', company: 'Audemars Piguet', points: 88, isYou: false },
-  { name: 'Zoe B.', initials: 'ZB', company: 'Audemars Piguet', points: 72, isYou: false },
-];
-
-const COMPANIES: CompanyRow[] = [
-  { id: 'rolex', name: 'Rolex', code: 'RX', type: 'company', members: 42, avgPoints: 112, isMine: false },
-  { id: 'watchvalley', name: 'Watch Valley ⌚', code: 'WV', type: 'group', members: 34, avgPoints: 104, isMine: false },
-  { id: 'patek', name: 'Patek Philippe SA', code: 'PP', type: 'company', members: 12, avgPoints: 98, isMine: false },
-  { id: 'ap', name: 'Audemars Piguet', code: 'AP', type: 'company', members: 28, avgPoints: 91, isMine: true },
-  { id: 'geneva', name: 'Genève United FC', code: 'GU', type: 'group', members: 18, avgPoints: 88, isMine: false },
-  { id: 'omega', name: 'Omega', code: 'OM', type: 'company', members: 35, avgPoints: 84, isMine: false },
-  { id: 'tag', name: 'TAG Heuer', code: 'TH', type: 'company', members: 19, avgPoints: 71, isMine: false },
-  { id: 'breitling', name: 'Breitling', code: 'BR', type: 'company', members: 24, avgPoints: 63, isMine: false },
-];
 
 const AVATAR_COLORS = ['#1D4DFF', '#19C95B', '#FF3B43', '#6B8AFF', '#9B5DE5', '#F15BB5', '#00BBF9', '#E6A700'];
 
@@ -60,6 +41,23 @@ function avatarColor(name: string): string {
   return AVATAR_COLORS[n % AVATAR_COLORS.length];
 }
 
+function initials(name: string): string {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function companyCode(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .padEnd(2, name[0]?.toUpperCase() ?? 'T');
+}
+
 @Component({
   selector: 'app-leaderboard-page',
   standalone: true,
@@ -67,24 +65,104 @@ function avatarColor(name: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LeaderboardPage {
+  private readonly authService = inject(AuthService);
+  private readonly leaderboardService = inject(LeaderboardService);
+
   protected readonly activeTab = signal<'global' | 'tribu' | 'companies'>('global');
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly currentCompany = signal<CurrentUserCompany>({
+    company_id: null,
+    company_name: null,
+  });
+  protected readonly globalLb = signal<LeaderboardPlayer[]>([]);
+  protected readonly companyMembers = signal<LeaderboardPlayer[]>([]);
+  protected readonly companies = signal<CompanyRow[]>([]);
+
   protected readonly tabs = [
     { key: 'global' as const, label: 'Global' },
     { key: 'tribu' as const, label: 'Ma Tribu' },
     { key: 'companies' as const, label: 'Tribus' },
   ];
 
-  protected readonly globalLb = GLOBAL_LB;
-  protected readonly companyMembers = COMPANY_MEMBERS;
-  protected readonly companies = COMPANIES;
-  protected readonly me = GLOBAL_LB.find((p) => p.isYou)!;
+  protected readonly me = computed(() => this.globalLb().find((p) => p.isYou) ?? null);
+  protected readonly meInCompany = computed(() => this.companyMembers().find((p) => p.isYou) ?? null);
 
-  protected readonly userRank = 4;
-  protected readonly userTotalPlayers = 12;
+  protected readonly userRank = computed(() => this.me()?.rank ?? null);
+  protected readonly userTotalPlayers = computed(() => this.globalLb().length);
 
   protected avatarColor = avatarColor;
 
+  constructor() {
+    this.loadLeaderboards();
+  }
+
   protected setTab(key: 'global' | 'tribu' | 'companies'): void {
     this.activeTab.set(key);
+  }
+
+  private loadLeaderboards(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.leaderboardService
+      .getCurrentUserCompany()
+      .pipe(
+        switchMap((company) => {
+          this.currentCompany.set(company);
+          return forkJoin({
+            global: this.leaderboardService.getGlobalLeaderboard(),
+            companyMembers: company.company_id
+              ? this.leaderboardService.getCompanyLeaderboard(company.company_id)
+              : of([] as LeaderboardUserRow[]),
+            companies: this.leaderboardService.getCompaniesLeaderboard(),
+          });
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe({
+        next: ({ global, companyMembers, companies }) => {
+          this.globalLb.set(global.map((row) => this.toPlayer(row)));
+          this.companyMembers.set(companyMembers.map((row) => this.toPlayer(row, this.currentCompany().company_name)));
+          this.companies.set(companies.map((row) => this.toCompany(row)));
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('[LeaderboardPage] Impossible de charger les classements.', err);
+          this.error.set(
+            'Impossible de charger les classements depuis la base locale. Vérifie que les RPC leaderboard existent et que Supabase est démarré.',
+          );
+          this.loading.set(false);
+        },
+      });
+  }
+
+  private toPlayer(row: LeaderboardUserRow, companyName?: string | null): LeaderboardPlayer {
+    const name = row.username ?? 'Joueur';
+    const exactCount = Number(row.exact_count);
+    return {
+      id: row.user_id,
+      rank: Number(row.rank),
+      name,
+      initials: initials(name),
+      subtitle: companyName ?? `${exactCount} score${exactCount > 1 ? 's' : ''} exact${exactCount > 1 ? 's' : ''}`,
+      points: Number(row.total_points),
+      exactCount,
+      isYou: row.user_id === this.authService.currentUser()?.id,
+    };
+  }
+
+  private toCompany(row: CompaniesLeaderboardRow): CompanyRow {
+    return {
+      id: row.company_id,
+      rank: Number(row.rank),
+      name: row.name,
+      code: companyCode(row.name),
+      members: Number(row.member_count),
+      activeMembers: Number(row.active_member_count),
+      avgPoints: Math.round(Number(row.avg_points)),
+      totalPoints: Number(row.total_points),
+      isMine: row.company_id === this.currentCompany().company_id,
+    };
   }
 }
