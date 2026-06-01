@@ -19,11 +19,17 @@ export interface MatchResult {
 
 export interface MatchListItem {
   id: string;
+  fifaMatchNumber?: number;
   kickoff: string;
   competition?: string;
   stage?: string;
   group?: string;
   venue?: string;
+  venueCity?: string;
+  venueStadium?: string;
+  venueCountry?: string;
+  localKickoffTime?: string;
+  localTimezone?: string;
   status: MatchStatus;
   homeTeam: MatchTeam;
   awayTeam: MatchTeam;

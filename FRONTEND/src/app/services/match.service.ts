@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, catchError, of, map, first } from 'rxjs';
+import { Observable, from, map, first } from 'rxjs';
 
 import { SupabaseService } from '../core/services/supabase.service';
 import { MatchListItem, MatchStatus } from '../shared/models/match.models';
-import { DEMO_MATCHES } from '../shared/utils/demo-data';
 
 interface MatchListRpcRow {
   match_id: string;
+  fifa_match_number: number | null;
   home_team_name: string;
   home_team_code: string;
   home_team_flag: string | null;
@@ -16,6 +16,11 @@ interface MatchListRpcRow {
   kickoff_at: string;
   stage: string;
   group_name: string | null;
+  venue_city: string | null;
+  venue_stadium: string | null;
+  venue_country: string | null;
+  local_kickoff_time: string | null;
+  local_timezone: string | null;
   status: MatchStatus;
   user_home_score: number | null;
   user_away_score: number | null;
@@ -25,12 +30,27 @@ interface MatchListRpcRow {
   points_earned: number | null;
 }
 
+function formatVenue(row: MatchListRpcRow): string | undefined {
+  const parts = [row.venue_stadium, row.venue_city]
+    .map((part) => part?.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts.join(' · ') : undefined;
+}
+
 function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
   return {
     id: row.match_id,
+    fifaMatchNumber: row.fifa_match_number ?? undefined,
     kickoff: row.kickoff_at,
+    competition: 'Coupe du Monde 2026',
     stage: row.stage,
     group: row.group_name ?? undefined,
+    venue: formatVenue(row),
+    venueCity: row.venue_city ?? undefined,
+    venueStadium: row.venue_stadium ?? undefined,
+    venueCountry: row.venue_country ?? undefined,
+    localKickoffTime: row.local_kickoff_time ?? undefined,
+    localTimezone: row.local_timezone ?? undefined,
     status: row.status,
     homeTeam: {
       name: row.home_team_name,
@@ -71,10 +91,6 @@ export class MatchService {
         if (error) throw error;
         const rows = data as unknown as MatchListRpcRow[];
         return rows.map(mapRpcRowToMatchListItem);
-      }),
-      catchError((error) => {
-        console.warn('[MatchService] Supabase indisponible, données de démonstration.', error);
-        return of(DEMO_MATCHES);
       }),
     );
   }

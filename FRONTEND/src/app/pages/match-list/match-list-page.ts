@@ -49,6 +49,7 @@ export class MatchListPage {
 
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
+  protected readonly error = signal<string | null>(null);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
 
   protected readonly userPoints = signal(0);
@@ -160,10 +161,15 @@ export class MatchListPage {
       .subscribe({
         next: (rows) => {
           this.matches.set(rows);
+          this.error.set(null);
           this.loading.set(false);
         },
-        error: () => {
+        error: (err) => {
+          console.error('[MatchListPage] Impossible de charger les matchs depuis Supabase.', err);
           this.matches.set([]);
+          this.error.set(
+            'Impossible de charger les matchs depuis la base locale. Vérifie que Supabase est démarré, que le frontend pointe vers l’URL locale et que la RPC get_match_list existe.',
+          );
           this.loading.set(false);
         },
       });
