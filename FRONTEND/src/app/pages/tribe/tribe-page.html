@@ -14,7 +14,6 @@
     }
 
     @if (!loading() && !error() && hasTribe()) {
-      <!-- Hero -->
       <div class="bg-gradient-to-br from-tribbo-primary via-blue-500 to-blue-400 text-white rounded-2xl p-6 text-center shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)] relative overflow-hidden mb-4">
         <div class="absolute right-[-30px] top-[-30px] w-[140px] h-[140px] bg-white/10 rounded-full"></div>
         <div class="w-[54px] h-[54px] rounded-full bg-white/20 flex items-center justify-center text-white font-archivo text-lg font-bold mx-auto mb-3 relative">
@@ -22,7 +21,7 @@
         </div>
         <div class="font-archivo text-xl relative">{{ tribeName() }}</div>
         <div class="inline-block text-[10px] font-bold tracking-wider bg-white/20 px-3 py-1 rounded-full mt-2 relative">
-          Tribu d'entreprise
+          Tribu
         </div>
         <div class="font-inter text-sm opacity-90 mt-2 relative">
           {{ memberCount() }} membres · {{ activeMemberCount() }} actifs ·
@@ -32,14 +31,13 @@
             non classée
           }
         </div>
-        @if (rival(); as rivalCompany) {
+        @if (rival(); as rivalTribe) {
           <div class="text-sm bg-white/20 rounded-xl px-4 py-2.5 mt-4 relative">
-            {{ rivalCompany.name }} est devant de {{ rivalGap() }} pts de moyenne. On les rattrape ?
+            {{ rivalTribe.name }} est devant de {{ rivalGap() }} pts de moyenne. On les rattrape ?
           </div>
         }
       </div>
 
-      <!-- Invite button -->
       <div class="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm">
         <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
           Code d'invitation
@@ -48,12 +46,10 @@
         <p class="font-inter text-xs text-gray-400 mt-1">Partage ce code pour inviter un membre dans {{ tribeName() }}.</p>
       </div>
 
-      <!-- Members header -->
       <div class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-3 px-1">
         Membres · classement interne · {{ avgPoints() }} pts moy.
       </div>
 
-      <!-- Member rows -->
       <div class="space-y-2">
         @for (member of members(); track member.id) {
           <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm cursor-pointer"
@@ -88,7 +84,6 @@
         }
       </div>
 
-      <!-- Bottom actions -->
       <a routerLink="/leaderboard"
         class="block w-full text-center mt-4 py-4 rounded-2xl border border-gray-200 text-tribbo-primary font-inter font-semibold text-sm hover:bg-blue-50 transition-all active:scale-[0.98]">
         Voir le classement des Tribus →
@@ -98,12 +93,11 @@
         Quitter {{ tribeName() }}
       </button>
     } @else if (!loading() && !error()) {
-      <!-- Empty state -->
       <div class="flex flex-col items-center text-center py-12">
         <div class="text-6xl mb-4">👥</div>
         <h2 class="font-archivo text-xl text-tribbo-text uppercase tracking-tight mb-2">Tu n'as pas encore de Tribu</h2>
         <p class="font-inter text-sm text-gray-500 leading-relaxed max-w-sm">
-          TRIBBO, c'est mieux à plusieurs. Crée ta Tribu avec tes collègues, ou rejoins-en une via un lien d'invitation. Tu peux en avoir plusieurs.
+          TRIBBO, c'est mieux à plusieurs. Crée ta Tribu avec tes collègues, ou rejoins-en une via un lien d'invitation.
         </p>
       </div>
 
@@ -117,8 +111,8 @@
         />
         <button (click)="createTribe()" [disabled]="actionLoading()"
           class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-2xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-50 mb-3">
-        Créer une Tribu
-      </button>
+          Créer une Tribu
+        </button>
 
         <div class="flex gap-2">
           <input

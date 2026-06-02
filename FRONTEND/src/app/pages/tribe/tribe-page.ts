@@ -5,11 +5,11 @@ import { Observable } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import {
-  CompaniesLeaderboardRow,
-  CompanyDashboard,
-  CompanyMemberWithScore,
-  CompanyService,
-} from '../../services/company.service';
+  TribeDashboard,
+  TribeMemberWithScore,
+  TribeService,
+  TribesLeaderboardRow,
+} from '../../services/tribe.service';
 
 interface TribeMember {
   id: string;
@@ -48,15 +48,15 @@ function tribeCode(name: string): string {
 }
 
 @Component({
-  selector: 'app-company-page',
+  selector: 'app-tribe-page',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: './company-page.html',
+  templateUrl: './tribe-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CompanyPage {
+export class TribePage {
   private readonly authService = inject(AuthService);
-  private readonly companyService = inject(CompanyService);
+  private readonly tribeService = inject(TribeService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -64,28 +64,28 @@ export class CompanyPage {
   protected readonly error = signal<string | null>(null);
   protected readonly actionError = signal<string | null>(null);
   protected readonly actionSuccess = signal<string | null>(null);
-  protected readonly dashboard = signal<CompanyDashboard | null>(null);
+  protected readonly dashboard = signal<TribeDashboard | null>(null);
   protected readonly createName = signal('');
   protected readonly joinCode = signal('');
 
-  protected readonly hasTribe = computed(() => this.dashboard()?.profile.company_id != null);
-  protected readonly tribeName = computed(() => this.dashboard()?.profile.company_name ?? '');
+  protected readonly hasTribe = computed(() => this.dashboard()?.profile.tribe_id != null);
+  protected readonly tribeName = computed(() => this.dashboard()?.profile.tribe_name ?? '');
   protected readonly tribeCode = computed(() => tribeCode(this.tribeName()));
   protected readonly members = computed(() => this.toMembers(this.dashboard()?.members ?? []));
   protected readonly memberCount = computed(() => Number(this.dashboard()?.invite?.member_count ?? this.dashboard()?.score?.member_count ?? 0));
   protected readonly activeMemberCount = computed(() => Number(this.dashboard()?.score?.active_member_count ?? 0));
   protected readonly avgPoints = computed(() => Math.round(Number(this.dashboard()?.score?.avg_points ?? 0)));
   protected readonly inviteCode = computed(() => this.dashboard()?.invite?.invite_code ?? '');
-  protected readonly tribeRank = computed(() => this.currentCompanyRank()?.rank ?? null);
-  protected readonly totalTribes = computed(() => this.dashboard()?.companiesLeaderboard.length ?? 0);
+  protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
+  protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
   protected readonly rival = computed(() => {
-    const current = this.currentCompanyRank();
-    const board = this.dashboard()?.companiesLeaderboard ?? [];
+    const current = this.currentTribeRank();
+    const board = this.dashboard()?.tribesLeaderboard ?? [];
     if (!current || Number(current.rank) <= 1) return null;
     return board.find((row) => Number(row.rank) === Number(current.rank) - 1) ?? null;
   });
   protected readonly rivalGap = computed(() => {
-    const current = this.currentCompanyRank();
+    const current = this.currentTribeRank();
     const rival = this.rival();
     if (!current || !rival) return 0;
     return Math.max(0, Math.round(Number(rival.avg_points) - Number(current.avg_points)));
@@ -104,7 +104,7 @@ export class CompanyPage {
       return;
     }
 
-    this.runAction(this.companyService.createCompany(name), 'Tribu créée.');
+    this.runAction(this.tribeService.createTribe(name), 'Tribu créée.');
   }
 
   protected joinTribe(): void {
@@ -114,19 +114,19 @@ export class CompanyPage {
       return;
     }
 
-    this.runAction(this.companyService.joinCompany(code), 'Tribu rejointe.');
+    this.runAction(this.tribeService.joinTribe(code), 'Tribu rejointe.');
   }
 
   protected leaveTribe(): void {
-    const companyId = this.dashboard()?.profile.company_id;
-    if (!companyId) return;
-    this.runAction(this.companyService.leaveCompany(companyId), 'Tu as quitté la tribu.');
+    const tribeId = this.dashboard()?.profile.tribe_id;
+    if (!tribeId) return;
+    this.runAction(this.tribeService.leaveTribe(tribeId), 'Tu as quitté la tribu.');
   }
 
   private loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.companyService
+    this.tribeService
       .getDashboard()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -135,7 +135,7 @@ export class CompanyPage {
           this.loading.set(false);
         },
         error: (err) => {
-          console.error('[CompanyPage] Impossible de charger la tribu.', err);
+          console.error('[TribePage] Impossible de charger la tribu.', err);
           this.error.set('Impossible de charger ta tribu depuis la base locale.');
           this.loading.set(false);
         },
@@ -155,14 +155,14 @@ export class CompanyPage {
         this.loadDashboard();
       },
       error: (err) => {
-        console.error('[CompanyPage] Action tribu impossible.', err);
+        console.error('[TribePage] Action tribu impossible.', err);
         this.actionError.set(err instanceof Error ? err.message : 'Action impossible.');
         this.actionLoading.set(false);
       },
     });
   }
 
-  private toMembers(rows: CompanyMemberWithScore[]): TribeMember[] {
+  private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {
     return rows.map((row, index) => {
       const name = row.username ?? 'Joueur';
       const points = Number(row.total_points);
@@ -179,9 +179,9 @@ export class CompanyPage {
     });
   }
 
-  private currentCompanyRank(): CompaniesLeaderboardRow | null {
-    const companyId = this.dashboard()?.profile.company_id;
-    if (!companyId) return null;
-    return this.dashboard()?.companiesLeaderboard.find((row) => row.company_id === companyId) ?? null;
+  private currentTribeRank(): TribesLeaderboardRow | null {
+    const tribeId = this.dashboard()?.profile.tribe_id;
+    if (!tribeId) return null;
+    return this.dashboard()?.tribesLeaderboard.find((row) => row.tribe_id === tribeId) ?? null;
   }
 }

@@ -4,10 +4,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../core/services/auth.service';
 import {
-  CompaniesLeaderboardRow,
-  CurrentUserCompany,
+  CurrentUserTribe,
   LeaderboardService,
   LeaderboardUserRow,
+  TribesLeaderboardRow,
 } from '../../services/leaderboard.service';
 
 interface LeaderboardPlayer {
@@ -21,7 +21,7 @@ interface LeaderboardPlayer {
   isYou: boolean;
 }
 
-interface CompanyRow {
+interface TribeRow {
   id: string;
   rank: number;
   name: string;
@@ -47,7 +47,7 @@ function initials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-function companyCode(name: string): string {
+function tribeCode(name: string): string {
   return name
     .split(/\s+/)
     .filter(Boolean)
@@ -68,25 +68,25 @@ export class LeaderboardPage {
   private readonly authService = inject(AuthService);
   private readonly leaderboardService = inject(LeaderboardService);
 
-  protected readonly activeTab = signal<'global' | 'tribu' | 'companies'>('global');
+  protected readonly activeTab = signal<'global' | 'tribu' | 'tribes'>('global');
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly currentCompany = signal<CurrentUserCompany>({
-    company_id: null,
-    company_name: null,
+  protected readonly currentTribe = signal<CurrentUserTribe>({
+    tribe_id: null,
+    tribe_name: null,
   });
   protected readonly globalLb = signal<LeaderboardPlayer[]>([]);
-  protected readonly companyMembers = signal<LeaderboardPlayer[]>([]);
-  protected readonly companies = signal<CompanyRow[]>([]);
+  protected readonly tribeMembers = signal<LeaderboardPlayer[]>([]);
+  protected readonly tribes = signal<TribeRow[]>([]);
 
   protected readonly tabs = [
     { key: 'global' as const, label: 'Global' },
     { key: 'tribu' as const, label: 'Ma Tribu' },
-    { key: 'companies' as const, label: 'Tribus' },
+    { key: 'tribes' as const, label: 'Tribus' },
   ];
 
   protected readonly me = computed(() => this.globalLb().find((p) => p.isYou) ?? null);
-  protected readonly meInCompany = computed(() => this.companyMembers().find((p) => p.isYou) ?? null);
+  protected readonly meInTribe = computed(() => this.tribeMembers().find((p) => p.isYou) ?? null);
 
   protected readonly userRank = computed(() => this.me()?.rank ?? null);
   protected readonly userTotalPlayers = computed(() => this.globalLb().length);
@@ -97,7 +97,7 @@ export class LeaderboardPage {
     this.loadLeaderboards();
   }
 
-  protected setTab(key: 'global' | 'tribu' | 'companies'): void {
+  protected setTab(key: 'global' | 'tribu' | 'tribes'): void {
     this.activeTab.set(key);
   }
 
@@ -106,25 +106,25 @@ export class LeaderboardPage {
     this.error.set(null);
 
     this.leaderboardService
-      .getCurrentUserCompany()
+      .getCurrentUserTribe()
       .pipe(
-        switchMap((company) => {
-          this.currentCompany.set(company);
+        switchMap((tribe) => {
+          this.currentTribe.set(tribe);
           return forkJoin({
             global: this.leaderboardService.getGlobalLeaderboard(),
-            companyMembers: company.company_id
-              ? this.leaderboardService.getCompanyLeaderboard(company.company_id)
+            tribeMembers: tribe.tribe_id
+              ? this.leaderboardService.getMyTribeLeaderboard()
               : of([] as LeaderboardUserRow[]),
-            companies: this.leaderboardService.getCompaniesLeaderboard(),
+            tribes: this.leaderboardService.getTribesLeaderboard(),
           });
         }),
         takeUntilDestroyed(),
       )
       .subscribe({
-        next: ({ global, companyMembers, companies }) => {
+        next: ({ global, tribeMembers, tribes }) => {
           this.globalLb.set(global.map((row) => this.toPlayer(row)));
-          this.companyMembers.set(companyMembers.map((row) => this.toPlayer(row, this.currentCompany().company_name)));
-          this.companies.set(companies.map((row) => this.toCompany(row)));
+          this.tribeMembers.set(tribeMembers.map((row) => this.toPlayer(row, this.currentTribe().tribe_name)));
+          this.tribes.set(tribes.map((row) => this.toTribe(row)));
           this.loading.set(false);
         },
         error: (err) => {
@@ -137,7 +137,7 @@ export class LeaderboardPage {
       });
   }
 
-  private toPlayer(row: LeaderboardUserRow, companyName?: string | null): LeaderboardPlayer {
+  private toPlayer(row: LeaderboardUserRow, tribeName?: string | null): LeaderboardPlayer {
     const name = row.username ?? 'Joueur';
     const exactCount = Number(row.exact_count);
     return {
@@ -145,24 +145,24 @@ export class LeaderboardPage {
       rank: Number(row.rank),
       name,
       initials: initials(name),
-      subtitle: companyName ?? `${exactCount} score${exactCount > 1 ? 's' : ''} exact${exactCount > 1 ? 's' : ''}`,
+      subtitle: tribeName ?? `${exactCount} score${exactCount > 1 ? 's' : ''} exact${exactCount > 1 ? 's' : ''}`,
       points: Number(row.total_points),
       exactCount,
       isYou: row.user_id === this.authService.currentUser()?.id,
     };
   }
 
-  private toCompany(row: CompaniesLeaderboardRow): CompanyRow {
+  private toTribe(row: TribesLeaderboardRow): TribeRow {
     return {
-      id: row.company_id,
+      id: row.tribe_id,
       rank: Number(row.rank),
       name: row.name,
-      code: companyCode(row.name),
+      code: tribeCode(row.name),
       members: Number(row.member_count),
       activeMembers: Number(row.active_member_count),
       avgPoints: Math.round(Number(row.avg_points)),
       totalPoints: Number(row.total_points),
-      isMine: row.company_id === this.currentCompany().company_id,
+      isMine: row.tribe_id === this.currentTribe().tribe_id,
     };
   }
 }

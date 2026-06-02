@@ -43,15 +43,15 @@
 
     <!-- My rank card (tribu tab) -->
     @if (activeTab() === 'tribu') {
-      @if (meInCompany(); as currentMember) {
+      @if (meInTribe(); as currentMember) {
         <div class="bg-gradient-to-br from-tribbo-primary to-blue-400 text-white rounded-2xl p-4 mb-4 flex items-center gap-4 shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)]">
           <div class="font-archivo text-3xl">#{{ currentMember.rank }}</div>
           <div>
-            <div class="font-inter text-[11px] uppercase tracking-wider opacity-80">Ta position · {{ currentCompany().company_name }}</div>
+            <div class="font-inter text-[11px] uppercase tracking-wider opacity-80">Ta position · {{ currentTribe().tribe_name }}</div>
             <div class="font-inter text-sm font-medium mt-0.5">{{ currentMember.points }} pts · {{ currentMember.exactCount }} exacts</div>
           </div>
         </div>
-      } @else if (!currentCompany().company_id) {
+      } @else if (!currentTribe().tribe_id) {
         <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 text-sm text-yellow-800 leading-relaxed">
           Tu n'as pas encore de tribu. Crée ou rejoins une tribu pour voir ce classement.
         </div>
@@ -101,7 +101,7 @@
       }
 
       @if (activeTab() === 'tribu') {
-        @for (member of companyMembers(); track member.id) {
+        @for (member of tribeMembers(); track member.id) {
           <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm"
             [class]="member.isYou ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100'">
             <div class="w-7 text-center font-space font-bold text-sm text-gray-500">{{ member.rank }}</div>
@@ -130,8 +130,8 @@
         }
       }
 
-      @if (activeTab() === 'companies') {
-        @for (co of companies(); track co.id; let i = $index) {
+      @if (activeTab() === 'tribes') {
+        @for (co of tribes(); track co.id; let i = $index) {
           <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm"
             [class]="co.isMine ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100'">
             <div class="w-7 text-center font-space font-bold text-sm"
@@ -151,7 +151,6 @@
                 @if (co.isMine) {
                   <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Ma Tribu</span>
                 }
-                <span class="material-symbols-outlined text-tribbo-primary text-base">verified</span>
               </div>
               <div class="font-inter text-xs text-gray-400 mt-0.5">
                 {{ co.members }} membres · {{ co.activeMembers }} actifs · {{ co.totalPoints }} pts
