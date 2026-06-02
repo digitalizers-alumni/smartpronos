@@ -1,4 +1,4 @@
-<div class="flex flex-col h-full w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+<div class="flex flex-col min-h-[calc(100vh-7.5rem)] w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
   @if (userPoints() !== null && userRank() !== null) {
     <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
   } @else if (profileError(); as err) {
