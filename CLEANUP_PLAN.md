@@ -353,7 +353,7 @@ Constat après audit strict :
 
 6. Décider le statut du boost.
 
-   - Aujourd'hui `PredictionService` envoie toujours `p_is_boosted: false`.
+   - Avant implémentation, `PredictionService` envoyait toujours `p_is_boosted: false`.
    - Décision : le boost fait partie du produit.
    - Règle produit retenue :
      - chaque joueur possède un quota de boosts;
@@ -379,6 +379,12 @@ Constat après audit strict :
      - afficher un toggle boost dans `PredictionFormPage` avec le quota restant;
      - envoyer `p_is_boosted` depuis `PredictionService`;
      - afficher clairement quand aucun boost n'est disponible.
+   - Statut : implémenté via migration `20260602103000_prediction_boost_quota.sql`.
+   - Front mis à jour :
+     - quota chargé via `get_user_profile`;
+     - toggle boost dans `PredictionFormPage`;
+     - envoi de `p_is_boosted` depuis `PredictionService`;
+     - badge boost sur la card match et le détail match.
 
 7. Traiter les placeholders de display name.
 

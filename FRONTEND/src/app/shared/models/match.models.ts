@@ -10,6 +10,7 @@ export interface MatchPredictionSummary {
   homeScore: number | null;
   awayScore: number | null;
   hasPrediction: boolean;
+  isBoosted: boolean;
 }
 
 export interface MatchResult {

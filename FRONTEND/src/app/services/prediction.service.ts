@@ -18,6 +18,7 @@ interface UpsertPredictionResponse {
     home_score: number;
     away_score: number;
     is_boosted: boolean;
+    boosts_available: number;
     updated_at: string;
   };
 }
@@ -31,7 +32,7 @@ export class PredictionService {
       p_match_id: payload.matchId,
       p_home_score: payload.homeScore,
       p_away_score: payload.awayScore,
-      p_is_boosted: false,
+      p_is_boosted: payload.isBoosted,
     };
 
     return from(this.supabase.client.rpc('upsert_prediction', rpcPayload)).pipe(
@@ -50,6 +51,8 @@ export class PredictionService {
           matchId: result.data!.match_id,
           homeScore: result.data!.home_score,
           awayScore: result.data!.away_score,
+          isBoosted: result.data!.is_boosted,
+          boostsAvailable: result.data!.boosts_available,
           submittedAt: result.data!.updated_at,
         };
       }),

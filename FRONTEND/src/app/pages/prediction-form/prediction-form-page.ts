@@ -23,6 +23,7 @@ import {
 } from '../../shared/models/prediction.models';
 import { MatchService } from '../../services/match.service';
 import { MatchListItem } from '../../shared/models/match.models';
+import { TeamService } from '../../services/team.service';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -36,6 +37,7 @@ type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 export class PredictionFormPage {
   private readonly predictionService = inject(PredictionService);
   private readonly matchService = inject(MatchService);
+  private readonly teamService = inject(TeamService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -49,6 +51,9 @@ export class PredictionFormPage {
   protected readonly loading = signal(true);
   protected readonly match = signal<MatchListItem | null>(null);
   protected readonly loadError = signal<string | null>(null);
+  protected readonly boostsAvailable = signal<number | null>(null);
+  protected readonly boostsError = signal<string | null>(null);
+  protected readonly boostSelected = signal(false);
 
   constructor() {
     this.route.paramMap
@@ -77,11 +82,14 @@ export class PredictionFormPage {
       )
       .subscribe((m) => {
         this.match.set(m);
+        this.boostSelected.set(m?.prediction.isBoosted ?? false);
         if (!m && !this.loadError()) {
           this.loadError.set('Match introuvable.');
         }
         this.loading.set(false);
       });
+
+    this.loadBoosts();
   }
 
   protected readonly homeTeam = computed<PredictionFormTeam>(() => {
@@ -128,6 +136,16 @@ export class PredictionFormPage {
   });
 
   protected readonly disabled = computed(() => this.isLocked() || this.isSubmitting());
+  protected readonly canToggleBoost = computed(() => {
+    if (this.disabled()) return false;
+    if (this.boostSelected()) return true;
+    return (this.boostsAvailable() ?? 0) > 0;
+  });
+  protected readonly boostsAvailableLabel = computed(() => {
+    const count = this.boostsAvailable();
+    if (count === null) return 'Quota de boosts indisponible.';
+    return `${count} boost${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}.`;
+  });
 
   protected readonly submitLabel = computed(() => {
     if (this.isEdit()) return 'Modifier mon pronostic';
@@ -148,12 +166,14 @@ export class PredictionFormPage {
       matchId: this.match()?.id ?? '',
       homeScore: value.homeScore,
       awayScore: value.awayScore,
+      isBoosted: this.boostSelected(),
     };
 
     this.predictionService.submitPrediction(payload).subscribe({
       next: (response) => {
         this.lastPrediction.set(response);
         this.submittedScore.set(value);
+        this.boostsAvailable.set(response.boostsAvailable);
         this.status.set('success');
       },
       error: (error: unknown) => {
@@ -176,10 +196,29 @@ export class PredictionFormPage {
     this.predictionFormRef?.reset();
   }
 
+  protected toggleBoost(): void {
+    if (!this.canToggleBoost()) return;
+    this.boostSelected.update((value) => !value);
+  }
+
   protected dismissError(): void {
     if (this.isError()) {
       this.status.set('idle');
       this.errorMessage.set(null);
     }
+  }
+
+  private loadBoosts(): void {
+    this.boostsError.set(null);
+    this.teamService.getUserProfile().subscribe({
+      next: (profile) => {
+        this.boostsAvailable.set(profile.boosts_available);
+      },
+      error: (err) => {
+        console.error('[PredictionFormPage] Impossible de charger le quota de boosts.', err);
+        this.boostsAvailable.set(null);
+        this.boostsError.set('Boosts indisponibles pour le moment.');
+      },
+    });
   }
 }

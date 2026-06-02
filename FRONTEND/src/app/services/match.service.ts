@@ -68,6 +68,7 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
       homeScore: row.user_home_score,
       awayScore: row.user_away_score,
       hasPrediction: row.user_home_score !== null,
+      isBoosted: row.user_is_boosted ?? false,
     },
     result: row.result_home_score != null && row.result_away_score != null
       ? { homeScore: row.result_home_score, awayScore: row.result_away_score }

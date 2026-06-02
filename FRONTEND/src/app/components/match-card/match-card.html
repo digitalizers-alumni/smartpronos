@@ -36,6 +36,13 @@
         <span class="font-space text-gray-300">-</span>
         <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.awayScore }}</span>
       </div>
+      @if (match().prediction.isBoosted) {
+        <div class="flex justify-center mb-3">
+          <span class="rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">
+            Boost x2
+          </span>
+        </div>
+      }
     } @else {
       <div class="flex items-center justify-center mb-3">
         <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>

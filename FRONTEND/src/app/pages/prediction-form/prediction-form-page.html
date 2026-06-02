@@ -41,6 +41,41 @@
 
             <hr class="border-gray-100" />
 
+            <div class="rounded-2xl border border-gray-100 bg-tribbo-bg p-4 space-y-2">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <div class="font-inter text-sm font-semibold text-tribbo-text">Boost x2</div>
+                  <p class="font-inter text-xs text-gray-400 mt-0.5">
+                    @if (boostSelected()) {
+                      Ce prono utilisera un boost.
+                    } @else {
+                      {{ boostsAvailableLabel() }}
+                    }
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="toggleBoost()"
+                  [disabled]="!canToggleBoost()"
+                  class="px-4 py-2 rounded-xl border font-inter text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                  [class.bg-tribbo-primary]="boostSelected()"
+                  [class.text-white]="boostSelected()"
+                  [class.border-tribbo-primary]="boostSelected()"
+                  [class.bg-white]="!boostSelected()"
+                  [class.text-tribbo-primary]="!boostSelected()"
+                  [class.border-gray-200]="!boostSelected()"
+                >
+                  {{ boostSelected() ? 'Boost activé' : 'Activer' }}
+                </button>
+              </div>
+              @if (boostsError(); as err) {
+                <p class="font-inter text-xs text-yellow-700">{{ err }}</p>
+              }
+              @if (!boostSelected() && boostsAvailable() === 0) {
+                <p class="font-inter text-xs text-gray-400">Tu n'as plus de boost disponible.</p>
+              }
+            </div>
+
             <app-prediction-form
               [homeTeam]="homeTeam()"
               [awayTeam]="awayTeam()"

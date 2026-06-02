@@ -36,6 +36,7 @@ export interface UserProfile {
   favorite_team_flag: string | null;
   username: string | null;
   display_name: string | null;
+  boosts_available: number;
 }
 
 @Injectable({ providedIn: 'root' })
