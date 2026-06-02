@@ -8,6 +8,13 @@
       </div>
     }
 
+    @if (!loading() && loadError(); as err) {
+      <div class="bg-white border border-red-100 rounded-2xl px-5 py-6 text-center space-y-2">
+        <p class="font-inter text-sm font-semibold text-red-500">Match indisponible</p>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
+      </div>
+    }
+
     @if (match(); as m) {
       @if (status() === 'idle' || status() === 'submitting') {
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">

@@ -305,6 +305,8 @@ Implémentation réalisée :
 
 Objectif : traiter tous les reliquats runtime et produit avant de mettre à jour les tests. Cette étape doit éviter de valider des tests sur un comportement encore incomplet ou trompeur.
 
+Statut : partiellement implémenté côté runtime frontend.
+
 Constat après audit strict :
 
 - Les contrats Supabase utilisés par les services Angular existent bien côté migrations.
@@ -317,18 +319,21 @@ Constat après audit strict :
 
    - Ne plus utiliser `https://placeholder.supabase.co` ni `placeholder-key`.
    - Faire échouer explicitement l'initialisation si `environment.supabaseUrl` ou `environment.supabaseAnonKey` manque.
+   - Statut : implémenté.
 
 2. Corriger `FRONTEND/src/app/pages/profile/profile-page.ts`.
 
    - Ne plus injecter un profil synthétique à `0` point quand `get_user_profile` échoue.
    - Ajouter un état `error` affiché dans le template.
    - Garder `profile` à `null` tant que les données réelles ne sont pas chargées.
+   - Statut : implémenté.
 
 3. Corriger `FRONTEND/src/app/pages/match-list/match-list-page.ts`.
 
    - Ne pas afficher `0` point / rang `0` si le profil ne charge pas.
    - Utiliser des signaux nullable ou un état d'erreur profil.
    - Décider si l'erreur profil bloque la page ou affiche seulement une carte points indisponible.
+   - Statut : implémenté en non bloquant, avec message `Points indisponibles`.
 
 4. Corriger `FRONTEND/src/app/pages/signup/signup-page.ts`.
 
@@ -338,28 +343,73 @@ Constat après audit strict :
      - soit appeler une RPC profil après signup;
      - soit supprimer ces champs si seul le pseudo/email est réellement utilisé.
    - Ne plus naviguer silencieusement vers `/home/match-list` si `getTeams()` ou `setFavoriteTeam()` échoue.
+   - Statut : partiellement implémenté. `firstname` / `lastname` sont envoyés en metadata Supabase et les erreurs d'équipe favorite sont affichées. Reste à décider si `profiles.username` doit être dérivé de ces champs côté DB.
 
 5. Corriger `FRONTEND/src/app/pages/prediction-form/prediction-form-page.ts`.
 
    - Ne pas convertir un échec de chargement de match en `null` silencieux.
    - Ajouter un état d'erreur visible si `MatchService.getMatchById()` échoue.
+   - Statut : implémenté.
 
 6. Décider le statut du boost.
 
    - Aujourd'hui `PredictionService` envoie toujours `p_is_boosted: false`.
-   - Si le boost fait partie du MVP, ajouter l'UI et étendre `PredictionPayload`.
-   - Si le boost sort du MVP, documenter explicitement que la DB le supporte mais que le front ne l'expose pas encore.
+   - Décision : le boost fait partie du produit.
+   - Règle produit retenue :
+     - chaque joueur possède un quota de boosts;
+     - appliquer un boost sur un prono consomme immédiatement 1 boost;
+     - tant que le match n'est pas verrouillé, le joueur peut retirer le boost et récupérer 1 boost dans son quota;
+     - le calcul des points regarde `predictions.is_boosted` au moment du scoring;
+     - si le prono est juste ou partiellement juste, les points gagnés sont doublés.
+   - Approche DB recommandée :
+     - ajouter une colonne `profiles.boosts_available integer not null default <quota_initial>`;
+     - conserver `predictions.is_boosted`;
+     - remplacer la contrainte historique `one_boost_per_user`, car elle limite à 1 boost total par utilisateur et ne correspond plus au quota;
+     - adapter `upsert_prediction` pour gérer les transitions :
+       - `false -> true` : vérifier `boosts_available > 0`, décrémenter;
+       - `true -> false` : incrémenter;
+       - `true -> true` : ne pas changer le quota;
+       - `false -> false` : ne pas changer le quota;
+       - refuser tout changement après verrouillage;
+     - retourner `boosts_available` dans `get_user_profile`;
+     - retourner `user_is_boosted` dans `get_match_list` est déjà prévu par le contrat RPC.
+   - Approche frontend recommandée :
+     - étendre `PredictionPayload` avec `isBoosted`;
+     - mapper `user_is_boosted` dans `MatchListItem.prediction`;
+     - afficher un toggle boost dans `PredictionFormPage` avec le quota restant;
+     - envoyer `p_is_boosted` depuis `PredictionService`;
+     - afficher clairement quand aucun boost n'est disponible.
 
 7. Traiter les placeholders de display name.
 
    - `LeaderboardPage` et `TribePage` affichent `Joueur` si `username` est `null`.
-   - Décider si la DB doit garantir `profiles.username not null`.
-   - Sinon, ajouter un champ calculé côté RPC/vue pour retourner un display name stable.
+   - Décision : distinguer l'identifiant technique unique du nom affiché.
+   - Garder `profiles.username` comme identifiant technique unique, généré par défaut en `user_<id>`.
+   - Ajouter un champ non unique `profiles.display_name`.
+   - Alimenter `display_name` par défaut avec le prénom/nom saisis à l'inscription quand disponibles.
+   - Permettre à l'utilisateur de modifier `display_name` depuis la page profil.
+   - Utiliser `display_name` partout où un joueur est affiché :
+     - profil;
+     - leaderboard global;
+     - classement interne tribu;
+     - membres de tribu.
+   - Garder un fallback final vers `username`, mais ne plus afficher `Joueur` comme donnée runtime.
+   - Approche DB recommandée :
+     - nouvelle migration ajoutant `profiles.display_name text`;
+     - mise à jour de `handle_new_user()` pour lire `raw_user_meta_data->>'full_name'`;
+     - nouvelle RPC `update_display_name(p_display_name text)` ou extension de `create_or_update_profile`;
+     - mise à jour des vues/RPC qui retournent actuellement `username` pour retourner aussi `display_name` ou directement un champ `player_name`.
+   - Statut : implémenté via migration `20260602101500_display_name.sql`.
+   - Front mis à jour :
+     - `ProfilePage` permet de modifier le nom affiché;
+     - `LeaderboardPage` et `TribePage` n'affichent plus `Joueur` comme fallback runtime;
+     - les services consomment `display_name` via `get_user_profile`.
 
 8. Décider si `competition: 'Coupe du Monde 2026'` dans `MatchService` est acceptable.
 
-   - Si l'app est définitivement mono-compétition, le garder comme constante produit explicite.
-   - Sinon, ajouter la compétition en DB/RPC.
+   - Décision : l'application est mono-compétition pour le moment.
+   - Garder le nom de compétition comme constante produit explicite côté front.
+   - Statut : implémenté via `COMPETITION_NAME` dans `MatchService`.
 
 À faire côté DB / produit :
 
@@ -367,10 +417,11 @@ Constat après audit strict :
 
    - Aujourd'hui `company_members` permet plusieurs tribus par utilisateur.
    - Le front affiche une tribu principale.
-   - Si le produit impose une seule tribu par utilisateur, ajouter une migration dédiée :
-     - contrainte unique sur `company_members.user_id`;
-     - adaptation des RPC `create_tribe`, `join_tribe_by_invite_code`, `leave_tribe`;
-     - stratégie de migration des données existantes.
+   - Décision : un joueur peut faire partie de plusieurs tribus.
+   - Ne pas ajouter de contrainte unique sur `company_members.user_id`.
+   - Garder pour le moment le nom physique historique `company_members`.
+   - Continuer à exposer le vocabulaire produit via les vues/RPC alias `tribe_*`.
+   - Plus tard, si nécessaire, ajouter une vraie notion de tribu active/sélectionnée plutôt que de supposer la première tribu jointe.
 
 2. Décider si le lien d'invitation direct est dans le MVP.
 

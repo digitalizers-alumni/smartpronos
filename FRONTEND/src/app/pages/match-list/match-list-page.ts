@@ -52,8 +52,9 @@ export class MatchListPage {
   protected readonly error = signal<string | null>(null);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
 
-  protected readonly userPoints = signal(0);
-  protected readonly userRank = signal(0);
+  protected readonly userPoints = signal<number | null>(null);
+  protected readonly userRank = signal<number | null>(null);
+  protected readonly profileError = signal<string | null>(null);
 
   protected readonly statusFilters: StatusFilterOption[] = [
     { label: 'Tous', value: 'all' },
@@ -152,6 +153,13 @@ export class MatchListPage {
       next: (p) => {
         this.userPoints.set(p.total_points);
         this.userRank.set(p.rank ?? 0);
+        this.profileError.set(null);
+      },
+      error: (err) => {
+        console.error('[MatchListPage] Impossible de charger le profil utilisateur.', err);
+        this.userPoints.set(null);
+        this.userRank.set(null);
+        this.profileError.set('Points indisponibles pour le moment.');
       },
     });
 

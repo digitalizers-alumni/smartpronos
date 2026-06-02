@@ -4,6 +4,8 @@ import { Observable, from, map, first } from 'rxjs';
 import { SupabaseService } from '../core/services/supabase.service';
 import { MatchListItem, MatchStatus } from '../shared/models/match.models';
 
+const COMPETITION_NAME = 'Coupe du Monde 2026';
+
 interface MatchListRpcRow {
   match_id: string;
   fifa_match_number: number | null;
@@ -42,7 +44,7 @@ function mapRpcRowToMatchListItem(row: MatchListRpcRow): MatchListItem {
     id: row.match_id,
     fifaMatchNumber: row.fifa_match_number ?? undefined,
     kickoff: row.kickoff_at,
-    competition: 'Coupe du Monde 2026',
+    competition: COMPETITION_NAME,
     stage: row.stage,
     group: row.group_name ?? undefined,
     venue: formatVenue(row),

@@ -48,15 +48,24 @@ export class PredictionFormPage {
   protected readonly submittedScore = signal<PredictionFormValue | null>(null);
   protected readonly loading = signal(true);
   protected readonly match = signal<MatchListItem | null>(null);
+  protected readonly loadError = signal<string | null>(null);
 
   constructor() {
     this.route.paramMap
       .pipe(
         map((params) => params.get('matchId')),
         switchMap((id) => {
-          if (!id) return of(null);
+          this.loadError.set(null);
+          if (!id) {
+            this.loadError.set('Match introuvable.');
+            return of(null);
+          }
           return this.matchService.getMatchById(id).pipe(
-            catchError(() => of(null)),
+            catchError((err) => {
+              console.error('[PredictionFormPage] Impossible de charger le match.', err);
+              this.loadError.set('Impossible de charger ce match depuis la base locale.');
+              return of(null);
+            }),
           );
         }),
         tap((m) => {
@@ -68,6 +77,9 @@ export class PredictionFormPage {
       )
       .subscribe((m) => {
         this.match.set(m);
+        if (!m && !this.loadError()) {
+          this.loadError.set('Match introuvable.');
+        }
         this.loading.set(false);
       });
   }

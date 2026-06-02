@@ -164,7 +164,7 @@ export class TribePage {
 
   private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {
     return rows.map((row, index) => {
-      const name = row.username ?? 'Joueur';
+      const name = row.username ?? `user_${row.user_id.slice(0, 8)}`;
       const points = Number(row.total_points);
       return {
         id: row.user_id,

@@ -138,7 +138,7 @@ export class LeaderboardPage {
   }
 
   private toPlayer(row: LeaderboardUserRow, tribeName?: string | null): LeaderboardPlayer {
-    const name = row.username ?? 'Joueur';
+    const name = row.username ?? `user_${row.user_id.slice(0, 8)}`;
     const exactCount = Number(row.exact_count);
     return {
       id: row.user_id,

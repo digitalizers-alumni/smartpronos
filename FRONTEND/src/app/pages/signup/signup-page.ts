@@ -63,8 +63,11 @@ export class SignupPage {
     this.submitting.set(true);
 
     try {
-      const { email, password } = this.signupForm.getRawValue();
-      const result = await this.authService.signUp(email, password);
+      const { firstname, lastname, email, password } = this.signupForm.getRawValue();
+      const result = await this.authService.signUp(email, password, {
+        firstName: firstname.trim(),
+        lastName: lastname.trim(),
+      });
       if (result?.session) {
         this.teamService.getTeams().subscribe({
           next: (teams) => {
@@ -72,8 +75,10 @@ export class SignupPage {
             this.step.set('team');
             this.submitting.set(false);
           },
-          error: () => {
-            this.router.navigate(['/home', 'match-list']);
+          error: (err) => {
+            console.error('[SignupPage] Impossible de charger les équipes.', err);
+            this.errorMessage.set('Compte créé, mais impossible de charger les équipes. Réessaie plus tard depuis ton profil.');
+            this.submitting.set(false);
           },
         });
       } else {
@@ -99,9 +104,14 @@ export class SignupPage {
     }
 
     this.savingTeam.set(true);
+    this.errorMessage.set('');
     this.teamService.setFavoriteTeam(teamId).subscribe({
       next: () => this.router.navigate(['/home', 'match-list']),
-      error: () => this.router.navigate(['/home', 'match-list']),
+      error: (err) => {
+        console.error('[SignupPage] Impossible de sauvegarder l’équipe favorite.', err);
+        this.errorMessage.set('Impossible de sauvegarder ton équipe favorite. Tu peux réessayer ou passer cette étape.');
+        this.savingTeam.set(false);
+      },
     });
   }
 

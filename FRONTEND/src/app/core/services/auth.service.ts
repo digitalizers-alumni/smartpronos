@@ -17,12 +17,23 @@ export class AuthService {
     });
   }
 
-  async signUp(email: string, password: string) {
+  async signUp(
+    email: string,
+    password: string,
+    profile?: { firstName: string; lastName: string },
+  ) {
     const { data, error } = await this.supabase.client.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: profile
+          ? {
+            first_name: profile.firstName,
+            last_name: profile.lastName,
+            full_name: `${profile.firstName} ${profile.lastName}`.trim(),
+          }
+          : undefined,
       },
     });
     if (error) throw error;

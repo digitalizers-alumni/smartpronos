@@ -18,6 +18,13 @@ interface TeamRow {
   flag_url: string | null;
 }
 
+interface RpcJsonResponse<T> {
+  success: boolean;
+  error_code?: string;
+  message?: string;
+  data?: T;
+}
+
 export interface UserProfile {
   total_points: number;
   exact_count: number;
@@ -28,6 +35,7 @@ export interface UserProfile {
   favorite_team_name: string | null;
   favorite_team_flag: string | null;
   username: string | null;
+  display_name: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -70,6 +78,20 @@ export class TeamService {
       map(({ data, error }) => {
         if (error) throw error;
         return data as unknown as UserProfile;
+      }),
+    );
+  }
+
+  updateDisplayName(displayName: string): Observable<void> {
+    return from(
+      this.supabase.client.rpc('update_display_name', { p_display_name: displayName }),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        const result = data as RpcJsonResponse<unknown> | null;
+        if (!result?.success) {
+          throw new Error(result?.message ?? 'Nom affiché impossible à mettre à jour.');
+        }
       }),
     );
   }
