@@ -76,10 +76,10 @@
         </button>
       </div>
       <div class="space-y-2">
-        <button (click)="handleLogout()" [disabled]="loggingOut()"
-          class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-tribbo-primary/30 transition-all disabled:opacity-50 text-left">
-          <span class="material-symbols-outlined text-tribbo-primary text-[21px]">logout</span>
-          <span class="font-inter font-semibold text-sm text-tribbo-text flex-1">Se déconnecter</span>
+        <button (click)="openDeleteConfirm()"
+          class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-tribbo-primary/30 transition-all text-left">
+          <span class="material-symbols-outlined text-tribbo-primary text-[21px]">delete</span>
+          <span class="font-inter font-semibold text-sm text-tribbo-text flex-1">Supprimer mon compte</span>
           <span class="material-symbols-outlined text-[#C7CBD6] text-lg">chevron_right</span>
         </button>
         <button (click)="openChangePassword()"
@@ -88,10 +88,10 @@
           <span class="font-inter font-semibold text-sm text-tribbo-text flex-1">Changer mot de passe</span>
           <span class="material-symbols-outlined text-[#C7CBD6] text-lg">chevron_right</span>
         </button>
-        <button (click)="openDeleteConfirm()"
-          class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-red-300 transition-all text-left">
-          <span class="material-symbols-outlined text-red-400 text-[21px]">delete</span>
-          <span class="font-inter font-semibold text-sm text-red-500 flex-1">Supprimer mon compte</span>
+        <button (click)="handleLogout()" [disabled]="loggingOut()"
+          class="w-full flex items-center gap-3 px-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-red-300 transition-all disabled:opacity-50 text-left">
+          <span class="material-symbols-outlined text-red-400 text-[21px]">logout</span>
+          <span class="font-inter font-semibold text-sm text-red-500 flex-1">Se déconnecter</span>
           <span class="material-symbols-outlined text-[#C7CBD6] text-lg">chevron_right</span>
         </button>
       </div>
