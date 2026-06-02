@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, from, map, switchMap } from 'rxjs';
 
-import { AuthService } from '../core/services/auth.service';
 import { SupabaseService } from '../core/services/supabase.service';
 
 interface RpcJsonResponse<T> {
@@ -62,7 +61,6 @@ export interface CompanyDashboard {
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
   private readonly supabase = inject(SupabaseService);
-  private readonly authService = inject(AuthService);
 
   getDashboard(): Observable<CompanyDashboard> {
     return this.getCurrentCompanyProfile().pipe(
@@ -116,22 +114,11 @@ export class CompanyService {
   }
 
   leaveCompany(companyId: string): Observable<void> {
-    const userId = this.authService.currentUser()?.id;
-    if (!userId) {
-      throw new Error('Utilisateur non connecté.');
-    }
-
     return from(
-      this.supabase.client
-        .from('company_members')
-        .delete()
-        .eq('company_id', companyId)
-        .eq('user_id', userId),
-    ).pipe(
-      map(({ error }) => {
-        if (error) throw error;
+      this.supabase.client.rpc('leave_company', {
+        p_company_id: companyId,
       }),
-    );
+    ).pipe(map(({ data, error }) => this.assertRpcSuccess(data, error)));
   }
 
   private getCurrentCompanyProfile(): Observable<CurrentCompanyProfile> {
