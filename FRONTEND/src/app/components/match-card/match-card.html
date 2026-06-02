@@ -48,22 +48,5 @@
         <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
       </div>
     }
-    <div
-      class="w-full text-center font-inter font-semibold text-sm py-3 rounded-xl transition-all"
-      [class.bg-tribbo-primary]="match().status === 'scheduled'"
-      [class.text-white]="match().status === 'scheduled'"
-      [class.bg-gray-100]="match().status !== 'scheduled'"
-      [class.text-gray-400]="match().status !== 'scheduled'"
-    >
-      @if (match().status === 'finished') {
-        Match terminé
-      } @else if (match().status === 'locked') {
-        Pronos clos
-      } @else if (match().prediction.hasPrediction) {
-        Modifier mon prono
-      } @else {
-        Faire mon prono
-      }
-    </div>
   </div>
 </div>
