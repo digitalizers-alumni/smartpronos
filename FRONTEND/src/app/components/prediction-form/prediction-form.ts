@@ -139,6 +139,11 @@ export class PredictionForm {
     return 'Score invalide';
   }
 
+  protected selectInputContent(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    input?.select();
+  }
+
   reset(values?: PredictionFormValue): void {
     this.form.reset(values ?? { homeScore: 0, awayScore: 0 });
   }
