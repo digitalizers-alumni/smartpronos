@@ -282,6 +282,8 @@ Occurrences déjà identifiées :
 
 La DB a `teams.name_fr`, mais plusieurs RPC/services renvoient encore `name`.
 
+Statut : implémenté via migration `20260602100000_team_display_names_fr.sql`.
+
 À faire :
 
 1. Modifier `get_match_list` pour retourner `coalesce(ht.name_fr, ht.name)` et `coalesce(at.name_fr, at.name)`.
@@ -292,7 +294,126 @@ La DB a `teams.name_fr`, mais plusieurs RPC/services renvoient encore `name`.
 
 3. Modifier `get_user_profile` pour retourner `favorite_team_name` en français.
 
-## Étape 8 — Nettoyer les tests
+Implémentation réalisée :
+
+- `get_match_list()` retourne maintenant les noms français pour les équipes domicile/extérieur.
+- `get_user_profile()` retourne `favorite_team_name` via `coalesce(t.name_fr, t.name)`.
+- `set_favorite_team()` retourne aussi le nom français dans sa réponse.
+- `TeamService.getTeams()` mappe `name_fr` vers `Team.name` côté frontend.
+
+## Étape 8 — Cleanup production-ready avant tests
+
+Objectif : traiter tous les reliquats runtime et produit avant de mettre à jour les tests. Cette étape doit éviter de valider des tests sur un comportement encore incomplet ou trompeur.
+
+Constat après audit strict :
+
+- Les contrats Supabase utilisés par les services Angular existent bien côté migrations.
+- Il ne reste pas de mockdata runtime évidente dans les pages match list, leaderboard ou tribu.
+- Il reste en revanche des fallbacks silencieux, des placeholders runtime et des décisions produit/DB à traiter avant production.
+
+À faire côté frontend runtime :
+
+1. Supprimer le fallback de configuration Supabase dans `FRONTEND/src/app/core/services/supabase.service.ts`.
+
+   - Ne plus utiliser `https://placeholder.supabase.co` ni `placeholder-key`.
+   - Faire échouer explicitement l'initialisation si `environment.supabaseUrl` ou `environment.supabaseAnonKey` manque.
+
+2. Corriger `FRONTEND/src/app/pages/profile/profile-page.ts`.
+
+   - Ne plus injecter un profil synthétique à `0` point quand `get_user_profile` échoue.
+   - Ajouter un état `error` affiché dans le template.
+   - Garder `profile` à `null` tant que les données réelles ne sont pas chargées.
+
+3. Corriger `FRONTEND/src/app/pages/match-list/match-list-page.ts`.
+
+   - Ne pas afficher `0` point / rang `0` si le profil ne charge pas.
+   - Utiliser des signaux nullable ou un état d'erreur profil.
+   - Décider si l'erreur profil bloque la page ou affiche seulement une carte points indisponible.
+
+4. Corriger `FRONTEND/src/app/pages/signup/signup-page.ts`.
+
+   - Les champs `firstname` / `lastname` sont collectés mais non envoyés à Supabase.
+   - Décider la source de vérité du nom affiché :
+     - soit passer metadata à `auth.signUp()`;
+     - soit appeler une RPC profil après signup;
+     - soit supprimer ces champs si seul le pseudo/email est réellement utilisé.
+   - Ne plus naviguer silencieusement vers `/home/match-list` si `getTeams()` ou `setFavoriteTeam()` échoue.
+
+5. Corriger `FRONTEND/src/app/pages/prediction-form/prediction-form-page.ts`.
+
+   - Ne pas convertir un échec de chargement de match en `null` silencieux.
+   - Ajouter un état d'erreur visible si `MatchService.getMatchById()` échoue.
+
+6. Décider le statut du boost.
+
+   - Aujourd'hui `PredictionService` envoie toujours `p_is_boosted: false`.
+   - Si le boost fait partie du MVP, ajouter l'UI et étendre `PredictionPayload`.
+   - Si le boost sort du MVP, documenter explicitement que la DB le supporte mais que le front ne l'expose pas encore.
+
+7. Traiter les placeholders de display name.
+
+   - `LeaderboardPage` et `TribePage` affichent `Joueur` si `username` est `null`.
+   - Décider si la DB doit garantir `profiles.username not null`.
+   - Sinon, ajouter un champ calculé côté RPC/vue pour retourner un display name stable.
+
+8. Décider si `competition: 'Coupe du Monde 2026'` dans `MatchService` est acceptable.
+
+   - Si l'app est définitivement mono-compétition, le garder comme constante produit explicite.
+   - Sinon, ajouter la compétition en DB/RPC.
+
+À faire côté DB / produit :
+
+1. Décider la règle d'appartenance à une tribu.
+
+   - Aujourd'hui `company_members` permet plusieurs tribus par utilisateur.
+   - Le front affiche une tribu principale.
+   - Si le produit impose une seule tribu par utilisateur, ajouter une migration dédiée :
+     - contrainte unique sur `company_members.user_id`;
+     - adaptation des RPC `create_tribe`, `join_tribe_by_invite_code`, `leave_tribe`;
+     - stratégie de migration des données existantes.
+
+2. Décider si le lien d'invitation direct est dans le MVP.
+
+   - La DB expose encore `invite_url_path = '/join/' || invite_code`.
+   - Le front n'a pas de route `/join/:invite_code`.
+   - Si conservé, ajouter une page/route qui appelle `join_tribe_by_invite_code`.
+   - Sinon, retirer/neutraliser l'URL d'invitation des RPC futures et garder seulement le code.
+
+3. Préparer `round_of_32`.
+
+   - Le schema historique contient une contrainte `valid_stage` sans `round_of_32`.
+   - La Coupe du Monde 2026 aura un round of 32.
+   - Ajouter une nouvelle migration pour étendre la contrainte avant d'ajouter des matchs à élimination directe.
+   - Mettre à jour `FRONTEND/src/app/shared/utils/stage-label.ts`.
+
+4. Décider comment saisir les résultats.
+
+   - La RPC `set_match_result` existe.
+   - Il n'y a pas d'interface admin/backoffice.
+   - Pour production, définir si les résultats sont saisis via SQL, script admin, Edge Function ou UI admin.
+
+À faire côté documentation :
+
+1. Mettre à jour `README.md`.
+
+   - Retirer les mentions obsolètes indiquant que leaderboard/tribu sont encore mockés.
+   - Décrire les pages désormais branchées DB.
+   - Documenter les limites restantes si elles restent hors MVP.
+
+2. Mettre à jour ou archiver les docs obsolètes :
+
+   - `FRONTEND/HANDOVER.md`
+   - `FRONTEND/contexte/*.md`
+   - `CONTEXT/10_execution_board.md`
+
+Critère de sortie :
+
+- Aucun fallback runtime ne remplace une erreur DB par de fausses données.
+- Les champs collectés par le front sont soit persistés, soit retirés.
+- Les décisions produit restantes sont explicitement documentées.
+- Les migrations historiques ne sont pas modifiées; toute correction DB passe par une nouvelle migration.
+
+## Étape 9 — Nettoyer les tests
 
 À faire après branchement frontend :
 
@@ -300,7 +421,7 @@ La DB a `teams.name_fr`, mais plusieurs RPC/services renvoient encore `name`.
 2. Décider si les tests Cypress restent mockés ou deviennent des tests d'intégration Supabase local.
 3. Archiver ou documenter `TESTS/` comme ancienne suite non alignée.
 
-## Étape 9 — Validation locale complète
+## Étape 10 — Validation locale complète
 
 1. Reset DB locale :
 
@@ -330,7 +451,7 @@ La DB a `teams.name_fr`, mais plusieurs RPC/services renvoient encore `name`.
    - match detail
    - prediction form
 
-## Étape 10 — Push cloud et PR
+## Étape 11 — Push cloud et PR
 
 Quand tout est OK local :
 
@@ -371,6 +492,7 @@ Quand tout est OK local :
 6. Étape 5 : compléter la DB tribu si nécessaire.
 7. Étape 6 : refonte logique `company` vers `tribe`.
 8. Étape 7 : uniformiser les noms français.
-9. Étape 8 : nettoyer les tests.
-10. Étape 9 : validation locale complète.
-11. Étape 10 : push cloud et PR.
+9. Étape 8 : cleanup production-ready avant tests.
+10. Étape 9 : nettoyer les tests.
+11. Étape 10 : validation locale complète.
+12. Étape 11 : push cloud et PR.

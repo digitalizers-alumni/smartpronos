@@ -1,9 +1,9 @@
-select routine_name
-from information_schema.routines
-where routine_schema = 'public'
-  and routine_name in (
-    'leave_company',
-    'get_my_company_leaderboard',
-    'get_my_company_dashboard'
+select json_agg(
+  json_build_object(
+    'version', version,
+    'name', name,
+    'statements', statements
   )
-order by routine_name;
+  order by version
+) as migrations
+from supabase_migrations.schema_migrations;

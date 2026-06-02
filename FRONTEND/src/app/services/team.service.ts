@@ -10,6 +10,14 @@ export interface Team {
   flag_url: string | null;
 }
 
+interface TeamRow {
+  id: string;
+  name: string;
+  name_fr: string | null;
+  code: string;
+  flag_url: string | null;
+}
+
 export interface UserProfile {
   total_points: number;
   exact_count: number;
@@ -30,12 +38,17 @@ export class TeamService {
     return from(
       this.supabase.client
         .from('teams')
-        .select('id, name, code, flag_url')
-        .order('name'),
+        .select('id, name, name_fr, code, flag_url')
+        .order('name_fr'),
     ).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return (data ?? []) as Team[];
+        return ((data ?? []) as TeamRow[]).map((team) => ({
+          id: team.id,
+          name: team.name_fr ?? team.name,
+          code: team.code,
+          flag_url: team.flag_url,
+        }));
       }),
     );
   }

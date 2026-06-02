@@ -62,33 +62,47 @@ create unique index if not exists one_boost_per_user
   where is_boosted = true;
 
 drop trigger if exists set_updated_at_predictions on public.predictions;
+
 create trigger set_updated_at_predictions
   before update on public.predictions
   for each row
-  execute function moddatetime(updated_at);
+  execute function extensions.moddatetime(updated_at);
 
 drop trigger if exists set_updated_at_match_results on public.match_results;
+
 create trigger set_updated_at_match_results
   before update on public.match_results
   for each row
-  execute function moddatetime(updated_at);
+  execute function extensions.moddatetime(updated_at);
 
 alter table public.teams enable row level security;
+
 alter table public.matches enable row level security;
+
 alter table public.predictions enable row level security;
+
 alter table public.match_results enable row level security;
 
 grant select on public.teams to authenticated;
+
 grant select on public.matches to authenticated;
+
 grant select, insert, update, delete on public.predictions to authenticated;
+
 grant select on public.match_results to authenticated;
 
 drop policy if exists "teams readable by all" on public.teams;
+
 drop policy if exists "matches readable by all" on public.matches;
+
 drop policy if exists "results readable by all" on public.match_results;
+
 drop policy if exists "users see only their predictions" on public.predictions;
+
 drop policy if exists "users insert their predictions before lock" on public.predictions;
+
 drop policy if exists "users update their predictions before lock" on public.predictions;
+
 drop policy if exists "users delete their predictions before lock" on public.predictions;
 
 create policy "teams readable by all"
@@ -187,8 +201,10 @@ select
     ) then 'finished'
     when now() >= m.kickoff_at - interval '15 minutes' then 'locked'
     else 'scheduled'
-  end as status
+end as status
 from public.matches m;
+
+drop view if exists public.company_members_with_scores;
 
 create or replace view public.company_members_with_scores as
 select
@@ -204,9 +220,13 @@ join public.profiles p on p.id = cm.user_id
 left join public.user_scores us on us.user_id = cm.user_id;
 
 grant select on public.user_scores to authenticated;
+
 grant select on public.company_scores to authenticated;
+
 grant select on public.matches_with_status to authenticated;
+
 grant select on public.company_members_with_scores to authenticated;
+
 grant select on public.company_invite_info to authenticated;
 
 create or replace function public.upsert_prediction(
@@ -374,4 +394,5 @@ as $$
 $$;
 
 grant execute on function public.upsert_prediction(uuid, integer, integer, boolean) to authenticated;
+
 grant execute on function public.get_match_list() to authenticated;
