@@ -27,15 +27,9 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <div class="flex justify-between items-center">
-          <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
-            Mot de passe
-          </label>
-          <button type="button" (click)="openForgotPassword()"
-            class="font-space text-[10px] uppercase tracking-wider text-tribbo-primary font-bold hover:underline">
-            Oublié&nbsp;?
-          </button>
-        </div>
+        <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
+          Mot de passe
+        </label>
         <input
           type="password"
           formControlName="password"
@@ -43,6 +37,10 @@
           class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
           required
         />
+        <button type="button" (click)="openForgotPassword()"
+          class="self-end font-space text-[10px] uppercase tracking-wider text-tribbo-primary font-bold hover:underline">
+          Mot de passe oublié&nbsp;?
+        </button>
       </div>
 
       @if (errorMessage()) {
