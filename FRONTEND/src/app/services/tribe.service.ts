@@ -13,6 +13,7 @@ interface RpcJsonResponse<T> {
 export interface CurrentTribeProfile {
   tribe_id: string | null;
   tribe_name: string | null;
+  is_country_tribe: boolean | null;
 }
 
 export interface TribeMemberWithScore {
@@ -38,6 +39,7 @@ export interface TribeInviteInfo {
   tribe_name: string;
   invite_code: string;
   member_count: number | string;
+  is_country_tribe: boolean;
 }
 
 export interface TribesLeaderboardRow {
@@ -125,7 +127,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('current_user_tribe')
-        .select('tribe_id, tribe_name')
+        .select('tribe_id, tribe_name, is_country_tribe')
         .maybeSingle(),
     ).pipe(
       map(({ data, error }) => {
@@ -133,6 +135,7 @@ export class TribeService {
         return {
           tribe_id: data?.tribe_id ?? null,
           tribe_name: data?.tribe_name ?? null,
+          is_country_tribe: data?.is_country_tribe ?? null,
         };
       }),
     );
@@ -172,7 +175,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('tribe_invite_info')
-        .select('tribe_id, tribe_name, invite_code, member_count')
+        .select('tribe_id, tribe_name, invite_code, member_count, is_country_tribe')
         .eq('tribe_id', tribeId)
         .maybeSingle(),
     ).pipe(

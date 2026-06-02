@@ -39,12 +39,19 @@
       </div>
 
       <div class="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm">
-        <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
-          Code d'invitation
+        @if (isCountryTribe()) {
+          <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+            Tribu pays
+          </div>
+          <p class="font-inter text-xs text-gray-400 mt-1">Les membres rejoignent cette tribu automatiquement via leur pays favori.</p>
+        } @else {
+          <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+            Code d'invitation
+          </div>
+          <div class="font-archivo text-2xl text-tribbo-primary tracking-wide">{{ inviteCode() || '—' }}</div>
+          <p class="font-inter text-xs text-gray-400 mt-1">Partage ce code pour inviter un membre dans {{ tribeName() }}.</p>
+        }
         </div>
-        <div class="font-archivo text-2xl text-tribbo-primary tracking-wide">{{ inviteCode() || '—' }}</div>
-        <p class="font-inter text-xs text-gray-400 mt-1">Partage ce code pour inviter un membre dans {{ tribeName() }}.</p>
-      </div>
 
       <div class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-3 px-1">
         Membres · classement interne · {{ avgPoints() }} pts moy.
@@ -88,10 +95,16 @@
         class="block w-full text-center mt-4 py-4 rounded-2xl border border-gray-200 text-tribbo-primary font-inter font-semibold text-sm hover:bg-blue-50 transition-all active:scale-[0.98]">
         Voir le classement des Tribus →
       </a>
-      <button (click)="leaveTribe()" [disabled]="actionLoading()"
-        class="w-full text-center text-red-500 font-inter font-semibold text-sm py-4 mt-2 hover:text-red-600 transition-colors disabled:opacity-50">
-        Quitter {{ tribeName() }}
-      </button>
+      @if (!isCountryTribe()) {
+        <button (click)="leaveTribe()" [disabled]="actionLoading()"
+          class="w-full text-center text-red-500 font-inter font-semibold text-sm py-4 mt-2 hover:text-red-600 transition-colors disabled:opacity-50">
+          Quitter {{ tribeName() }}
+        </button>
+      } @else {
+        <p class="font-inter text-xs text-gray-400 text-center mt-3">
+          Cette tribu est liée à ton pays et ne peut pas être quittée.
+        </p>
+      }
     } @else if (!loading() && !error()) {
       <div class="flex flex-col items-center text-center py-12">
         <div class="text-6xl mb-4">👥</div>

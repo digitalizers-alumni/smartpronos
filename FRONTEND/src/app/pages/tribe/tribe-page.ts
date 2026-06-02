@@ -76,6 +76,10 @@ export class TribePage {
   protected readonly activeMemberCount = computed(() => Number(this.dashboard()?.score?.active_member_count ?? 0));
   protected readonly avgPoints = computed(() => Math.round(Number(this.dashboard()?.score?.avg_points ?? 0)));
   protected readonly inviteCode = computed(() => this.dashboard()?.invite?.invite_code ?? '');
+  protected readonly isCountryTribe = computed(() =>
+    this.dashboard()?.profile.is_country_tribe === true ||
+    this.dashboard()?.invite?.is_country_tribe === true
+  );
   protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
   protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
   protected readonly rival = computed(() => {
@@ -118,6 +122,10 @@ export class TribePage {
   }
 
   protected leaveTribe(): void {
+    if (this.isCountryTribe()) {
+      this.actionError.set('Tu ne peux pas quitter la tribu de ton pays.');
+      return;
+    }
     const tribeId = this.dashboard()?.profile.tribe_id;
     if (!tribeId) return;
     this.runAction(this.tribeService.leaveTribe(tribeId), 'Tu as quitté la tribu.');
