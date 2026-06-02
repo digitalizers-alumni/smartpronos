@@ -449,6 +449,11 @@ Constat après audit strict :
    - Garder pour le moment le nom physique historique `company_members`.
    - Continuer à exposer le vocabulaire produit via les vues/RPC alias `tribe_*`.
    - Plus tard, si nécessaire, ajouter une vraie notion de tribu active/sélectionnée plutôt que de supposer la première tribu jointe.
+   - Décision additionnelle : chaque pays possède une tribu pays par défaut.
+   - Lorsqu'un joueur choisit son pays favori, il rejoint automatiquement la tribu de ce pays.
+   - Une tribu pays ne peut pas être quittée.
+   - Les tribus vides sont masquées dans le classement des tribus.
+   - Statut : implémenté via migration `20260602104500_country_tribes.sql`.
 
 2. Décider si le lien d'invitation direct est dans le MVP.
 
