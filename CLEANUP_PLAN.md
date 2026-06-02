@@ -351,7 +351,28 @@ Constat après audit strict :
    - Ajouter un état d'erreur visible si `MatchService.getMatchById()` échoue.
    - Statut : implémenté.
 
-6. Décider le statut du boost.
+6. Améliorer l'UX d'enchaînement des pronostics.
+
+   - Aujourd'hui, après validation d'un prono, l'utilisateur reste sur l'écran de succès du match courant.
+   - Objectif : après validation, proposer ou déclencher une redirection vers le prochain match pronosticable.
+   - Règle UX recommandée :
+     - après succès, chercher le prochain match `scheduled` sans prono utilisateur;
+     - si un prochain match existe, afficher un CTA `Prono suivant` ou rediriger automatiquement après un court délai;
+     - si aucun prochain match n'existe, afficher un CTA vers la liste des matchs;
+     - ne jamais rediriger vers un match `locked` ou `finished`.
+   - Approche frontend recommandée :
+     - ajouter une méthode dans `MatchService` ou `PredictionFormPage` pour trouver le prochain match pronosticable depuis `getMatches()`;
+     - après `submitPrediction`, naviguer vers `/match/:nextMatchId/prediction-form` si disponible;
+     - garder un message clair quand tous les pronos disponibles ont été faits.
+   - Statut : implémenté.
+   - Implémentation réalisée :
+     - les cards de match pointent directement vers `/match/:matchId/prediction-form`;
+     - `PredictionFormPage` affiche maintenant les informations match, statut, résultat et prono existant;
+     - la page détail reste disponible mais n'est plus l'intermédiaire obligatoire depuis l'accueil;
+     - après validation, le front cherche le prochain match `scheduled` sans prono et redirige automatiquement;
+     - si aucun prochain match n'existe, un CTA ramène vers la liste des matchs.
+
+7. Décider le statut du boost.
 
    - Avant implémentation, `PredictionService` envoyait toujours `p_is_boosted: false`.
    - Décision : le boost fait partie du produit.
@@ -386,7 +407,7 @@ Constat après audit strict :
      - envoi de `p_is_boosted` depuis `PredictionService`;
      - badge boost sur la card match et le détail match.
 
-7. Traiter les placeholders de display name.
+8. Traiter les placeholders de display name.
 
    - `LeaderboardPage` et `TribePage` affichent `Joueur` si `username` est `null`.
    - Décision : distinguer l'identifiant technique unique du nom affiché.
@@ -411,7 +432,7 @@ Constat après audit strict :
      - `LeaderboardPage` et `TribePage` n'affichent plus `Joueur` comme fallback runtime;
      - les services consomment `display_name` via `get_user_profile`.
 
-8. Décider si `competition: 'Coupe du Monde 2026'` dans `MatchService` est acceptable.
+9. Décider si `competition: 'Coupe du Monde 2026'` dans `MatchService` est acceptable.
 
    - Décision : l'application est mono-compétition pour le moment.
    - Garder le nom de compétition comme constante produit explicite côté front.

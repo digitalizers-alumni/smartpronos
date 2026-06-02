@@ -8,8 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map, switchMap, catchError, tap, of } from 'rxjs';
+import { map, switchMap, catchError, of } from 'rxjs';
 
 import { PredictionForm } from '../../components/prediction-form/prediction-form';
 import {
@@ -24,13 +23,14 @@ import {
 import { MatchService } from '../../services/match.service';
 import { MatchListItem } from '../../shared/models/match.models';
 import { TeamService } from '../../services/team.service';
+import { stageLabel } from '../../shared/utils/stage-label';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 
 @Component({
   selector: 'app-prediction-form-page',
   standalone: true,
-  imports: [PredictionForm, DatePipe],
+  imports: [PredictionForm, DatePipe, RouterLink],
   templateUrl: './prediction-form-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -54,13 +54,22 @@ export class PredictionFormPage {
   protected readonly boostsAvailable = signal<number | null>(null);
   protected readonly boostsError = signal<string | null>(null);
   protected readonly boostSelected = signal(false);
+  protected readonly chainingNext = signal(false);
+  protected readonly noNextPrediction = signal(false);
 
   constructor() {
     this.route.paramMap
       .pipe(
         map((params) => params.get('matchId')),
         switchMap((id) => {
+          this.loading.set(true);
           this.loadError.set(null);
+          this.status.set('idle');
+          this.errorMessage.set(null);
+          this.lastPrediction.set(null);
+          this.submittedScore.set(null);
+          this.chainingNext.set(false);
+          this.noNextPrediction.set(false);
           if (!id) {
             this.loadError.set('Match introuvable.');
             return of(null);
@@ -72,12 +81,6 @@ export class PredictionFormPage {
               return of(null);
             }),
           );
-        }),
-        tap((m) => {
-          if (!m) return;
-          if (m.status === 'locked' || m.status === 'finished') {
-            this.router.navigate(['/match', m.id, 'detail'], { replaceUrl: true });
-          }
         }),
       )
       .subscribe((m) => {
@@ -125,6 +128,11 @@ export class PredictionFormPage {
   protected readonly isSubmitting = computed(() => this.status() === 'submitting');
   protected readonly isSuccess = computed(() => this.status() === 'success');
   protected readonly isError = computed(() => this.status() === 'error');
+  protected readonly isFinished = computed(() => this.match()?.status === 'finished');
+  protected readonly isScheduled = computed(() => this.match()?.status === 'scheduled');
+  protected readonly result = computed(() => this.match()?.result ?? null);
+  protected readonly hasPrediction = computed(() => this.match()?.prediction.hasPrediction ?? false);
+  protected readonly stageLabel = computed(() => stageLabel(this.match()?.stage));
 
   protected readonly isLocked = computed(() => {
     const m = this.match();
@@ -175,6 +183,7 @@ export class PredictionFormPage {
         this.submittedScore.set(value);
         this.boostsAvailable.set(response.boostsAvailable);
         this.status.set('success');
+        this.navigateToNextPrediction(response.matchId);
       },
       error: (error: unknown) => {
         const message =
@@ -201,6 +210,10 @@ export class PredictionFormPage {
     this.boostSelected.update((value) => !value);
   }
 
+  protected goToMatchList(): void {
+    this.router.navigate(['/home', 'match-list']);
+  }
+
   protected dismissError(): void {
     if (this.isError()) {
       this.status.set('idle');
@@ -218,6 +231,39 @@ export class PredictionFormPage {
         console.error('[PredictionFormPage] Impossible de charger le quota de boosts.', err);
         this.boostsAvailable.set(null);
         this.boostsError.set('Boosts indisponibles pour le moment.');
+      },
+    });
+  }
+
+  private navigateToNextPrediction(currentMatchId: string): void {
+    this.matchService.getMatches().subscribe({
+      next: (matches) => {
+        const currentKickoff = new Date(this.match()?.kickoff ?? 0).getTime();
+        const candidates = matches
+          .filter((match) =>
+            match.id !== currentMatchId &&
+            match.status === 'scheduled' &&
+            !match.prediction.hasPrediction
+          )
+          .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime());
+        const nextMatch =
+          candidates.find((match) => new Date(match.kickoff).getTime() > currentKickoff) ??
+          candidates[0] ??
+          null;
+
+        if (!nextMatch) {
+          this.noNextPrediction.set(true);
+          return;
+        }
+
+        this.chainingNext.set(true);
+        window.setTimeout(() => {
+          this.router.navigate(['/match', nextMatch.id, 'prediction-form']);
+        }, 900);
+      },
+      error: (err) => {
+        console.error('[PredictionFormPage] Impossible de trouver le prochain prono.', err);
+        this.noNextPrediction.set(true);
       },
     });
   }
