@@ -60,7 +60,6 @@ export class MatchListPage {
     { label: 'Tous', value: 'all' },
     { label: 'Mes pronos', value: 'mine' },
     { label: 'À pronostiquer', value: 'scheduled' },
-    { label: 'Pronos clos', value: 'locked' },
     { label: 'Matchs joués', value: 'finished' },
   ];
 
@@ -101,6 +100,8 @@ export class MatchListPage {
     const status = this.statusFilter();
     if (status === 'mine') {
       list = list.filter((m) => m.prediction.hasPrediction);
+    } else if (status === 'scheduled') {
+      list = list.filter((m) => m.status === 'scheduled' && !m.prediction.hasPrediction);
     } else if (status !== 'all') {
       list = list.filter((m) => m.status === status);
     }
