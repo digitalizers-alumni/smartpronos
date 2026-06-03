@@ -1,5 +1,6 @@
 const STAGE_LABELS: Record<string, string> = {
   group: 'Phase de groupes',
+  round_of_32: 'Seizièmes de finale',
   round_of_16: 'Huitièmes de finale',
   quarter_final: 'Quarts de finale',
   semi_final: 'Demi-finales',
@@ -9,6 +10,8 @@ const STAGE_LABELS: Record<string, string> = {
 
 const STAGE_KEYWORDS: [string, string][] = [
   ['huitième', 'round_of_16'],
+  ['seizième', 'round_of_32'],
+  ['round_of_32', 'round_of_32'],
   ['quart', 'quarter_final'],
   ['demi', 'semi_final'],
   ['troisième', 'third_place'],

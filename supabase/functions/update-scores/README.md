@@ -1,6 +1,12 @@
 # Edge Function : update-scores
 
-**US-DA-007** — Synchronise les scores depuis [football-data.org](https://www.football-data.org/) vers la table `match_results`.
+**US-DA-007** — Synchronise les matchs et les scores depuis [football-data.org](https://www.football-data.org/).
+
+La fonction :
+- insère/met à jour les matchs WC 2026 dont les deux équipes sont connues dans `matches`;
+- ignore les matchs `TBD` / équipes inconnues;
+- écrit les résultats des matchs `FINISHED` dans `match_results`;
+- throttle les appels football-data : toutes les 15 minutes hors fenêtre de match, toutes les minutes pendant une fenêtre de match.
 
 ## Variables d'environnement requises
 
@@ -46,9 +52,13 @@ Réponse attendue :
   "ok": true,
   "synced_at": "2026-06-12T...",
   "fd_matches_received": 72,
+  "matches_inserted": 0,
+  "matches_updated": 72,
+  "skipped_incomplete": 0,
   "results_upserted": 42,
   "skipped_not_finished": 28,
-  "skipped_unmapped": 2,
+  "skipped_teams_unmapped": 0,
+  "skipped_result_unmapped": 2,
   "errors": [],
   "alerts_candidates": 0,
   "alerts_sent": 0,
@@ -58,7 +68,25 @@ Réponse attendue :
 }
 ```
 
-## Automatisation (à décider par l'équipe backend)
+## Automatisation Supabase Cron
+
+La migration `20260603110500_football_data_match_sync.sql` ajoute un helper SQL :
+
+```sql
+select public.schedule_update_scores_cron(
+  'https://<PROJECT_REF>.supabase.co/functions/v1/update-scores',
+  '<SUPABASE_SERVICE_ROLE_KEY>',
+  '* * * * *'
+);
+```
+
+Le cron appelle l'Edge Function toutes les minutes. La fonction ne contacte football-data.org que si nécessaire :
+- toutes les minutes pendant une fenêtre active de match;
+- toutes les 15 minutes hors fenêtre active.
+
+Cette approche permet de détecter rapidement les résultats pendant les matchs tout en restant loin de la limite football-data.org free plan (`10 calls/minute`).
+
+## Automatisation alternative
 
 Deux options recommandées :
 
@@ -93,9 +121,10 @@ jobs:
 ```
 
 ## Limitations connues
-- Seuls les matchs au statut **`FINISHED`** côté football-data.org donnent lieu à un UPSERT dans `match_results`. Les matchs à venir ou en cours sont comptés dans `skipped_not_finished`.
-- Le matching entre équipes repose sur `teams.name` (anglais), puis sur la paire `(home_team_id, away_team_id)` dans `matches`. Si les noms divergent ou si la rencontre n’existe pas en base, le match est ignoré (`skipped_unmapped` ou entrée dans `errors`). Évolution future : table `external_team_mapping`.
-- Quota football-data.org plan gratuit : 10 requêtes/minute. Une exécution = 1 requête (largement OK avec un cron du type `*/5`).
+- Les matchs dont une équipe est inconnue (`TBD`) sont ignorés jusqu'à ce que football-data.org expose les deux équipes.
+- Le matching entre équipes utilise d'abord `team_external_mappings` pour football-data, puis fallback sur `teams.name` (anglais).
+- Les matchs déjà présents sont d'abord rattachés par `football_data_match_id`, puis par paire `(home_team_id, away_team_id)` pour migrer les matchs historiques sans id externe.
+- Quota football-data.org plan gratuit : 10 requêtes/minute. Une vraie exécution football-data = 1 requête; le cron peut tourner chaque minute grâce au throttling interne.
 
 ## Alerte e-mail (anti-spam)
 
