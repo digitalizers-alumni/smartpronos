@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   template: `
     <div class="h-14 w-full bg-tribbo-surface flex items-center px-4 justify-between shrink-0 border-b border-gray-200">
       <button
-        routerLink="/"
+        routerLink="/home/match-list"
         class="flex items-center gap-2 hover:opacity-80 transition-opacity"
       >
         <img src="assets/logo-tribbo-mark.svg" class="w-9 h-9 object-contain" alt="Tribbo" />
