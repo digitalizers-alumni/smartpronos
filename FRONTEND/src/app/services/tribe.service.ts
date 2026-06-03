@@ -16,6 +16,13 @@ export interface CurrentTribeProfile {
   is_country_tribe: boolean | null;
 }
 
+export interface UserTribe {
+  tribe_id: string;
+  tribe_name: string;
+  is_country_tribe: boolean;
+  joined_at: string;
+}
+
 export interface TribeMemberWithScore {
   tribe_id: string;
   user_id: string;
@@ -54,6 +61,7 @@ export interface TribesLeaderboardRow {
 
 export interface TribeDashboard {
   profile: CurrentTribeProfile;
+  userTribes: UserTribe[];
   members: TribeMemberWithScore[];
   score: TribeScore | null;
   invite: TribeInviteInfo | null;
@@ -64,31 +72,42 @@ export interface TribeDashboard {
 export class TribeService {
   private readonly supabase = inject(SupabaseService);
 
-  getDashboard(): Observable<TribeDashboard> {
-    return this.getCurrentTribeProfile().pipe(
-      switchMap((profile) => {
+  getDashboard(selectedTribeId?: string | null): Observable<TribeDashboard> {
+    return forkJoin({
+      userTribes: this.getUserTribes(),
+      tribesLeaderboard: this.getTribesLeaderboard(),
+    }).pipe(
+      switchMap(({ userTribes, tribesLeaderboard }) => {
+        const selectedTribe =
+          userTribes.find((tribe) => tribe.tribe_id === selectedTribeId) ??
+          userTribes.find((tribe) => tribe.is_country_tribe) ??
+          userTribes[0] ??
+          null;
+        const profile: CurrentTribeProfile = {
+          tribe_id: selectedTribe?.tribe_id ?? null,
+          tribe_name: selectedTribe?.tribe_name ?? null,
+          is_country_tribe: selectedTribe?.is_country_tribe ?? null,
+        };
+
         if (!profile.tribe_id) {
-          return forkJoin({
-            tribesLeaderboard: this.getTribesLeaderboard(),
-          }).pipe(
-            map(({ tribesLeaderboard }) => ({
-              profile,
-              members: [],
-              score: null,
-              invite: null,
-              tribesLeaderboard,
-            })),
-          );
+          return from([{
+            profile,
+            userTribes,
+            members: [],
+            score: null,
+            invite: null,
+            tribesLeaderboard,
+          }]);
         }
 
         return forkJoin({
           members: this.getMembers(profile.tribe_id),
           score: this.getScore(profile.tribe_id),
           invite: this.getInviteInfo(profile.tribe_id),
-          tribesLeaderboard: this.getTribesLeaderboard(),
         }).pipe(
-          map(({ members, score, invite, tribesLeaderboard }) => ({
+          map(({ members, score, invite }) => ({
             profile,
+            userTribes,
             members,
             score,
             invite,
@@ -123,20 +142,17 @@ export class TribeService {
     ).pipe(map(({ data, error }) => this.assertRpcSuccess(data, error)));
   }
 
-  private getCurrentTribeProfile(): Observable<CurrentTribeProfile> {
+  private getUserTribes(): Observable<UserTribe[]> {
     return from(
       this.supabase.client
-        .from('current_user_tribe')
-        .select('tribe_id, tribe_name, is_country_tribe')
-        .maybeSingle(),
+        .from('current_user_tribes')
+        .select('tribe_id, tribe_name, is_country_tribe, joined_at')
+        .order('is_country_tribe', { ascending: false })
+        .order('joined_at', { ascending: true }),
     ).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return {
-          tribe_id: data?.tribe_id ?? null,
-          tribe_name: data?.tribe_name ?? null,
-          is_country_tribe: data?.is_country_tribe ?? null,
-        };
+        return (data ?? []) as UserTribe[];
       }),
     );
   }

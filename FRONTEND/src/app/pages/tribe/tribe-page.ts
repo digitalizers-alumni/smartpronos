@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 
@@ -9,6 +8,7 @@ import {
   TribeMemberWithScore,
   TribeService,
   TribesLeaderboardRow,
+  UserTribe,
 } from '../../services/tribe.service';
 
 interface TribeMember {
@@ -50,7 +50,7 @@ function tribeCode(name: string): string {
 @Component({
   selector: 'app-tribe-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './tribe-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -67,8 +67,25 @@ export class TribePage {
   protected readonly dashboard = signal<TribeDashboard | null>(null);
   protected readonly createName = signal('');
   protected readonly joinCode = signal('');
+  protected readonly showTribeActions = signal(false);
+  protected readonly selectedTribeId = signal<string | null>(null);
+  private touchStartX: number | null = null;
+  private touchStartY: number | null = null;
 
   protected readonly hasTribe = computed(() => this.dashboard()?.profile.tribe_id != null);
+  protected readonly userTribes = computed(() => this.dashboard()?.userTribes ?? []);
+  protected readonly selectedTribeIndex = computed(() => {
+    const tribeId = this.dashboard()?.profile.tribe_id;
+    if (!tribeId) return -1;
+    return this.userTribes().findIndex((tribe) => tribe.tribe_id === tribeId);
+  });
+  protected readonly canNavigateTribes = computed(() => this.userTribes().length > 1);
+  protected readonly tribePositionLabel = computed(() => {
+    const index = this.selectedTribeIndex();
+    const total = this.userTribes().length;
+    if (index < 0 || total <= 1) return '';
+    return `${index + 1} / ${total}`;
+  });
   protected readonly tribeName = computed(() => this.dashboard()?.profile.tribe_name ?? '');
   protected readonly tribeCode = computed(() => tribeCode(this.tribeName()));
   protected readonly members = computed(() => this.toMembers(this.dashboard()?.members ?? []));
@@ -131,15 +148,52 @@ export class TribePage {
     this.runAction(this.tribeService.leaveTribe(tribeId), 'Tu as quitté la tribu.');
   }
 
+  protected toggleTribeActions(): void {
+    this.showTribeActions.update((visible) => !visible);
+    this.actionError.set(null);
+    this.actionSuccess.set(null);
+  }
+
+  protected previousTribe(): void {
+    this.selectTribeByOffset(-1);
+  }
+
+  protected nextTribe(): void {
+    this.selectTribeByOffset(1);
+  }
+
+  protected startSwipe(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    this.touchStartX = touch?.clientX ?? null;
+    this.touchStartY = touch?.clientY ?? null;
+  }
+
+  protected endSwipe(event: TouchEvent): void {
+    if (this.touchStartX === null || this.touchStartY === null || !this.canNavigateTribes()) return;
+    const touchEndX = event.changedTouches[0]?.clientX ?? this.touchStartX;
+    const touchEndY = event.changedTouches[0]?.clientY ?? this.touchStartY;
+    const deltaX = touchEndX - this.touchStartX;
+    const deltaY = touchEndY - this.touchStartY;
+    this.touchStartX = null;
+    this.touchStartY = null;
+    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+    if (deltaX > 0) {
+      this.previousTribe();
+    } else {
+      this.nextTribe();
+    }
+  }
+
   private loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
     this.tribeService
-      .getDashboard()
+      .getDashboard(this.selectedTribeId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (dashboard) => {
           this.dashboard.set(dashboard);
+          this.selectedTribeId.set(dashboard.profile.tribe_id);
           this.loading.set(false);
         },
         error: (err) => {
@@ -159,7 +213,9 @@ export class TribePage {
         this.actionSuccess.set(successMessage);
         this.createName.set('');
         this.joinCode.set('');
+        this.showTribeActions.set(false);
         this.actionLoading.set(false);
+        this.selectedTribeId.set(null);
         this.loadDashboard();
       },
       error: (err) => {
@@ -191,5 +247,16 @@ export class TribePage {
     const tribeId = this.dashboard()?.profile.tribe_id;
     if (!tribeId) return null;
     return this.dashboard()?.tribesLeaderboard.find((row) => row.tribe_id === tribeId) ?? null;
+  }
+
+  private selectTribeByOffset(offset: number): void {
+    const tribes = this.userTribes();
+    const currentIndex = this.selectedTribeIndex();
+    if (tribes.length <= 1 || currentIndex < 0) return;
+
+    const nextIndex = (currentIndex + offset + tribes.length) % tribes.length;
+    const nextTribe = tribes[nextIndex] as UserTribe;
+    this.selectedTribeId.set(nextTribe.tribe_id);
+    this.loadDashboard();
   }
 }
