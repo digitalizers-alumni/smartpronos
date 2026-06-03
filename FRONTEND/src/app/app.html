@@ -49,10 +49,24 @@
     </div>
   }
 
+  @if (showAppChrome()) {
+    <div class="fixed left-0 right-0 top-14 md:top-16 z-30 h-5 bg-gray-200">
+      <div
+        class="h-full bg-tribbo-primary transition-all duration-300 ease-out"
+        [style.width.%]="predictionProgress.widthPercent()"
+      ></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="font-space text-[10px] font-bold text-tribbo-text">
+          {{ predictionProgress.label() }}
+        </span>
+      </div>
+    </div>
+  }
+
   <!-- Scrollable Content Area -->
   <main class="flex-1 overflow-y-auto overflow-x-hidden"
-        [class.pt-14]="showAppChrome()"
-        [class.md:pt-16]="showAppChrome()"
+        [class.pt-20]="showAppChrome()"
+        [class.md:pt-24]="showAppChrome()"
         [class.pb-16]="showAppChrome()"
         [class.md:pb-0]="showAppChrome()">
     <div class="mx-auto w-full"

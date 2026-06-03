@@ -24,6 +24,7 @@ import { MatchService } from '../../services/match.service';
 import { MatchListItem } from '../../shared/models/match.models';
 import { TeamService } from '../../services/team.service';
 import { stageLabel } from '../../shared/utils/stage-label';
+import { PredictionProgressService } from '../../services/prediction-progress.service';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'error';
 
@@ -38,6 +39,7 @@ export class PredictionFormPage {
   private readonly predictionService = inject(PredictionService);
   private readonly matchService = inject(MatchService);
   private readonly teamService = inject(TeamService);
+  private readonly predictionProgressService = inject(PredictionProgressService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -186,6 +188,7 @@ export class PredictionFormPage {
         this.submittedScore.set(value);
         this.boostsAvailable.set(response.boostsAvailable);
         this.status.set('idle');
+        this.predictionProgressService.refresh();
         this.showSuccessBanner(this.successMessage());
         this.navigateToNextPrediction(response.matchId);
       },
