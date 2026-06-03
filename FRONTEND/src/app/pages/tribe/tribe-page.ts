@@ -22,6 +22,12 @@ interface TribeMember {
   noPred: boolean;
 }
 
+interface PlayerRivalMessage {
+  name: string;
+  pointsGap: number;
+  isAhead: boolean;
+}
+
 const AVATAR_COLORS = ['#1D4DFF', '#19C95B', '#FF3B43', '#6B8AFF', '#9B5DE5', '#F15BB5', '#00BBF9', '#E6A700'];
 
 function avatarColor(name: string): string {
@@ -71,6 +77,7 @@ export class TribePage {
   protected readonly selectedTribeId = signal<string | null>(null);
   private touchStartX: number | null = null;
   private touchStartY: number | null = null;
+  private successTimeoutId: number | null = null;
 
   protected readonly hasTribe = computed(() => this.dashboard()?.profile.tribe_id != null);
   protected readonly userTribes = computed(() => this.dashboard()?.userTribes ?? []);
@@ -99,22 +106,39 @@ export class TribePage {
   );
   protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
   protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
-  protected readonly rival = computed(() => {
-    const current = this.currentTribeRank();
-    const board = this.dashboard()?.tribesLeaderboard ?? [];
-    if (!current || Number(current.rank) <= 1) return null;
-    return board.find((row) => Number(row.rank) === Number(current.rank) - 1) ?? null;
-  });
-  protected readonly rivalGap = computed(() => {
-    const current = this.currentTribeRank();
-    const rival = this.rival();
-    if (!current || !rival) return 0;
-    return Math.max(0, Math.round(Number(rival.avg_points) - Number(current.avg_points)));
+  protected readonly playerRival = computed<PlayerRivalMessage | null>(() => {
+    const members = this.members();
+    const currentIndex = members.findIndex((member) => member.isYou);
+    if (currentIndex < 0 || members.length <= 1) return null;
+
+    const currentPlayer = members[currentIndex];
+    if (currentIndex === 0) {
+      const nextPlayer = members[1];
+      if (!nextPlayer) return null;
+      return {
+        name: nextPlayer.name,
+        pointsGap: Math.max(0, currentPlayer.points - nextPlayer.points),
+        isAhead: false,
+      };
+    }
+
+    const previousPlayer = members[currentIndex - 1];
+    if (!previousPlayer) return null;
+    return {
+      name: previousPlayer.name,
+      pointsGap: Math.max(0, previousPlayer.points - currentPlayer.points),
+      isAhead: true,
+    };
   });
 
   protected avatarColor = avatarColor;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.successTimeoutId !== null) {
+        window.clearTimeout(this.successTimeoutId);
+      }
+    });
     this.loadDashboard();
   }
 
@@ -210,7 +234,7 @@ export class TribePage {
     this.actionSuccess.set(null);
     action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.actionSuccess.set(successMessage);
+        this.showSuccessBanner(successMessage);
         this.createName.set('');
         this.joinCode.set('');
         this.showTribeActions.set(false);
@@ -224,6 +248,17 @@ export class TribePage {
         this.actionLoading.set(false);
       },
     });
+  }
+
+  private showSuccessBanner(message: string): void {
+    this.actionSuccess.set(message);
+    if (this.successTimeoutId !== null) {
+      window.clearTimeout(this.successTimeoutId);
+    }
+    this.successTimeoutId = window.setTimeout(() => {
+      this.actionSuccess.set(null);
+      this.successTimeoutId = null;
+    }, 2500);
   }
 
   private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {
