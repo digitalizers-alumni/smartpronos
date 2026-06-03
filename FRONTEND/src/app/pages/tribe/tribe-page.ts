@@ -104,6 +104,11 @@ export class TribePage {
     this.dashboard()?.profile.is_country_tribe === true ||
     this.dashboard()?.invite?.is_country_tribe === true
   );
+  protected readonly countryFlagUrl = computed(() =>
+    this.dashboard()?.profile.country_flag_url ??
+    this.dashboard()?.invite?.country_flag_url ??
+    null
+  );
   protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
   protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
   protected readonly playerRival = computed<PlayerRivalMessage | null>(() => {
@@ -170,6 +175,18 @@ export class TribePage {
     const tribeId = this.dashboard()?.profile.tribe_id;
     if (!tribeId) return;
     this.runAction(this.tribeService.leaveTribe(tribeId), 'Tu as quitté la tribu.');
+  }
+
+  protected copyInviteCode(): void {
+    const code = this.inviteCode();
+    if (!code) return;
+
+    this.writeToClipboard(code)
+      .then(() => this.showSuccessBanner('Code d’invitation copié.'))
+      .catch((err) => {
+        console.error('[TribePage] Impossible de copier le code invitation.', err);
+        this.actionError.set('Impossible de copier le code.');
+      });
   }
 
   protected toggleTribeActions(): void {
@@ -259,6 +276,26 @@ export class TribePage {
       this.actionSuccess.set(null);
       this.successTimeoutId = null;
     }, 2500);
+  }
+
+  private async writeToClipboard(text: string): Promise<void> {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    if (!copied) {
+      throw new Error('Clipboard copy failed.');
+    }
   }
 
   private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {

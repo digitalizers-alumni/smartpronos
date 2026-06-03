@@ -46,9 +46,17 @@
             ›
           </button>
         }
-        <div class="w-[54px] h-[54px] rounded-full bg-white/20 flex items-center justify-center text-white font-archivo text-lg font-bold mx-auto mb-3 relative">
-          {{ tribeCode() }}
-        </div>
+        @if (isCountryTribe() && countryFlagUrl()) {
+          <img
+            [src]="countryFlagUrl() || ''"
+            [alt]="tribeName()"
+            class="w-[54px] h-[54px] rounded-full object-cover shadow-sm mx-auto mb-3 relative"
+          />
+        } @else {
+          <div class="w-[54px] h-[54px] rounded-full bg-white/20 flex items-center justify-center text-white font-archivo text-lg font-bold mx-auto mb-3 relative">
+            {{ tribeCode() }}
+          </div>
+        }
         <div class="font-archivo text-xl relative">{{ tribeName() }}</div>
         @if (tribePositionLabel()) {
           <div class="font-inter text-xs opacity-75 mt-1 relative">{{ tribePositionLabel() }}</div>
@@ -76,20 +84,26 @@
         }
       </div>
 
-      <div class="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm">
-        @if (isCountryTribe()) {
+      @if (isCountryTribe()) {
+        <div class="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm">
           <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
             Tribu pays
           </div>
           <p class="font-inter text-xs text-gray-400 mt-1">Les membres rejoignent cette tribu automatiquement via leur pays favori.</p>
-        } @else {
+        </div>
+      } @else {
+        <button
+          type="button"
+          (click)="copyInviteCode()"
+          class="block w-full bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm text-left hover:border-tribbo-primary/30 hover:bg-blue-50 transition-all active:scale-[0.99]"
+        >
           <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
             Code d'invitation
           </div>
           <div class="font-archivo text-2xl text-tribbo-primary tracking-wide">{{ inviteCode() || '—' }}</div>
-          <p class="font-inter text-xs text-gray-400 mt-1">Partage ce code pour inviter un membre dans {{ tribeName() }}.</p>
-        }
-        </div>
+          <p class="font-inter text-xs text-gray-400 mt-1">Clique pour copier le code et inviter un membre dans {{ tribeName() }}.</p>
+        </button>
+      }
 
       <div class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-3 px-1">
         Membres · classement interne · {{ avgPoints() }} pts moy.

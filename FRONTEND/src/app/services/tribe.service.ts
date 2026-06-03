@@ -14,6 +14,7 @@ export interface CurrentTribeProfile {
   tribe_id: string | null;
   tribe_name: string | null;
   is_country_tribe: boolean | null;
+  country_flag_url: string | null;
 }
 
 export interface UserTribe {
@@ -21,6 +22,7 @@ export interface UserTribe {
   tribe_name: string;
   is_country_tribe: boolean;
   joined_at: string;
+  country_flag_url: string | null;
 }
 
 export interface TribeMemberWithScore {
@@ -47,6 +49,7 @@ export interface TribeInviteInfo {
   invite_code: string;
   member_count: number | string;
   is_country_tribe: boolean;
+  country_flag_url: string | null;
 }
 
 export interface TribesLeaderboardRow {
@@ -57,6 +60,8 @@ export interface TribesLeaderboardRow {
   active_member_count: number | string;
   avg_points: number | string;
   total_points: number | string;
+  is_country_tribe: boolean;
+  country_flag_url: string | null;
 }
 
 export interface TribeDashboard {
@@ -87,6 +92,7 @@ export class TribeService {
           tribe_id: selectedTribe?.tribe_id ?? null,
           tribe_name: selectedTribe?.tribe_name ?? null,
           is_country_tribe: selectedTribe?.is_country_tribe ?? null,
+          country_flag_url: selectedTribe?.country_flag_url ?? null,
         };
 
         if (!profile.tribe_id) {
@@ -146,7 +152,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('current_user_tribes')
-        .select('tribe_id, tribe_name, is_country_tribe, joined_at')
+        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url')
         .order('is_country_tribe', { ascending: false })
         .order('joined_at', { ascending: true }),
     ).pipe(
@@ -191,7 +197,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('tribe_invite_info')
-        .select('tribe_id, tribe_name, invite_code, member_count, is_country_tribe')
+        .select('tribe_id, tribe_name, invite_code, member_count, is_country_tribe, country_flag_url')
         .eq('tribe_id', tribeId)
         .maybeSingle(),
     ).pipe(
@@ -203,7 +209,7 @@ export class TribeService {
   }
 
   private getTribesLeaderboard(): Observable<TribesLeaderboardRow[]> {
-    return from(this.supabase.client.rpc('get_tribes_leaderboard')).pipe(
+    return from(this.supabase.client.rpc('get_tribes_leaderboard_with_flags')).pipe(
       map(({ data, error }) => {
         if (error) throw error;
         return (data ?? []) as TribesLeaderboardRow[];

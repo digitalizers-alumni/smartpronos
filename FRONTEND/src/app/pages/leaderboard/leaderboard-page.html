@@ -43,6 +43,26 @@
 
     <!-- My rank card (tribu tab) -->
     @if (activeTab() === 'tribu') {
+      @if (userTribes().length > 0) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+          @for (tribe of userTribes(); track tribe.tribe_id) {
+            <button
+              type="button"
+              (click)="selectTribe(tribe)"
+              class="min-w-0 rounded-full border px-3 py-2 font-inter text-xs font-semibold transition-all active:scale-[0.98]"
+              [class.bg-tribbo-primary]="selectedTribeId() === tribe.tribe_id"
+              [class.text-white]="selectedTribeId() === tribe.tribe_id"
+              [class.border-tribbo-primary]="selectedTribeId() === tribe.tribe_id"
+              [class.bg-white]="selectedTribeId() !== tribe.tribe_id"
+              [class.text-gray-500]="selectedTribeId() !== tribe.tribe_id"
+              [class.border-gray-200]="selectedTribeId() !== tribe.tribe_id"
+            >
+              <span class="block truncate">{{ tribe.tribe_name }}</span>
+            </button>
+          }
+        </div>
+      }
+
       @if (meInTribe(); as currentMember) {
         <div class="bg-gradient-to-br from-tribbo-primary to-blue-400 text-white rounded-2xl p-4 mb-4 flex items-center gap-4 shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)]">
           <div class="font-archivo text-3xl">#{{ currentMember.rank }}</div>
@@ -135,10 +155,14 @@
               [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
               {{ co.rank }}
             </div>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
-              [style.background]="avatarColor(co.name)">
-              {{ co.code }}
-            </div>
+            @if (co.countryFlagUrl) {
+              <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+            } @else {
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+                [style.background]="avatarColor(co.name)">
+                {{ co.code }}
+              </div>
+            }
             <div class="flex-1 min-w-0">
               <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
                 {{ co.name }}

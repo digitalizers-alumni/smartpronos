@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -8,6 +8,7 @@ import {
   LeaderboardService,
   LeaderboardUserRow,
   TribesLeaderboardRow,
+  UserTribe,
 } from '../../services/leaderboard.service';
 
 interface LeaderboardPlayer {
@@ -26,6 +27,7 @@ interface TribeRow {
   rank: number;
   name: string;
   code: string;
+  countryFlagUrl: string | null;
   members: number;
   activeMembers: number;
   avgPoints: number;
@@ -67,6 +69,7 @@ function tribeCode(name: string): string {
 export class LeaderboardPage {
   private readonly authService = inject(AuthService);
   private readonly leaderboardService = inject(LeaderboardService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly activeTab = signal<'global' | 'tribu' | 'tribes'>('global');
   protected readonly loading = signal(true);
@@ -75,6 +78,8 @@ export class LeaderboardPage {
     tribe_id: null,
     tribe_name: null,
   });
+  protected readonly userTribes = signal<UserTribe[]>([]);
+  protected readonly selectedTribeId = signal<string | null>(null);
   protected readonly globalLb = signal<LeaderboardPlayer[]>([]);
   protected readonly tribeMembers = signal<LeaderboardPlayer[]>([]);
   protected readonly tribes = signal<TribeRow[]>([]);
@@ -101,24 +106,43 @@ export class LeaderboardPage {
     this.activeTab.set(key);
   }
 
+  protected selectTribe(tribe: UserTribe): void {
+    if (this.selectedTribeId() === tribe.tribe_id) return;
+    this.selectedTribeId.set(tribe.tribe_id);
+    this.currentTribe.set({
+      tribe_id: tribe.tribe_id,
+      tribe_name: tribe.tribe_name,
+      is_country_tribe: tribe.is_country_tribe,
+    });
+    this.loadSelectedTribeLeaderboard();
+  }
+
   private loadLeaderboards(): void {
     this.loading.set(true);
     this.error.set(null);
 
     this.leaderboardService
-      .getCurrentUserTribe()
+      .getCurrentUserTribes()
       .pipe(
-        switchMap((tribe) => {
-          this.currentTribe.set(tribe);
+        switchMap((userTribes) => {
+          this.userTribes.set(userTribes);
+          const selectedTribe = this.defaultSelectedTribe(userTribes);
+          this.selectedTribeId.set(selectedTribe?.tribe_id ?? null);
+          this.currentTribe.set({
+            tribe_id: selectedTribe?.tribe_id ?? null,
+            tribe_name: selectedTribe?.tribe_name ?? null,
+            is_country_tribe: selectedTribe?.is_country_tribe ?? null,
+            country_flag_url: selectedTribe?.country_flag_url ?? null,
+          });
           return forkJoin({
             global: this.leaderboardService.getGlobalLeaderboard(),
-            tribeMembers: tribe.tribe_id
-              ? this.leaderboardService.getMyTribeLeaderboard()
+            tribeMembers: selectedTribe?.tribe_id
+              ? this.leaderboardService.getTribeLeaderboard(selectedTribe.tribe_id)
               : of([] as LeaderboardUserRow[]),
             tribes: this.leaderboardService.getTribesLeaderboard(),
           });
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: ({ global, tribeMembers, tribes }) => {
@@ -135,6 +159,32 @@ export class LeaderboardPage {
           this.loading.set(false);
         },
       });
+  }
+
+  private loadSelectedTribeLeaderboard(): void {
+    const tribeId = this.selectedTribeId();
+    const tribeName = this.currentTribe().tribe_name;
+    if (!tribeId) {
+      this.tribeMembers.set([]);
+      return;
+    }
+
+    this.leaderboardService
+      .getTribeLeaderboard(tribeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (members) => {
+          this.tribeMembers.set(members.map((row) => this.toPlayer(row, tribeName)));
+        },
+        error: (err) => {
+          console.error('[LeaderboardPage] Impossible de charger le classement de la tribu.', err);
+          this.error.set('Impossible de charger le classement de cette tribu depuis la base locale.');
+        },
+      });
+  }
+
+  private defaultSelectedTribe(userTribes: UserTribe[]): UserTribe | null {
+    return userTribes.find((tribe) => tribe.is_country_tribe) ?? userTribes[0] ?? null;
   }
 
   private toPlayer(row: LeaderboardUserRow, tribeName?: string | null): LeaderboardPlayer {
@@ -158,11 +208,12 @@ export class LeaderboardPage {
       rank: Number(row.rank),
       name: row.name,
       code: tribeCode(row.name),
+      countryFlagUrl: row.is_country_tribe ? row.country_flag_url : null,
       members: Number(row.member_count),
       activeMembers: Number(row.active_member_count),
       avgPoints: Math.round(Number(row.avg_points)),
       totalPoints: Number(row.total_points),
-      isMine: row.tribe_id === this.currentTribe().tribe_id,
+      isMine: this.userTribes().some((tribe) => tribe.tribe_id === row.tribe_id),
     };
   }
 }

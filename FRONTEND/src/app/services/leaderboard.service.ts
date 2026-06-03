@@ -19,11 +19,23 @@ export interface TribesLeaderboardRow {
   active_member_count: number | string;
   avg_points: number | string;
   total_points: number | string;
+  is_country_tribe: boolean;
+  country_flag_url: string | null;
 }
 
 export interface CurrentUserTribe {
   tribe_id: string | null;
   tribe_name: string | null;
+  is_country_tribe?: boolean | null;
+  country_flag_url?: string | null;
+}
+
+export interface UserTribe {
+  tribe_id: string;
+  tribe_name: string;
+  is_country_tribe: boolean;
+  joined_at: string;
+  country_flag_url: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,7 +46,7 @@ export class LeaderboardService {
     return from(
       this.supabase.client
         .from('current_user_tribe')
-        .select('tribe_id, tribe_name')
+        .select('tribe_id, tribe_name, is_country_tribe, country_flag_url')
         .maybeSingle(),
     ).pipe(
       map(({ data, error }) => {
@@ -42,7 +54,24 @@ export class LeaderboardService {
         return {
           tribe_id: data?.tribe_id ?? null,
           tribe_name: data?.tribe_name ?? null,
+          is_country_tribe: data?.is_country_tribe ?? null,
+          country_flag_url: data?.country_flag_url ?? null,
         };
+      }),
+    );
+  }
+
+  getCurrentUserTribes(): Observable<UserTribe[]> {
+    return from(
+      this.supabase.client
+        .from('current_user_tribes')
+        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url')
+        .order('is_country_tribe', { ascending: false })
+        .order('joined_at', { ascending: true }),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return (data ?? []) as UserTribe[];
       }),
     );
   }
@@ -65,8 +94,30 @@ export class LeaderboardService {
     );
   }
 
+  getTribeLeaderboard(tribeId: string): Observable<LeaderboardUserRow[]> {
+    return from(
+      this.supabase.client
+        .from('tribe_members_with_scores')
+        .select('user_id, username, total_points, exact_count')
+        .eq('tribe_id', tribeId)
+        .order('total_points', { ascending: false })
+        .order('exact_count', { ascending: false }),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return (data ?? []).map((row, index) => ({
+          rank: index + 1,
+          user_id: row.user_id,
+          username: row.username,
+          total_points: row.total_points,
+          exact_count: row.exact_count,
+        })) as LeaderboardUserRow[];
+      }),
+    );
+  }
+
   getTribesLeaderboard(): Observable<TribesLeaderboardRow[]> {
-    return from(this.supabase.client.rpc('get_tribes_leaderboard')).pipe(
+    return from(this.supabase.client.rpc('get_tribes_leaderboard_with_flags')).pipe(
       map(({ data, error }) => {
         if (error) throw error;
         return (data ?? []) as TribesLeaderboardRow[];
