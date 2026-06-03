@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  ViewChild,
   effect,
   inject,
   input,
@@ -41,24 +43,25 @@ function integerValidator(): ValidatorFn {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PredictionForm {
+  @ViewChild('homeScoreInput')
+  private homeScoreInput?: ElementRef<HTMLInputElement>;
+
   readonly homeTeam = input.required<PredictionFormTeam>();
   readonly awayTeam = input.required<PredictionFormTeam>();
   readonly submitting = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly submitLabel = input<string>('Valider mon pronostic');
   readonly initialValues = input<PredictionFormValue | null>(null);
+  readonly formKey = input<string | null>(null);
 
   readonly predictionSubmit = output<PredictionFormValue>();
 
   constructor() {
     effect(() => {
+      this.formKey();
       const vals = this.initialValues();
-      if (vals) {
-        this.form.patchValue({
-          homeScore: vals.homeScore,
-          awayScore: vals.awayScore,
-        });
-      }
+      this.form.reset(vals ?? { homeScore: 0, awayScore: 0 });
+      this.selectHomeScoreInput();
     });
   }
 
@@ -141,10 +144,19 @@ export class PredictionForm {
 
   protected selectInputContent(event: Event): void {
     const input = event.target as HTMLInputElement | null;
-    input?.select();
+    window.setTimeout(() => input?.select());
   }
 
   reset(values?: PredictionFormValue): void {
     this.form.reset(values ?? { homeScore: 0, awayScore: 0 });
+    this.selectHomeScoreInput();
+  }
+
+  private selectHomeScoreInput(): void {
+    window.setTimeout(() => {
+      const input = this.homeScoreInput?.nativeElement;
+      input?.focus();
+      input?.select();
+    });
   }
 }
