@@ -25,7 +25,7 @@ import { MatchListItem } from '../../shared/models/match.models';
 import { TeamService } from '../../services/team.service';
 import { stageLabel } from '../../shared/utils/stage-label';
 
-type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
+type SubmissionStatus = 'idle' | 'submitting' | 'error';
 
 @Component({
   selector: 'app-prediction-form-page',
@@ -54,7 +54,7 @@ export class PredictionFormPage {
   protected readonly boostsAvailable = signal<number | null>(null);
   protected readonly boostsError = signal<string | null>(null);
   protected readonly boostSelected = signal(false);
-  protected readonly chainingNext = signal(false);
+  protected readonly successBanner = signal<string | null>(null);
   protected readonly noNextPrediction = signal(false);
 
   constructor() {
@@ -68,7 +68,6 @@ export class PredictionFormPage {
           this.errorMessage.set(null);
           this.lastPrediction.set(null);
           this.submittedScore.set(null);
-          this.chainingNext.set(false);
           this.noNextPrediction.set(false);
           if (!id) {
             this.loadError.set('Match introuvable.');
@@ -93,6 +92,11 @@ export class PredictionFormPage {
       });
 
     this.loadBoosts();
+    this.route.queryParamMap.subscribe((params) => {
+      if (params.get('saved') === '1') {
+        this.showSuccessBanner('Pronostic validé.');
+      }
+    });
   }
 
   protected readonly homeTeam = computed<PredictionFormTeam>(() => {
@@ -126,7 +130,6 @@ export class PredictionFormPage {
 
   protected readonly isEdit = computed(() => this.existingPrediction() !== null);
   protected readonly isSubmitting = computed(() => this.status() === 'submitting');
-  protected readonly isSuccess = computed(() => this.status() === 'success');
   protected readonly isError = computed(() => this.status() === 'error');
   protected readonly isFinished = computed(() => this.match()?.status === 'finished');
   protected readonly isScheduled = computed(() => this.match()?.status === 'scheduled');
@@ -182,7 +185,8 @@ export class PredictionFormPage {
         this.lastPrediction.set(response);
         this.submittedScore.set(value);
         this.boostsAvailable.set(response.boostsAvailable);
-        this.status.set('success');
+        this.status.set('idle');
+        this.showSuccessBanner(this.successMessage());
         this.navigateToNextPrediction(response.matchId);
       },
       error: (error: unknown) => {
@@ -235,6 +239,13 @@ export class PredictionFormPage {
     });
   }
 
+  private showSuccessBanner(message: string): void {
+    this.successBanner.set(message);
+    window.setTimeout(() => {
+      this.successBanner.set(null);
+    }, 2500);
+  }
+
   private navigateToNextPrediction(currentMatchId: string): void {
     this.matchService.getMatches().subscribe({
       next: (matches) => {
@@ -256,10 +267,10 @@ export class PredictionFormPage {
           return;
         }
 
-        this.chainingNext.set(true);
-        window.setTimeout(() => {
-          this.router.navigate(['/match', nextMatch.id, 'prediction-form']);
-        }, 900);
+        this.router.navigate(
+          ['/match', nextMatch.id, 'prediction-form'],
+          { queryParams: { saved: '1' } },
+        );
       },
       error: (err) => {
         console.error('[PredictionFormPage] Impossible de trouver le prochain prono.', err);
