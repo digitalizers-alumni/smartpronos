@@ -14,6 +14,7 @@ export interface PredictionPayload {
   matchId: string;
   homeScore: number;
   awayScore: number;
+  isBoosted: boolean;
 }
 
 export interface PredictionResponse {
@@ -21,6 +22,8 @@ export interface PredictionResponse {
   matchId: string;
   homeScore: number;
   awayScore: number;
+  isBoosted: boolean;
+  boostsAvailable: number;
   submittedAt: string;
   pointsAwarded?: number;
 }

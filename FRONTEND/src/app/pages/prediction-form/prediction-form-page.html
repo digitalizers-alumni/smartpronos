@@ -1,10 +1,25 @@
 <div class="flex flex-col h-full w-full bg-tribbo-bg relative">
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
 
+  @if (successBanner(); as message) {
+    <div class="fixed left-0 right-0 top-14 md:top-16 z-30 px-4 pt-3 pointer-events-none">
+      <div class="mx-auto max-w-lg rounded-2xl border border-green-100 bg-green-50 px-4 py-3 shadow-lg pointer-events-auto">
+        <p class="font-inter text-sm font-semibold text-green-700">{{ message }}</p>
+      </div>
+    </div>
+  }
+
   <div class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10">
     @if (loading()) {
       <div class="flex items-center justify-center py-16">
         <div class="font-inter text-gray-400 text-sm">Chargement...</div>
+      </div>
+    }
+
+    @if (!loading() && loadError(); as err) {
+      <div class="bg-white border border-red-100 rounded-2xl px-5 py-6 text-center space-y-2">
+        <p class="font-inter text-sm font-semibold text-red-500">Match indisponible</p>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
       </div>
     }
 
@@ -17,6 +32,20 @@
               <span>📅 {{ m.kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
               @if (m.venue) {
                 <span>📍 {{ m.venue }}</span>
+              }
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              @if (m.stage) {
+                <span class="rounded-full bg-gray-50 px-3 py-1 font-inter text-xs font-medium text-gray-500">{{ stageLabel() }}</span>
+              }
+              @if (m.group) {
+                <span class="rounded-full bg-tribbo-primary/10 px-3 py-1 font-inter text-xs font-semibold text-tribbo-primary">Groupe {{ m.group }}</span>
+              }
+              @if (isFinished()) {
+                <span class="rounded-full bg-green-50 px-3 py-1 font-inter text-xs font-semibold text-green-600">Match terminé</span>
+              } @else if (isLocked()) {
+                <span class="rounded-full bg-gray-100 px-3 py-1 font-inter text-xs font-semibold text-gray-500">Pronos clos</span>
               }
             </div>
 
@@ -34,27 +63,115 @@
 
             <hr class="border-gray-100" />
 
+            @if (isFinished() && result()) {
+              <div class="rounded-2xl border border-gray-100 bg-tribbo-bg p-4 text-center space-y-3">
+                <div>
+                  <div class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Score final</div>
+                  <div class="mt-1 flex items-center justify-center gap-3">
+                    <span class="font-space text-2xl font-bold text-green-600">{{ result()!.homeScore }}</span>
+                    <span class="font-space text-gray-300">-</span>
+                    <span class="font-space text-2xl font-bold text-green-600">{{ result()!.awayScore }}</span>
+                  </div>
+                </div>
+                @if (hasPrediction()) {
+                  <div class="border-t border-gray-200 pt-3">
+                    <div class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Ton prono</div>
+                    <div class="mt-1 flex items-center justify-center gap-3">
+                      <span class="font-space text-lg font-semibold text-tribbo-text">{{ m.prediction.homeScore }}</span>
+                      <span class="font-space text-gray-300">-</span>
+                      <span class="font-space text-lg font-semibold text-tribbo-text">{{ m.prediction.awayScore }}</span>
+                    </div>
+                    @if (m.prediction.isBoosted) {
+                      <span class="mt-2 inline-flex rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">Boost x2 appliqué</span>
+                    }
+                    @if (m.pointsEarned != null) {
+                      <div class="mt-2 font-inter text-sm font-bold text-green-600">+{{ m.pointsEarned }} pts</div>
+                    }
+                  </div>
+                }
+              </div>
+            } @else if (isLocked()) {
+              <div class="rounded-2xl border border-gray-100 bg-tribbo-bg p-4 text-center">
+                @if (hasPrediction()) {
+                  <div class="font-inter text-[10px] uppercase tracking-wider text-gray-400">Ton prono</div>
+                  <div class="mt-1 flex items-center justify-center gap-3">
+                    <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.homeScore }}</span>
+                    <span class="font-space text-gray-300">-</span>
+                    <span class="font-space text-2xl font-bold text-tribbo-text">{{ m.prediction.awayScore }}</span>
+                  </div>
+                  @if (m.prediction.isBoosted) {
+                    <span class="mt-2 inline-flex rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">Boost x2 appliqué</span>
+                  }
+                } @else {
+                  <p class="font-inter text-sm text-gray-400">Aucun pronostic pour ce match.</p>
+                }
+              </div>
+            }
+
+            @if (isScheduled()) {
+            <div class="rounded-2xl border border-gray-100 bg-tribbo-bg p-4 space-y-2">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <div class="font-inter text-sm font-semibold text-tribbo-text">Boost x2</div>
+                  <p class="font-inter text-xs text-gray-400 mt-0.5">
+                    @if (boostSelected()) {
+                      Ce prono utilisera un boost.
+                    } @else {
+                      {{ boostsAvailableLabel() }}
+                    }
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="toggleBoost()"
+                  [disabled]="!canToggleBoost()"
+                  class="px-4 py-2 rounded-xl border font-inter text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                  [class.bg-tribbo-primary]="boostSelected()"
+                  [class.text-white]="boostSelected()"
+                  [class.border-tribbo-primary]="boostSelected()"
+                  [class.bg-white]="!boostSelected()"
+                  [class.text-tribbo-primary]="!boostSelected()"
+                  [class.border-gray-200]="!boostSelected()"
+                >
+                  {{ boostSelected() ? 'Boost activé' : 'Activer' }}
+                </button>
+              </div>
+              @if (boostsError(); as err) {
+                <p class="font-inter text-xs text-yellow-700">{{ err }}</p>
+              }
+              @if (!boostSelected() && boostsAvailable() === 0) {
+                <p class="font-inter text-xs text-gray-400">Tu n'as plus de boost disponible.</p>
+              }
+            </div>
+
             <app-prediction-form
               [homeTeam]="homeTeam()"
               [awayTeam]="awayTeam()"
               [submitting]="isSubmitting()"
               [disabled]="disabled()"
               [initialValues]="existingPrediction()"
+              [formKey]="m.id"
               [submitLabel]="submitLabel()"
               (predictionSubmit)="handlePredictionSubmit($event)"
             />
-          </div>
-        </div>
-      }
 
+            @if (noNextPrediction()) {
+              <div class="rounded-2xl border border-green-100 bg-green-50 p-4 text-center space-y-3">
+                <p class="font-inter text-sm font-semibold text-green-700">Tous les pronos disponibles sont faits.</p>
+                <button (click)="goToMatchList()"
+                  class="rounded-xl bg-tribbo-primary px-5 py-3 font-inter text-sm font-semibold text-white hover:brightness-110 transition-all active:scale-[0.98]">
+                  Retour aux matchs
+                </button>
+              </div>
+            }
+            }
 
-
-      @if (isSuccess()) {
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_rgba(29,77,255,0.03)_50%,_transparent_85%)] pointer-events-none"></div>
-          <div class="relative p-12 flex flex-col items-center justify-center gap-4 min-h-[280px]">
-            <div class="text-6xl">🎉</div>
-            <p class="font-inter text-gray-500 text-sm text-center">{{ successMessage() }}</p>
+            @if (!isScheduled()) {
+              <a routerLink="/home/match-list"
+                class="block w-full text-center rounded-xl bg-gray-100 py-4 font-inter text-sm font-semibold text-gray-500 hover:bg-gray-200 transition-all active:scale-[0.98]">
+                Retour aux matchs
+              </a>
+            }
           </div>
         </div>
       }

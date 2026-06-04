@@ -46,10 +46,14 @@ export const routes: Routes = [
       import('./pages/leaderboard/leaderboard-page').then((m) => m.LeaderboardPage),
   },
   {
-    path: 'company',
+    path: 'tribe',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/company/company-page').then((m) => m.CompanyPage),
+      import('./pages/tribe/tribe-page').then((m) => m.TribePage),
+  },
+  {
+    path: 'company',
+    redirectTo: '/tribe',
   },
   {
     path: 'profile',

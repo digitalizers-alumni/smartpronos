@@ -1,5 +1,11 @@
-<div class="flex flex-col h-full w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
-  <app-user-rank-card [points]="userPoints()" [rank]="userRank()" label="Mes points" />
+<div class="flex flex-col min-h-[calc(100vh-7.5rem)] w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+  @if (userPoints() !== null && userRank() !== null) {
+    <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
+  } @else if (profileError(); as err) {
+    <div class="bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm">
+      <p class="font-inter text-sm text-yellow-700">{{ err }}</p>
+    </div>
+  }
 
   <div class="flex gap-2 overflow-x-auto pb-1 items-center">
     @for (f of statusFilters; track f.value) {
@@ -96,23 +102,30 @@
   }
 
   @if (!loading()) {
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-      @for (group of dateGroups(); track group.dateKey) {
-        @for (match of group.matches; track match.id) {
-          <app-match-card [match]="match" />
-        }
-      }
-    </div>
-
-    @if (dateGroups().length === 0) {
-      <div class="flex flex-col items-center justify-center py-16 gap-2">
-        <span class="font-inter text-gray-400 text-sm">Aucun match trouvé</span>
-        @if (hasActiveAdvancedFilters()) {
-          <button (click)="clearAdvancedFilters()" class="font-inter text-xs text-tribbo-primary hover:underline">
-            Réinitialiser les filtres
-          </button>
+    @if (error(); as err) {
+      <div class="bg-white border border-red-100 rounded-2xl px-5 py-6 text-center space-y-2">
+        <p class="font-inter text-sm font-semibold text-red-500">Données matchs indisponibles</p>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+        @for (group of dateGroups(); track group.dateKey) {
+          @for (match of group.matches; track match.id) {
+            <app-match-card [match]="match" />
+          }
         }
       </div>
+
+      @if (dateGroups().length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 gap-2">
+          <span class="font-inter text-gray-400 text-sm">Aucun match trouvé</span>
+          @if (hasActiveAdvancedFilters()) {
+            <button (click)="clearAdvancedFilters()" class="font-inter text-xs text-tribbo-primary hover:underline">
+              Réinitialiser les filtres
+            </button>
+          }
+        </div>
+      }
     }
   }
 </div>

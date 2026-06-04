@@ -1,0 +1,243 @@
+<div
+  class="flex flex-col min-h-[calc(100vh-7.5rem)] w-full bg-tribbo-bg px-4 py-6 md:px-8 md:py-8"
+  (touchstart)="startSwipe($event)"
+  (touchend)="endSwipe($event)"
+>
+  @if (actionSuccess(); as msg) {
+    <div class="fixed left-0 right-0 top-14 md:top-16 z-30 px-4 pt-3 pointer-events-none">
+      <div class="mx-auto max-w-lg rounded-2xl border border-green-100 bg-green-50 px-4 py-3 shadow-lg pointer-events-auto">
+        <p class="font-inter text-sm font-semibold text-green-700">{{ msg }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="flex-1 max-w-lg mx-auto w-full">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-16">
+        <div class="font-inter text-gray-400 text-sm">Chargement de ta tribu...</div>
+      </div>
+    }
+
+    @if (error(); as err) {
+      <div class="bg-white border border-red-100 rounded-2xl px-5 py-6 text-center space-y-2">
+        <p class="font-inter text-sm font-semibold text-red-500">Tribu indisponible</p>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
+      </div>
+    }
+
+    @if (!loading() && !error() && hasTribe()) {
+      <div class="bg-gradient-to-br from-tribbo-primary via-blue-500 to-blue-400 text-white rounded-2xl p-6 text-center shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)] relative overflow-hidden mb-4">
+        <div class="absolute right-[-30px] top-[-30px] w-[140px] h-[140px] bg-white/10 rounded-full"></div>
+        @if (canNavigateTribes()) {
+          <button
+            type="button"
+            (click)="previousTribe()"
+            class="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-2xl font-bold text-white transition-all hover:bg-white/25 active:scale-95"
+            aria-label="Tribu précédente"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            (click)="nextTribe()"
+            class="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-2xl font-bold text-white transition-all hover:bg-white/25 active:scale-95"
+            aria-label="Tribu suivante"
+          >
+            ›
+          </button>
+        }
+        @if (isCountryTribe() && countryFlagUrl()) {
+          <img
+            [src]="countryFlagUrl() || ''"
+            [alt]="tribeName()"
+            class="w-[54px] h-[54px] rounded-full object-cover shadow-sm mx-auto mb-3 relative"
+          />
+        } @else {
+          <div class="w-[54px] h-[54px] rounded-full bg-white/20 flex items-center justify-center text-white font-archivo text-lg font-bold mx-auto mb-3 relative">
+            {{ tribeCode() }}
+          </div>
+        }
+        <div class="font-archivo text-xl relative">{{ tribeName() }}</div>
+        @if (tribePositionLabel()) {
+          <div class="font-inter text-xs opacity-75 mt-1 relative">{{ tribePositionLabel() }}</div>
+        }
+        <div class="font-inter text-sm opacity-90 mt-2 relative">
+          {{ memberCount() }} membres · {{ activeMemberCount() }} actifs ·
+          @if (tribeRank()) {
+            {{ tribeRank() }}ᵉ / {{ totalTribes() }} Tribus
+          } @else {
+            non classée
+          }
+        </div>
+        @if (playerRival(); as rivalPlayer) {
+          <div class="text-sm bg-white/20 rounded-xl px-4 py-2.5 mt-4 relative">
+            @if (rivalPlayer.isAhead) {
+              {{ rivalPlayer.name }} est devant toi de {{ rivalPlayer.pointsGap }} pts !
+            } @else {
+              {{ rivalPlayer.name }} est à {{ rivalPlayer.pointsGap }} pts derrière toi !
+            }
+          </div>
+        } @else {
+          <div class="text-sm bg-white/20 rounded-xl px-4 py-2.5 mt-4 relative">
+            Tu es seul, invite du monde !
+          </div>
+        }
+      </div>
+
+      @if (isCountryTribe()) {
+        <div class="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm">
+          <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+            Tribu pays
+          </div>
+          <p class="font-inter text-xs text-gray-400 mt-1">Les membres rejoignent cette tribu automatiquement via leur pays favori.</p>
+        </div>
+      } @else {
+        <button
+          type="button"
+          (click)="copyInviteCode()"
+          class="block w-full bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-6 shadow-sm text-left hover:border-tribbo-primary/30 hover:bg-blue-50 transition-all active:scale-[0.99]"
+        >
+          <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+            Code d'invitation
+          </div>
+          <div class="font-archivo text-2xl text-tribbo-primary tracking-wide">{{ inviteCode() || '—' }}</div>
+          <p class="font-inter text-xs text-gray-400 mt-1">Clique pour copier le code et inviter un membre dans {{ tribeName() }}.</p>
+        </button>
+      }
+
+      <div class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-3 px-1">
+        Membres · classement interne · {{ avgPoints() }} pts moy.
+      </div>
+
+      <div class="space-y-2">
+        @for (member of members(); track member.id) {
+          <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm cursor-pointer"
+            [class]="member.isYou ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100 hover:border-tribbo-primary/30'">
+            <div class="w-6 text-center font-space font-bold text-sm text-gray-500">{{ member.rank }}</div>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+              [style.background]="avatarColor(member.name)">
+              {{ member.initials }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
+                {{ member.name }}
+                @if (member.isYou) {
+                  <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Toi</span>
+                }
+              </div>
+              <div class="font-inter text-xs text-gray-400 mt-0.5">
+                {{ member.noPred ? 'Pas encore joué' : member.points + ' pts · ' + member.exactCount + ' exacts' }}
+              </div>
+            </div>
+            @if (!member.isYou && !member.noPred) {
+              <span class="material-symbols-outlined text-gray-400 text-lg">swords</span>
+            }
+            @if (member.noPred) {
+              <span class="text-lg opacity-60">⏳</span>
+            }
+          </div>
+        } @empty {
+          <div class="bg-white border border-gray-100 rounded-2xl px-5 py-6 text-center">
+            <p class="font-inter text-sm text-gray-400">Aucun membre dans cette tribu pour le moment.</p>
+          </div>
+        }
+      </div>
+
+      <button (click)="toggleTribeActions()" type="button"
+        class="w-full text-center mt-4 py-4 rounded-2xl border border-gray-200 text-tribbo-primary font-inter font-semibold text-sm hover:bg-blue-50 transition-all active:scale-[0.98]">
+        {{ showTribeActions() ? 'Fermer' : 'Créer ou rejoindre une Tribu' }}
+      </button>
+
+      @if (showTribeActions()) {
+        <div class="mt-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm space-y-3">
+          <div>
+            <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2">
+              Créer une nouvelle Tribu
+            </div>
+            <input
+              type="text"
+              [value]="createName()"
+              (input)="createName.set($any($event.target).value)"
+              placeholder="Nom de ta tribu"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-300 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+            />
+            <button (click)="createTribe()" [disabled]="actionLoading()"
+              class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-2xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-50 mt-3">
+              Créer une Tribu
+            </button>
+          </div>
+
+          <div class="border-t border-gray-100 pt-3">
+            <div class="font-space text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2">
+              Rejoindre une Tribu existante
+            </div>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                [value]="joinCode()"
+                (input)="joinCode.set($any($event.target).value.toUpperCase())"
+                placeholder="Code d'invitation"
+                class="min-w-0 flex-1 bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-300 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all"
+              />
+              <button (click)="joinTribe()" [disabled]="actionLoading()"
+                class="px-5 rounded-2xl border border-gray-200 text-tribbo-text font-inter font-semibold text-sm hover:bg-gray-50 transition-all active:scale-[0.98] disabled:opacity-50">
+                Rejoindre
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (!isCountryTribe()) {
+        <button (click)="leaveTribe()" [disabled]="actionLoading()"
+          class="w-full text-center text-red-500 font-inter font-semibold text-sm py-4 mt-2 hover:text-red-600 transition-colors disabled:opacity-50">
+          Quitter {{ tribeName() }}
+        </button>
+      } @else {
+        <p class="font-inter text-xs text-gray-400 text-center mt-3">
+          Cette tribu est liée à ton pays et ne peut pas être quittée.
+        </p>
+      }
+    } @else if (!loading() && !error()) {
+      <div class="flex flex-col items-center text-center py-12">
+        <div class="text-6xl mb-4">👥</div>
+        <h2 class="font-archivo text-xl text-tribbo-text uppercase tracking-tight mb-2">Tu n'as pas encore de Tribu</h2>
+        <p class="font-inter text-sm text-gray-500 leading-relaxed max-w-sm">
+          TRIBBO, c'est mieux à plusieurs. Crée ta Tribu avec tes collègues, ou rejoins-en une via un lien d'invitation.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <input
+          type="text"
+          [value]="createName()"
+          (input)="createName.set($any($event.target).value)"
+          placeholder="Nom de ta tribu"
+          class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-300 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+        />
+        <button (click)="createTribe()" [disabled]="actionLoading()"
+          class="w-full bg-tribbo-primary text-white font-inter font-semibold text-sm py-4 rounded-2xl shadow-[0_4px_14px_0_rgba(29,77,255,0.39)] hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-50 mb-3">
+          Créer une Tribu
+        </button>
+
+        <div class="flex gap-2">
+          <input
+            type="text"
+            [value]="joinCode()"
+            (input)="joinCode.set($any($event.target).value.toUpperCase())"
+            placeholder="Code d'invitation"
+            class="min-w-0 flex-1 bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-300 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+          />
+          <button (click)="joinTribe()" [disabled]="actionLoading()"
+            class="px-5 rounded-2xl border border-gray-200 text-tribbo-text font-inter font-semibold text-sm hover:bg-gray-50 transition-all active:scale-[0.98] disabled:opacity-50">
+            Rejoindre
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (actionError(); as err) {
+      <p class="font-inter text-sm text-red-500 text-center mt-4">{{ err }}</p>
+    }
+  </div>
+</div>

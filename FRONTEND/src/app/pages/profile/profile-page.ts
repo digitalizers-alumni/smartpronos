@@ -17,6 +17,7 @@ export class ProfilePage {
 
   protected readonly profile = signal<UserProfile | null>(null);
   protected readonly loading = signal(true);
+  protected readonly profileError = signal<string | null>(null);
   protected readonly loggingOut = signal(false);
   protected readonly showDeleteConfirm = signal(false);
   protected readonly deleteConfirmText = signal('');
@@ -29,57 +30,70 @@ export class ProfilePage {
   protected readonly changingPassword = signal(false);
   protected readonly changePasswordError = signal('');
   protected readonly changePasswordSuccess = signal(false);
+  protected readonly displayNameDraft = signal('');
+  protected readonly savingDisplayName = signal(false);
+  protected readonly displayNameError = signal('');
+  protected readonly displayNameSuccess = signal(false);
 
   protected readonly displayName = computed(() => {
-    const email = this.authService.currentUser()?.email;
-    if (email) {
-      const parts = email.split('@')[0].split(/[._]/).filter(Boolean);
-      if (parts.length >= 2) {
-        const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-        const lastInit = parts[1].charAt(0).toUpperCase();
-        return `${first} ${lastInit}.`;
-      }
-      if (parts.length === 1) {
-        return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-      }
-    }
-    return this.profile()?.username ?? 'Joueur';
+    const profile = this.profile();
+    return profile?.display_name ?? profile?.username ?? '';
   });
 
   protected readonly initials = computed(() => {
-    const email = this.authService.currentUser()?.email;
-    if (email) {
-      const parts = email.split('@')[0].split(/[._]/).filter(Boolean);
-      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    }
-    return '?';
+    const name = this.displayName().trim();
+    if (!name) return '?';
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
   });
 
   constructor() {
     this.loadProfile();
   }
 
-  private loadProfile(): void {
+  protected loadProfile(): void {
     this.loading.set(true);
+    this.profileError.set(null);
     this.teamService.getUserProfile().subscribe({
       next: (profile) => {
         this.profile.set(profile);
+        this.displayNameDraft.set(profile.display_name ?? profile.username ?? '');
         this.loading.set(false);
       },
-      error: () => {
-        this.profile.set({
-          total_points: 0,
-          exact_count: 0,
-          total_predictions: 0,
-          rank: null,
-          favorite_team_id: null,
-          favorite_team_code: null,
-          favorite_team_name: null,
-          favorite_team_flag: null,
-          username: null,
-        });
+      error: (err) => {
+        console.error('[ProfilePage] Impossible de charger le profil.', err);
+        this.profile.set(null);
+        this.profileError.set('Impossible de charger ton profil depuis la base locale.');
         this.loading.set(false);
+      },
+    });
+  }
+
+  protected saveDisplayName(): void {
+    const nextName = this.displayNameDraft().trim();
+    if (!nextName) {
+      this.displayNameError.set('Entre un nom affiché.');
+      return;
+    }
+    if (nextName.length < 2 || nextName.length > 40) {
+      this.displayNameError.set('Le nom affiché doit contenir entre 2 et 40 caractères.');
+      return;
+    }
+
+    this.savingDisplayName.set(true);
+    this.displayNameError.set('');
+    this.displayNameSuccess.set(false);
+    this.teamService.updateDisplayName(nextName).subscribe({
+      next: () => {
+        this.displayNameSuccess.set(true);
+        this.savingDisplayName.set(false);
+        this.loadProfile();
+      },
+      error: (err) => {
+        console.error('[ProfilePage] Impossible de mettre à jour le nom affiché.', err);
+        this.displayNameError.set(err instanceof Error ? err.message : 'Nom affiché impossible à mettre à jour.');
+        this.savingDisplayName.set(false);
       },
     });
   }

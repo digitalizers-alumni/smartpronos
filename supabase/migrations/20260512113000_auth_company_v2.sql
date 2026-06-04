@@ -75,7 +75,7 @@ drop trigger if exists set_updated_at_profiles on public.profiles;
 create trigger set_updated_at_profiles
   before update on public.profiles
   for each row
-  execute function moddatetime(updated_at);
+  execute function extensions.moddatetime(updated_at);
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -193,6 +193,8 @@ create index if not exists idx_company_members_user_id
 create index if not exists idx_company_members_company_id
   on public.company_members (company_id);
 
+drop function if exists public.create_or_update_profile(text);
+
 create or replace function public.create_or_update_profile(p_username text)
 returns jsonb
 language plpgsql
@@ -243,6 +245,8 @@ exception
 end;
 $$;
 
+drop function if exists public.create_company(text);
+
 create or replace function public.create_company(p_name text)
 returns jsonb
 language plpgsql
@@ -289,6 +293,8 @@ exception
     return jsonb_build_object('success', false, 'error_code', 'COMPANY_NAME_TAKEN', 'message', 'Cette entreprise existe déjà.');
 end;
 $$;
+
+drop function if exists public.join_company_by_invite_code(text);
 
 create or replace function public.join_company_by_invite_code(p_invite_code text)
 returns jsonb

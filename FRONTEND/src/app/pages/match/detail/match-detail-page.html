@@ -85,6 +85,13 @@
                       <span class="font-space text-lg font-semibold text-tribbo-text mt-0.5">{{ m.prediction.awayScore }}</span>
                     </div>
                   </div>
+                  @if (m.prediction.isBoosted) {
+                    <div class="text-center mt-2">
+                      <span class="inline-flex items-center rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">
+                        Boost x2 appliqué
+                      </span>
+                    </div>
+                  }
                 </div>
                 <div class="border-t border-gray-200 pt-3 text-center">
                   @if (m.pointsEarned != null && m.pointsEarned > 0) {
@@ -112,6 +119,13 @@
                     <span class="font-inter text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Ton prono</span>
                   </div>
                 </div>
+                @if (m.prediction.isBoosted) {
+                  <div class="text-center mt-3">
+                    <span class="inline-flex items-center rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">
+                      Boost x2 appliqué
+                    </span>
+                  </div>
+                }
               } @else {
                 <p class="font-inter text-gray-400 text-sm text-center">Aucun pronostic pour ce match</p>
               }

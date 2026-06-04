@@ -9,10 +9,11 @@ export class SupabaseService {
   private readonly _client: SupabaseClient;
 
   constructor() {
-    this._client = createClient(
-      environment.supabaseUrl || 'https://placeholder.supabase.co',
-      environment.supabaseAnonKey || 'placeholder-key',
-    );
+    if (!environment.supabaseUrl || !environment.supabaseAnonKey) {
+      throw new Error('Configuration Supabase manquante.');
+    }
+
+    this._client = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
   }
 
   get client(): SupabaseClient {

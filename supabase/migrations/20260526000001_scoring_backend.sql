@@ -32,6 +32,17 @@ $$;
 
 grant execute on function public.set_match_result(uuid, integer, integer) to authenticated;
 
+-- 2. user_ranked : vue avec rang calculé via dense_rank
+create or replace view public.user_ranked as
+select
+  us.user_id,
+  us.total_points,
+  us.exact_count,
+  dense_rank() over (order by us.total_points desc, us.exact_count desc) as rank
+from public.user_scores us;
+
+grant select on public.user_ranked to authenticated;
+
 -- 2. get_user_profile : points, rang, équipe favorite de l'utilisateur connecté
 create or replace function public.get_user_profile()
 returns jsonb

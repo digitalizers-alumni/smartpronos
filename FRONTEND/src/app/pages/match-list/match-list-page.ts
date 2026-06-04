@@ -49,16 +49,17 @@ export class MatchListPage {
 
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
+  protected readonly error = signal<string | null>(null);
   protected readonly statusFilter = signal<MatchStatusFilter>('all');
 
-  protected readonly userPoints = signal(0);
-  protected readonly userRank = signal(0);
+  protected readonly userPoints = signal<number | null>(null);
+  protected readonly userRank = signal<number | null>(null);
+  protected readonly profileError = signal<string | null>(null);
 
   protected readonly statusFilters: StatusFilterOption[] = [
     { label: 'Tous', value: 'all' },
     { label: 'Mes pronos', value: 'mine' },
     { label: 'À pronostiquer', value: 'scheduled' },
-    { label: 'Pronos clos', value: 'locked' },
     { label: 'Matchs joués', value: 'finished' },
   ];
 
@@ -99,6 +100,8 @@ export class MatchListPage {
     const status = this.statusFilter();
     if (status === 'mine') {
       list = list.filter((m) => m.prediction.hasPrediction);
+    } else if (status === 'scheduled') {
+      list = list.filter((m) => m.status === 'scheduled' && !m.prediction.hasPrediction);
     } else if (status !== 'all') {
       list = list.filter((m) => m.status === status);
     }
@@ -151,6 +154,13 @@ export class MatchListPage {
       next: (p) => {
         this.userPoints.set(p.total_points);
         this.userRank.set(p.rank ?? 0);
+        this.profileError.set(null);
+      },
+      error: (err) => {
+        console.error('[MatchListPage] Impossible de charger le profil utilisateur.', err);
+        this.userPoints.set(null);
+        this.userRank.set(null);
+        this.profileError.set('Points indisponibles pour le moment.');
       },
     });
 
@@ -160,10 +170,15 @@ export class MatchListPage {
       .subscribe({
         next: (rows) => {
           this.matches.set(rows);
+          this.error.set(null);
           this.loading.set(false);
         },
-        error: () => {
+        error: (err) => {
+          console.error('[MatchListPage] Impossible de charger les matchs depuis Supabase.', err);
           this.matches.set([]);
+          this.error.set(
+            'Impossible de charger les matchs depuis la base locale. Vérifie que Supabase est démarré, que le frontend pointe vers l’URL locale et que la RPC get_match_list existe.',
+          );
           this.loading.set(false);
         },
       });

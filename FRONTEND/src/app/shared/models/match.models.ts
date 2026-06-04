@@ -10,6 +10,7 @@ export interface MatchPredictionSummary {
   homeScore: number | null;
   awayScore: number | null;
   hasPrediction: boolean;
+  isBoosted: boolean;
 }
 
 export interface MatchResult {
@@ -19,11 +20,17 @@ export interface MatchResult {
 
 export interface MatchListItem {
   id: string;
+  fifaMatchNumber?: number;
   kickoff: string;
   competition?: string;
   stage?: string;
   group?: string;
   venue?: string;
+  venueCity?: string;
+  venueStadium?: string;
+  venueCountry?: string;
+  localKickoffTime?: string;
+  localTimezone?: string;
   status: MatchStatus;
   homeTeam: MatchTeam;
   awayTeam: MatchTeam;

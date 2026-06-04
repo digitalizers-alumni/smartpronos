@@ -1,5 +1,5 @@
 <div
-  [routerLink]="['/match', match().id, 'detail']"
+  [routerLink]="['/match', match().id, 'prediction-form']"
   class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full min-h-[240px] flex flex-col relative overflow-hidden"
 >
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
@@ -36,27 +36,17 @@
         <span class="font-space text-gray-300">-</span>
         <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.awayScore }}</span>
       </div>
+      @if (match().prediction.isBoosted) {
+        <div class="flex justify-center mb-3">
+          <span class="rounded-full bg-tribbo-primary/10 px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-tribbo-primary">
+            Boost x2
+          </span>
+        </div>
+      }
     } @else {
       <div class="flex items-center justify-center mb-3">
         <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
       </div>
     }
-    <div
-      class="w-full text-center font-inter font-semibold text-sm py-3 rounded-xl transition-all"
-      [class.bg-tribbo-primary]="match().status === 'scheduled'"
-      [class.text-white]="match().status === 'scheduled'"
-      [class.bg-gray-100]="match().status !== 'scheduled'"
-      [class.text-gray-400]="match().status !== 'scheduled'"
-    >
-      @if (match().status === 'finished') {
-        Match terminé
-      } @else if (match().status === 'locked') {
-        Pronos clos
-      } @else if (match().prediction.hasPrediction) {
-        Modifier mon prono
-      } @else {
-        Faire mon prono
-      }
-    </div>
   </div>
 </div>

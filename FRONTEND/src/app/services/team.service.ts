@@ -10,6 +10,21 @@ export interface Team {
   flag_url: string | null;
 }
 
+interface TeamRow {
+  id: string;
+  name: string;
+  name_fr: string | null;
+  code: string;
+  flag_url: string | null;
+}
+
+interface RpcJsonResponse<T> {
+  success: boolean;
+  error_code?: string;
+  message?: string;
+  data?: T;
+}
+
 export interface UserProfile {
   total_points: number;
   exact_count: number;
@@ -20,6 +35,8 @@ export interface UserProfile {
   favorite_team_name: string | null;
   favorite_team_flag: string | null;
   username: string | null;
+  display_name: string | null;
+  boosts_available: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,12 +47,17 @@ export class TeamService {
     return from(
       this.supabase.client
         .from('teams')
-        .select('id, name, code, flag_url')
-        .order('name'),
+        .select('id, name, name_fr, code, flag_url')
+        .order('name_fr'),
     ).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return (data ?? []) as Team[];
+        return ((data ?? []) as TeamRow[]).map((team) => ({
+          id: team.id,
+          name: team.name_fr ?? team.name,
+          code: team.code,
+          flag_url: team.flag_url,
+        }));
       }),
     );
   }
@@ -57,6 +79,20 @@ export class TeamService {
       map(({ data, error }) => {
         if (error) throw error;
         return data as unknown as UserProfile;
+      }),
+    );
+  }
+
+  updateDisplayName(displayName: string): Observable<void> {
+    return from(
+      this.supabase.client.rpc('update_display_name', { p_display_name: displayName }),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        const result = data as RpcJsonResponse<unknown> | null;
+        if (!result?.success) {
+          throw new Error(result?.message ?? 'Nom affiché impossible à mettre à jour.');
+        }
       }),
     );
   }
