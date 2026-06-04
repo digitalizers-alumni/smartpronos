@@ -83,7 +83,10 @@ export class AuthCallbackPage implements OnInit {
 
   protected async confirmTeam(): Promise<void> {
     const teamId = this.selectedTeamId();
-    if (!teamId) return;
+    if (!teamId) {
+      this.errorMessage.set('Choisis une équipe de cœur pour continuer.');
+      return;
+    }
 
     this.saving.set(true);
     this.errorMessage.set('');
@@ -106,9 +109,5 @@ export class AuthCallbackPage implements OnInit {
         }
       },
     });
-  }
-
-  protected async skipTeam(): Promise<void> {
-    await this.router.navigate(['/home', 'match-list']);
   }
 }

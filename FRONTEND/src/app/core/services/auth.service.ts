@@ -22,8 +22,19 @@ export class AuthService {
     password: string,
     profile?: { firstName: string; lastName: string },
   ) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const { data: emailAvailable, error: emailAvailabilityError } =
+      await this.supabase.client.rpc('email_is_available', {
+        p_email: normalizedEmail,
+      });
+
+    if (emailAvailabilityError) throw emailAvailabilityError;
+    if (!emailAvailable) {
+      throw new Error('Un compte existe déjà avec cet email.');
+    }
+
     const { data, error } = await this.supabase.client.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
