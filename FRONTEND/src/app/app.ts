@@ -33,12 +33,26 @@ export class App {
     return u === '/login' || u === '/signup';
   });
 
+  protected readonly isAuthFlowScreen = computed(() => {
+    const u = this.currentUrl();
+    return (
+      u === '/auth/callback' ||
+      u === '/auth/select-team' ||
+      u === '/auth/update-password'
+    );
+  });
+
   protected readonly isLandingPage = computed(() => {
     return this.currentUrl() === '/';
   });
 
   protected readonly showAppChrome = computed(() => {
-    return !this.isAuthScreen() && !this.isLandingPage();
+    return (
+      this.authService.isAuthenticated() &&
+      !this.isAuthScreen() &&
+      !this.isLandingPage() &&
+      !this.isAuthFlowScreen()
+    );
   });
 
   constructor() {

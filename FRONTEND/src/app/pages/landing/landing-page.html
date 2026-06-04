@@ -1,121 +1,244 @@
-<div class="min-h-screen w-full bg-tribbo-bg">
+<div class="min-h-screen w-full bg-[#F6F8FF] text-tribbo-text">
   <!-- Hero -->
-  <section class="relative min-h-screen flex items-center px-6 md:px-16 lg:px-24 py-16 overflow-hidden">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.05)_50%,_transparent_85%)] pointer-events-none"></div>
+  <section class="relative isolate overflow-hidden px-5 pb-14 pt-6 md:px-10 lg:px-16 xl:px-20">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_75%_18%,rgba(29,77,255,0.18),transparent_32%),linear-gradient(135deg,#ffffff_0%,#f4f8ff_46%,#eaf1ff_100%)]"></div>
+    <div class="absolute bottom-0 right-0 -z-10 h-1/2 w-full bg-[linear-gradient(180deg,transparent_0%,rgba(29,77,255,0.08)_100%)]"></div>
 
-    <div class="relative z-10 w-full max-w-screen-2xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="flex flex-col items-center md:items-start gap-6 text-center md:text-left">
-          <img src="assets/logo-tribbo-lockup.svg" class="w-72 md:w-[500px] object-contain" alt="Tribbo" />
-          <p class="font-inter text-gray-500 text-base md:text-lg leading-relaxed max-w-lg">
-            La plateforme B2B premium de pronostics pour la Coupe du Monde. Créez vos ligues, affrontez vos collègues et dominez les classements.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button routerLink="/signup"
-              class="bg-tribbo-primary text-white font-inter font-semibold py-4 px-8 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]">
-              Commencer
-            </button>
-            <a routerLink="/login"
-              class="bg-white text-tribbo-text font-inter font-semibold py-4 px-8 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-[0.98] text-center">
-              Connexion
+    <div class="pointer-events-none absolute left-[42%] top-16 hidden h-3 w-8 rotate-[-32deg] rounded-full bg-tribbo-primary/60 md:block"></div>
+    <div class="pointer-events-none absolute left-[54%] top-28 hidden h-3 w-6 rotate-[-32deg] rounded-full bg-red-400/70 md:block"></div>
+    <div class="pointer-events-none absolute right-[18%] top-20 hidden h-3 w-7 rotate-[-32deg] rounded-full bg-green-400/60 md:block"></div>
+    <div class="pointer-events-none absolute right-[10%] top-32 hidden h-3 w-6 rotate-[-32deg] rounded-full bg-red-400/70 md:block"></div>
+
+    <div class="mx-auto max-w-7xl">
+      <header class="flex items-center justify-between gap-4">
+        <a routerLink="/" class="flex items-center gap-3" aria-label="Accueil Tribbo">
+          <img src="assets/logo-tribbo-lockup.svg" class="h-9 w-auto object-contain" alt="Tribbo" />
+        </a>
+        <nav class="hidden items-center gap-8 font-inter text-sm font-semibold text-tribbo-text md:flex">
+          <a href="#comment-ca-marche" class="transition-colors hover:text-tribbo-primary">Comment ça marche</a>
+          <a routerLink="/login" class="transition-colors hover:text-tribbo-primary">Connexion</a>
+          <a routerLink="/signup" class="rounded-xl bg-tribbo-primary px-6 py-3 text-white shadow-[0_12px_30px_-12px_rgba(29,77,255,0.7)] transition-all hover:brightness-110">
+            Commencer
+          </a>
+        </nav>
+        <a routerLink="/signup" class="rounded-xl bg-tribbo-primary px-4 py-2.5 font-inter text-sm font-semibold text-white shadow-[0_12px_30px_-12px_rgba(29,77,255,0.7)] md:hidden">
+          Commencer
+        </a>
+      </header>
+
+      <div class="grid min-h-[calc(100vh-5rem)] items-center gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:py-8">
+        <div class="relative z-10 flex flex-col items-start">
+          <div class="mb-8 inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white/90 px-4 py-2 font-space text-[11px] font-bold uppercase tracking-tight text-emerald-600 shadow-sm">
+            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+            100% gratuit - aucun paiement, jamais.
+          </div>
+
+          <h1 class="font-archivo text-5xl leading-[0.95] tracking-tight text-[#071133] sm:text-6xl lg:text-7xl">
+            La Coupe du Monde<br />
+            se joue aussi<br />
+            <span class="text-tribbo-primary">entre collègues.</span>
+          </h1>
+
+          <div class="mt-7 grid gap-2 font-inter text-lg font-semibold text-[#1E2945] sm:grid-cols-2">
+            <p class="flex items-center gap-2"><span class="text-2xl">👥</span> Crée ta Tribu.</p>
+            <p class="flex items-center gap-2"><span class="text-2xl">🎯</span> Invite tes collègues.</p>
+            <p class="flex items-center gap-2 sm:col-span-2"><span class="text-2xl">🏆</span> Vivez le Mondial ensemble.</p>
+          </div>
+
+          <div class="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <a routerLink="/signup" class="inline-flex items-center justify-center gap-3 rounded-xl bg-tribbo-primary px-8 py-5 font-inter text-sm font-bold text-white shadow-[0_18px_35px_-18px_rgba(29,77,255,0.8)] transition-all hover:brightness-110 active:scale-[0.98]">
+              Commencer maintenant
+              <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
+            <a routerLink="/login" class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-8 py-5 font-inter text-sm font-bold text-tribbo-text shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98]">
+              J'ai déjà un compte
             </a>
           </div>
+
+          <div class="mt-5 grid w-full max-w-xl grid-cols-1 gap-2 rounded-xl border border-gray-100 bg-white/90 p-3 shadow-sm sm:grid-cols-3">
+            <div class="flex items-center justify-center gap-2 font-inter text-xs font-semibold text-tribbo-text">
+              <span class="material-symbols-outlined text-base text-emerald-500">check_circle</span>
+              100% gratuit
+            </div>
+            <div class="flex items-center justify-center gap-2 font-inter text-xs font-semibold text-tribbo-text">
+              <span class="material-symbols-outlined text-base text-emerald-500">check_circle</span>
+              Aucun pari d'argent
+            </div>
+            <div class="flex items-center justify-center gap-2 font-inter text-xs font-semibold text-tribbo-text">
+              <span class="material-symbols-outlined text-base text-emerald-500">check_circle</span>
+              Prêt en 2 minutes
+            </div>
+          </div>
         </div>
-        <div class="hidden md:flex items-center justify-center">
-          <span class="font-archivo text-[200px] lg:text-[280px] leading-none text-tribbo-primary/10 select-none">2026</span>
+
+        <div class="relative mx-auto flex min-h-[520px] w-full max-w-2xl items-center justify-center lg:min-h-[650px]">
+          <div class="absolute inset-x-0 bottom-10 h-48 rounded-[4rem] bg-[radial-gradient(ellipse_at_center,rgba(29,77,255,0.24),transparent_68%)] blur-2xl"></div>
+
+          <div class="relative z-20 h-[520px] w-[260px] rotate-[8deg] rounded-[2.6rem] border-[10px] border-[#071133] bg-[#071133] shadow-[0_34px_70px_-24px_rgba(7,17,51,0.65)] lg:h-[600px] lg:w-[300px]">
+            <div class="absolute left-1/2 top-0 z-10 h-6 w-28 -translate-x-1/2 rounded-b-2xl bg-[#071133]"></div>
+            <div class="h-full overflow-hidden rounded-[2rem] bg-white">
+              <img
+                src="/allapp.png"
+                alt="Aperçu de l'application Tribbo"
+                class="h-full w-full object-cover object-top"
+              />
+            </div>
+          </div>
+
+          <div class="absolute right-0 top-24 z-30 hidden w-48 rotate-[6deg] overflow-hidden rounded-2xl bg-white shadow-[0_24px_55px_-24px_rgba(7,17,51,0.45)] md:block lg:w-56">
+            <img
+              src="/monprono.png"
+              alt="Exemple de pronostic Tribbo"
+              class="w-full object-cover object-top"
+            />
+          </div>
+
+          <div class="absolute bottom-24 right-0 z-30 hidden w-56 rotate-[5deg] overflow-hidden rounded-2xl bg-white shadow-[0_24px_55px_-24px_rgba(7,17,51,0.45)] md:block lg:w-64">
+            <img
+              src="/classement.png"
+              alt="Exemple de classement Tribbo"
+              class="w-full object-cover object-top"
+            />
+          </div>
+
+          <div class="absolute left-0 top-28 z-10 hidden w-56 -rotate-[6deg] overflow-hidden rounded-2xl bg-white shadow-[0_24px_55px_-24px_rgba(7,17,51,0.32)] md:block lg:w-64">
+            <img
+              src="/prochainmatch.png"
+              alt="Exemple de prochain match Tribbo"
+              class="w-full object-cover object-top"
+            />
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-white">
-    <div class="max-w-screen-2xl mx-auto">
-      <h2 class="font-archivo text-2xl md:text-4xl text-tribbo-text text-center mb-12 md:mb-16 uppercase tracking-tight">
-        Pourquoi <span class="text-tribbo-primary">Tribbo</span>&nbsp;?
-      </h2>
+  <!-- Steps -->
+  <section id="comment-ca-marche" class="px-5 py-12 md:px-10 lg:px-16 xl:px-20">
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-8 text-center">
+        <h2 class="font-archivo text-3xl uppercase leading-tight text-[#071133] md:text-4xl">
+          Prêt en 2 minutes.<br />
+          Champion pendant <span class="text-tribbo-primary">6 semaines.</span>
+        </h2>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
-          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">public</span>
-          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Pronostics Mondiaux</h3>
-          <p class="font-inter text-gray-500 text-sm leading-relaxed">
-            Participez au plus grand événement sportif de 2026. Pronostiquez chaque match, des phases de groupes à la grande finale.
+      <div class="grid gap-5 md:grid-cols-4">
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-8 flex items-center gap-4">
+            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-tribbo-primary">
+              <span class="material-symbols-outlined">mail</span>
+            </span>
+            <span class="font-archivo text-2xl text-tribbo-primary">01</span>
+          </div>
+          <h3 class="font-archivo text-sm text-[#071133]">Inscris-toi</h3>
+          <p class="mt-3 font-inter text-sm leading-relaxed text-gray-500">
+            Crée ton compte en quelques secondes. C'est 100% gratuit.
           </p>
         </div>
 
-        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
-          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">groups</span>
-          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Défis entre Amis</h3>
-          <p class="font-inter text-gray-500 text-sm leading-relaxed">
-            Créez des ligues privées exclusives. Invitez vos collègues ou vos amis pour déterminer le véritable expert du ballon rond.
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-8 flex items-center gap-4">
+            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
+              <span class="material-symbols-outlined">groups</span>
+            </span>
+            <span class="font-archivo text-2xl text-emerald-500">02</span>
+          </div>
+          <h3 class="font-archivo text-sm text-[#071133]">Rejoins ou crée ta Tribu</h3>
+          <p class="mt-3 font-inter text-sm leading-relaxed text-gray-500">
+            Rejoins une Tribu existante ou crée la tienne et invite tes collègues.
           </p>
         </div>
 
-        <div class="bg-tribbo-bg rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-tribbo-primary/5 rounded-bl-full pointer-events-none"></div>
-          <span class="material-symbols-outlined text-3xl text-tribbo-primary mb-4" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
-          <h3 class="font-archivo text-lg text-tribbo-text uppercase mb-2">Classements en Direct</h3>
-          <p class="font-inter text-gray-500 text-sm leading-relaxed">
-            Suivez votre progression en temps réel. Nos classements s'ajustent à chaque match durant le tournoi.
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-8 flex items-center gap-4">
+            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+              <span class="material-symbols-outlined">target</span>
+            </span>
+            <span class="font-archivo text-2xl text-red-500">03</span>
+          </div>
+          <h3 class="font-archivo text-sm text-[#071133]">Fais tes pronos</h3>
+          <p class="mt-3 font-inter text-sm leading-relaxed text-gray-500">
+            Prédis le score exact ou le bon vainqueur. À toi de jouer.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-8 flex items-center gap-4">
+            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
+              <span class="material-symbols-outlined">emoji_events</span>
+            </span>
+            <span class="font-archivo text-2xl text-amber-500">04</span>
+          </div>
+          <h3 class="font-archivo text-sm text-[#071133]">Grimpe au classement</h3>
+          <p class="mt-3 font-inter text-sm leading-relaxed text-gray-500">
+            Les points tombent après chaque match. Affronte les autres Tribus.
           </p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Stats -->
-  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-tribbo-bg">
-    <div class="max-w-screen-2xl mx-auto">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-8 border border-gray-100 text-center">
-          <div class="font-archivo text-5xl md:text-6xl text-tribbo-primary">1M+</div>
-          <p class="font-inter text-sm text-gray-500 mt-2 uppercase tracking-wider">Pronostiqueurs Inscrits</p>
-        </div>
-        <div class="bg-white rounded-2xl p-8 border border-gray-100 text-center">
-          <div class="font-archivo text-5xl md:text-6xl text-tribbo-primary">500k+</div>
-          <p class="font-inter text-sm text-gray-500 mt-2 uppercase tracking-wider">Ligues Privées Créées</p>
-        </div>
+      <div class="mx-auto mt-6 flex max-w-3xl flex-col items-center justify-center gap-3 rounded-xl border border-gray-100 bg-white px-5 py-3 shadow-sm sm:flex-row">
+        <span class="font-inter text-xs font-bold text-emerald-600">🎯 Score exact = 5 pts</span>
+        <span class="hidden h-4 w-px bg-gray-200 sm:block"></span>
+        <span class="font-inter text-xs font-bold text-tribbo-primary">🛡️ Bon vainqueur = 2 pts</span>
+        <span class="hidden h-4 w-px bg-gray-200 sm:block"></span>
+        <span class="font-inter text-xs font-bold text-orange-500">⚡ Boosts x2 offerts</span>
       </div>
     </div>
   </section>
 
   <!-- CTA Final -->
-  <section class="py-16 md:py-24 px-6 md:px-16 lg:px-24 bg-white">
-    <div class="max-w-screen-2xl mx-auto">
-      <div class="bg-tribbo-bg rounded-3xl p-10 md:p-16 border border-gray-100 text-center relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.08)_0%,_transparent_70%)] pointer-events-none"></div>
-        <div class="relative z-10">
-          <h2 class="font-archivo text-2xl md:text-4xl text-tribbo-text uppercase mb-4">Prêt à rejoindre l'arène&nbsp;?</h2>
-          <p class="font-inter text-gray-500 text-sm md:text-base mb-8 max-w-md mx-auto">
-            Inscrivez-vous dès maintenant et préparez vos analyses pour le tournoi ultime.
-          </p>
-          <button routerLink="/signup" class="bg-tribbo-primary text-white font-inter font-semibold px-10 py-4 rounded-xl shadow-[0_8px_28px_rgba(29,77,255,0.35)] hover:shadow-[0_12px_36px_rgba(29,77,255,0.45)] hover:bg-blue-700 transition-all active:scale-[0.98]">
-            Créer mon compte
-          </button>
+  <section class="px-5 pb-8 md:px-10 lg:px-16 xl:px-20">
+    <div class="mx-auto max-w-7xl">
+      <div class="relative overflow-hidden rounded-3xl bg-[#071133] p-8 text-white shadow-[0_24px_70px_-40px_rgba(7,17,51,0.7)] md:p-12">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_45%,rgba(29,77,255,0.45),transparent_22%),radial-gradient(circle_at_83%_12%,rgba(29,77,255,0.45),transparent_28%)]"></div>
+        <div class="absolute left-6 top-1/2 hidden -translate-y-1/2 md:block">
+          <img
+            src="/ball.png"
+            alt=""
+            class="h-36 w-36 object-contain drop-shadow-[0_24px_28px_rgba(0,0,0,0.45)] lg:h-44 lg:w-44"
+          />
+        </div>
+
+        <div class="relative z-10 grid items-center gap-8 md:grid-cols-[1fr_0.9fr] md:pl-52">
+          <div>
+            <h2 class="font-archivo text-3xl leading-tight md:text-4xl">
+              Le Mondial,<br />
+              ça se vit en <span class="text-tribbo-primary">Tribu.</span>
+            </h2>
+            <p class="mt-5 max-w-md font-inter text-sm leading-relaxed text-white/80">
+              Rassemble ton équipe, défie les autres et profite du plus grand événement football de l'année.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <a routerLink="/signup" class="inline-flex items-center justify-center gap-3 rounded-xl bg-tribbo-primary px-8 py-4 font-inter text-sm font-bold text-white transition-all hover:brightness-110">
+              Rejoindre l'aventure
+              <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
+            <div class="flex items-center gap-4 text-white/50">
+              <span class="h-px flex-1 bg-white/30"></span>
+              <span class="font-inter text-xs font-semibold">ou</span>
+              <span class="h-px flex-1 bg-white/30"></span>
+            </div>
+            <a routerLink="/login" class="inline-flex items-center justify-center rounded-xl bg-white px-8 py-4 font-inter text-sm font-bold text-tribbo-text transition-all hover:bg-gray-50">
+              J'ai déjà un compte
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="py-10 px-6 md:px-16 lg:px-24 bg-tribbo-bg border-t border-gray-100">
-    <div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="flex items-center gap-2">
-        <img src="assets/logo-tribbo-mark.svg" class="w-8 h-8 object-contain" alt="" />
-        <span class="font-archivo text-sm text-gray-400 uppercase tracking-tight">Tribbo 2026</span>
-      </div>
-      <nav class="flex gap-6 text-sm font-inter text-gray-400">
-        <a href="#" class="hover:text-tribbo-primary transition-colors">Règlement</a>
-        <a href="#" class="hover:text-tribbo-primary transition-colors">FAQ</a>
-        <a href="#" class="hover:text-tribbo-primary transition-colors">Contact</a>
-      </nav>
-      <div class="flex items-center gap-2 text-gray-300">
-        <span class="font-inter text-[10px] tracking-[3px] uppercase">by</span>
-        <img src="assets/logo-digitalizers-grey.png" class="h-5 opacity-40" alt="Digitalizers" />
-      </div>
+  <footer class="px-5 pb-8 text-center md:px-10">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-center gap-3 font-inter text-xs font-semibold text-gray-400 sm:flex-row">
+      <span class="flex items-center gap-1">
+        <span class="material-symbols-outlined text-base">lock</span>
+        Sécurisé. Conforme RGPD.
+      </span>
+      <span class="hidden h-1 w-1 rounded-full bg-gray-300 sm:block"></span>
+      <span>Aucun paiement requis. Jamais.</span>
     </div>
   </footer>
 </div>
