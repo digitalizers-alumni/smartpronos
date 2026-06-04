@@ -99,7 +99,7 @@ export class SignupPage {
   protected async confirmTeam(): Promise<void> {
     const teamId = this.selectedTeamId();
     if (!teamId) {
-      await this.router.navigate(['/home', 'match-list']);
+      this.errorMessage.set('Choisis une équipe de cœur pour continuer.');
       return;
     }
 
@@ -109,14 +109,10 @@ export class SignupPage {
       next: () => this.router.navigate(['/home', 'match-list']),
       error: (err) => {
         console.error('[SignupPage] Impossible de sauvegarder l’équipe favorite.', err);
-        this.errorMessage.set('Impossible de sauvegarder ton équipe favorite. Tu peux réessayer ou passer cette étape.');
+        this.errorMessage.set('Impossible de sauvegarder ton équipe favorite. Réessaie dans un instant.');
         this.savingTeam.set(false);
       },
     });
-  }
-
-  protected async skipTeamPicker(): Promise<void> {
-    await this.router.navigate(['/home', 'match-list']);
   }
 
   protected getControlError(controlName: string): string | null {

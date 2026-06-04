@@ -70,13 +70,9 @@
           @if (savingTeam()) {
             Sauvegarde...
           } @else {
-            {{ selectedTeamId() ? 'Confirmer' : 'Passer' }}
+            Confirmer
           }
           </button>
-        <button type="button" (click)="skipTeamPicker()"
-          class="font-space text-[11px] uppercase tracking-tight text-gray-400 hover:text-gray-500 transition-colors text-center">
-          Passer cette étape
-        </button>
       </div>
     } @else {
       <form [formGroup]="signupForm" (ngSubmit)="submit()" class="flex flex-col gap-5">
