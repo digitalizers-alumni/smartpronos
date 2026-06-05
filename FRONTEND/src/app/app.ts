@@ -42,6 +42,10 @@ export class App {
     );
   });
 
+  protected readonly isPredictionFormScreen = computed(() => {
+    return /^\/match\/[^/]+\/prediction-form/.test(this.currentUrl());
+  });
+
   protected readonly isLandingPage = computed(() => {
     return this.currentUrl() === '/';
   });

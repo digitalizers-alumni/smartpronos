@@ -34,6 +34,12 @@
     </div>
   </div>
 
+  @if (formError(); as message) {
+    <div class="w-full rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-center">
+      <p class="font-inter text-sm font-semibold text-red-600">{{ message }}</p>
+    </div>
+  }
+
   <button
     type="submit"
     [disabled]="submitting() || disabled()"

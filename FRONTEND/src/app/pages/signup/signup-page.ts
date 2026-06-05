@@ -33,7 +33,8 @@ export class SignupPage {
   private readonly authService = inject(AuthService);
   private readonly teamService = inject(TeamService);
 
-  protected isPasswordVisible = false;
+  protected readonly passwordVisible = signal(false);
+  protected readonly confirmPasswordVisible = signal(false);
   protected errorMessage = signal('');
   protected submitting = signal(false);
 
@@ -94,6 +95,23 @@ export class SignupPage {
 
   protected selectTeam(teamId: string): void {
     this.selectedTeamId.set(this.selectedTeamId() === teamId ? null : teamId);
+  }
+
+  protected revealPassword(field: 'password' | 'confirmPassword', event: Event): void {
+    event.preventDefault();
+    if (field === 'password') {
+      this.passwordVisible.set(true);
+      return;
+    }
+    this.confirmPasswordVisible.set(true);
+  }
+
+  protected hidePassword(field: 'password' | 'confirmPassword'): void {
+    if (field === 'password') {
+      this.passwordVisible.set(false);
+      return;
+    }
+    this.confirmPasswordVisible.set(false);
   }
 
   protected async confirmTeam(): Promise<void> {

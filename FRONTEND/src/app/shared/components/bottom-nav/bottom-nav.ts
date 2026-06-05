@@ -31,6 +31,5 @@ export class BottomNav {
     { icon: 'home', label: 'Accueil', route: '/home/match-list' },
     { icon: 'leaderboard', label: 'Classement', route: '/leaderboard' },
     { icon: 'groups', label: 'Tribu', route: '/tribe' },
-    { icon: 'person', label: 'Profil', route: '/profile' },
   ];
 }
