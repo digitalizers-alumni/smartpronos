@@ -1,12 +1,12 @@
 <div class="h-screen w-full flex flex-col bg-tribbo-bg">
   <!-- Desktop Top Navigation Bar -->
   @if (showAppChrome()) {
-    <header class="z-40 hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0">
+    <header class="relative z-40 hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0">
       <a (click)="navigateTo('/home/match-list')" class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
         <img src="assets/logo-tribbo-mark.svg" class="w-10 h-10 object-contain" alt="Tribbo" />
         <span class="font-archivo text-lg text-tribbo-text uppercase tracking-tight">Tribbo</span>
       </a>
-      <nav class="flex items-center gap-1">
+      <nav class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1">
         <a (click)="navigateTo('/home/match-list')"
            class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
            [class.text-tribbo-primary]="isActive('/home/match-list')"
