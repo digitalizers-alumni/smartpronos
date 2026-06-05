@@ -1,16 +1,48 @@
-<div class="flex flex-col h-full w-full bg-tribbo-bg relative">
+<div class="flex min-h-[calc(100vh-9rem)] w-full flex-col bg-tribbo-bg relative md:min-h-[calc(100vh-8.5rem)]">
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
 
   @if (successBanner(); as message) {
     <div class="fixed left-0 right-0 top-14 md:top-16 z-30 px-4 pt-3 pointer-events-none">
       <div class="mx-auto max-w-lg rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-center shadow-lg pointer-events-auto">
         <p class="font-inter text-sm font-semibold leading-relaxed text-green-700">{{ message }}</p>
+        @if (showCompletionBanner()) {
+          <button
+            type="button"
+            (click)="goToMatchList()"
+            class="mt-3 rounded-xl bg-tribbo-primary px-4 py-2.5 font-inter text-xs font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            Retour à l'accueil
+          </button>
+        }
       </div>
     </div>
   }
 
-  <div class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10">
-    @if (loading()) {
+  <div
+    class="flex-1 px-4 py-6 md:py-10 max-w-lg mx-auto w-full relative z-10"
+    (touchstart)="startSwipe($event)"
+    (touchend)="endSwipe($event)"
+  >
+    <button
+      type="button"
+      (click)="navigateToAdjacentPrediction('previous')"
+      [disabled]="!previousPredictionMatch() || isSubmitting()"
+      class="absolute -left-20 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-400 shadow-lg transition-all hover:text-tribbo-primary active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 md:flex"
+      aria-label="Prono précédent"
+    >
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    <button
+      type="button"
+      (click)="navigateToAdjacentPrediction('next')"
+      [disabled]="!nextPredictionMatch() || isSubmitting()"
+      class="absolute -right-20 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-400 shadow-lg transition-all hover:text-tribbo-primary active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 md:flex"
+      aria-label="Prono suivant"
+    >
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+
+    @if (loading() && !match()) {
       <div class="flex items-center justify-center py-16">
         <div class="font-inter text-gray-400 text-sm">Chargement...</div>
       </div>

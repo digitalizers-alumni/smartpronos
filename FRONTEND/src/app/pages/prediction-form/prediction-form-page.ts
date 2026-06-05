@@ -43,7 +43,8 @@ export class PredictionFormPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private successBannerTimeout: ReturnType<typeof window.setTimeout> | null = null;
-  private completionRedirectTimeout: ReturnType<typeof window.setTimeout> | null = null;
+  private swipeStartX: number | null = null;
+  private swipeStartY: number | null = null;
 
   @ViewChild(PredictionForm)
   private predictionFormRef?: PredictionForm;
@@ -59,7 +60,9 @@ export class PredictionFormPage {
   protected readonly boostsError = signal<string | null>(null);
   protected readonly boostSelected = signal(false);
   protected readonly successBanner = signal<string | null>(null);
+  protected readonly showCompletionBanner = signal(false);
   protected readonly noNextPrediction = signal(false);
+  protected readonly predictionNavigationMatches = signal<MatchListItem[]>([]);
 
   constructor() {
     this.route.paramMap
@@ -89,6 +92,7 @@ export class PredictionFormPage {
       .subscribe((m) => {
         this.match.set(m);
         this.boostSelected.set(m?.prediction.isBoosted ?? false);
+        this.loadPredictionNavigation();
         if (!m && !this.loadError()) {
           this.loadError.set('Match introuvable.');
         }
@@ -140,6 +144,22 @@ export class PredictionFormPage {
   protected readonly result = computed(() => this.match()?.result ?? null);
   protected readonly hasPrediction = computed(() => this.match()?.prediction.hasPrediction ?? false);
   protected readonly stageLabel = computed(() => stageLabel(this.match()?.stage));
+  protected readonly previousPredictionMatch = computed(() => {
+    const current = this.match();
+    if (!current) return null;
+    const matches = this.predictionNavigationMatches();
+    const currentIndex = matches.findIndex((m) => m.id === current.id);
+    if (currentIndex <= 0) return null;
+    return matches[currentIndex - 1];
+  });
+  protected readonly nextPredictionMatch = computed(() => {
+    const current = this.match();
+    if (!current) return null;
+    const matches = this.predictionNavigationMatches();
+    const currentIndex = matches.findIndex((m) => m.id === current.id);
+    if (currentIndex < 0 || currentIndex >= matches.length - 1) return null;
+    return matches[currentIndex + 1];
+  });
 
   protected readonly isLocked = computed(() => {
     const m = this.match();
@@ -223,6 +243,37 @@ export class PredictionFormPage {
     this.router.navigate(['/home', 'match-list']);
   }
 
+  protected navigateToAdjacentPrediction(direction: 'previous' | 'next'): void {
+    if (this.isSubmitting()) return;
+    const target =
+      direction === 'previous'
+        ? this.previousPredictionMatch()
+        : this.nextPredictionMatch();
+    if (!target) return;
+    this.router.navigate(['/match', target.id, 'prediction-form']);
+  }
+
+  protected startSwipe(event: TouchEvent): void {
+    const touch = event.changedTouches.item(0);
+    if (!touch) return;
+    this.swipeStartX = touch.clientX;
+    this.swipeStartY = touch.clientY;
+  }
+
+  protected endSwipe(event: TouchEvent): void {
+    if (this.swipeStartX === null || this.swipeStartY === null) return;
+    const touch = event.changedTouches.item(0);
+    if (!touch) return;
+
+    const deltaX = touch.clientX - this.swipeStartX;
+    const deltaY = touch.clientY - this.swipeStartY;
+    this.swipeStartX = null;
+    this.swipeStartY = null;
+
+    if (Math.abs(deltaY) > 60 || Math.abs(deltaX) < 80) return;
+    this.navigateToAdjacentPrediction(deltaX > 0 ? 'previous' : 'next');
+  }
+
   protected dismissError(): void {
     if (this.isError()) {
       this.status.set('idle');
@@ -244,11 +295,34 @@ export class PredictionFormPage {
     });
   }
 
+  private loadPredictionNavigation(): void {
+    this.matchService.getMatches().subscribe({
+      next: (matches) => {
+        this.predictionNavigationMatches.set(
+          matches
+            .filter((match) => this.isPredictionNavigationCandidate(match))
+            .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()),
+        );
+      },
+      error: (err) => {
+        console.error('[PredictionFormPage] Impossible de charger la navigation des pronos.', err);
+        this.predictionNavigationMatches.set([]);
+      },
+    });
+  }
+
+  private isPredictionNavigationCandidate(match: MatchListItem): boolean {
+    if (match.status !== 'scheduled') return false;
+    const deadline = new Date(match.kickoff).getTime() - 15 * 60 * 1000;
+    return Date.now() < deadline;
+  }
+
   private showSuccessBanner(message: string): void {
     if (this.successBannerTimeout) {
       window.clearTimeout(this.successBannerTimeout);
     }
     this.successBanner.set(message);
+    this.showCompletionBanner.set(false);
     this.successBannerTimeout = window.setTimeout(() => {
       this.successBanner.set(null);
       this.successBannerTimeout = null;
@@ -272,7 +346,7 @@ export class PredictionFormPage {
           null;
 
         if (!nextMatch) {
-          this.showCompletionBannerAndRedirect();
+          this.showCompletionBannerMessage();
           return;
         }
 
@@ -288,15 +362,18 @@ export class PredictionFormPage {
     });
   }
 
-  private showCompletionBannerAndRedirect(): void {
-    if (this.completionRedirectTimeout) {
-      window.clearTimeout(this.completionRedirectTimeout);
+  private showCompletionBannerMessage(): void {
+    if (this.successBannerTimeout) {
+      window.clearTimeout(this.successBannerTimeout);
+      this.successBannerTimeout = null;
     }
     this.noNextPrediction.set(false);
-    this.showSuccessBanner('100% des pronos disponibles complétés. Félicitations !');
-    this.completionRedirectTimeout = window.setTimeout(() => {
-      this.completionRedirectTimeout = null;
-      this.router.navigate(['/home', 'match-list']);
-    }, 2200);
+    this.successBanner.set('100% des pronos disponibles complétés. Félicitations !');
+    this.showCompletionBanner.set(true);
+    this.successBannerTimeout = window.setTimeout(() => {
+      this.successBanner.set(null);
+      this.showCompletionBanner.set(false);
+      this.successBannerTimeout = null;
+    }, 4500);
   }
 }
