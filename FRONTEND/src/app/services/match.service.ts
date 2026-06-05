@@ -5,6 +5,7 @@ import { SupabaseService } from '../core/services/supabase.service';
 import { MatchListItem, MatchStatus } from '../shared/models/match.models';
 
 const COMPETITION_NAME = 'Coupe du Monde 2026';
+const VENUE_CITY_MATCH_THRESHOLD = 0.8;
 
 interface MatchListRpcRow {
   match_id: string;
@@ -32,8 +33,59 @@ interface MatchListRpcRow {
   points_earned: number | null;
 }
 
+function normalizeVenueWords(value: string | null | undefined): string[] {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('fr-FR')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+function levenshteinDistance(left: string, right: string): number {
+  const previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+  const current = Array.from({ length: right.length + 1 }, () => 0);
+
+  for (let i = 1; i <= left.length; i += 1) {
+    current[0] = i;
+    for (let j = 1; j <= right.length; j += 1) {
+      const cost = left[i - 1] === right[j - 1] ? 0 : 1;
+      current[j] = Math.min(
+        current[j - 1] + 1,
+        previous[j] + 1,
+        previous[j - 1] + cost,
+      );
+    }
+    previous.splice(0, previous.length, ...current);
+  }
+
+  return previous[right.length] ?? 0;
+}
+
+function wordSimilarity(left: string, right: string): number {
+  if (left === right) return 1;
+  const maxLength = Math.max(left.length, right.length);
+  if (maxLength === 0) return 1;
+  return 1 - levenshteinDistance(left, right) / maxLength;
+}
+
+function venueAlreadyIncludesCity(stadium: string | null | undefined, city: string | null | undefined): boolean {
+  const stadiumWords = normalizeVenueWords(stadium);
+  const cityWords = normalizeVenueWords(city);
+  if (stadiumWords.length === 0 || cityWords.length === 0) return false;
+
+  const matchedWords = cityWords.filter((cityWord) =>
+    stadiumWords.some((stadiumWord) => wordSimilarity(cityWord, stadiumWord) >= VENUE_CITY_MATCH_THRESHOLD),
+  );
+
+  return matchedWords.length / cityWords.length >= VENUE_CITY_MATCH_THRESHOLD;
+}
+
 function formatVenue(row: MatchListRpcRow): string | undefined {
-  const parts = [row.venue_stadium, row.venue_city]
+  const stadium = row.venue_stadium?.trim();
+  const city = row.venue_city?.trim();
+  const shouldShowCity = city && !venueAlreadyIncludesCity(stadium, city);
+  const parts = [stadium, shouldShowCity ? city : null]
     .map((part) => part?.trim())
     .filter(Boolean);
   return parts.length > 0 ? parts.join(' · ') : undefined;
