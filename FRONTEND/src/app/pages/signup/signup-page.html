@@ -123,14 +123,29 @@
           <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
             Mot de passe
           </label>
-          <input
-            [type]="isPasswordVisible ? 'text' : 'password'"
-            formControlName="password"
-            placeholder="••••••••••••"
-            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
-            [class.border-red-300]="signupForm.get('password')?.touched && signupForm.get('password')?.invalid"
-            required
-          />
+          <div class="relative">
+            <input
+              [type]="passwordVisible() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••••••"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 pr-12 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('password')?.touched && signupForm.get('password')?.invalid"
+              required
+            />
+            <button
+              type="button"
+              (mousedown)="revealPassword('password', $event)"
+              (mouseup)="hidePassword('password')"
+              (mouseleave)="hidePassword('password')"
+              (touchstart)="revealPassword('password', $event)"
+              (touchend)="hidePassword('password')"
+              (touchcancel)="hidePassword('password')"
+              class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-300 transition-colors hover:text-tribbo-primary"
+              aria-label="Afficher le mot de passe pendant l'appui"
+            >
+              <span class="material-symbols-outlined text-xl">visibility</span>
+            </button>
+          </div>
           @if (signupForm.get('password')?.touched && signupForm.get('password')?.invalid) {
             <p class="font-inter text-xs text-red-500 mt-1">{{ getControlError('password') }}</p>
           }
@@ -140,20 +155,30 @@
           <label class="font-space text-[11px] uppercase tracking-widest text-gray-400 font-bold">
             Confirmer le mot de passe
           </label>
-          <input
-            [type]="isPasswordVisible ? 'text' : 'password'"
-            formControlName="confirmPassword"
-            placeholder="••••••••••••"
-            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
-            [class.border-red-300]="signupForm.get('confirmPassword')?.touched && (signupForm.get('confirmPassword')?.invalid || signupForm.hasError('passwordsMismatch'))"
-            required
-          />
+          <div class="relative">
+            <input
+              [type]="confirmPasswordVisible() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="••••••••••••"
+              class="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 pr-12 font-inter text-sm text-tribbo-text placeholder:text-gray-200 focus:outline-none focus:border-tribbo-primary focus:ring-4 focus:ring-tribbo-primary/5 transition-all shadow-sm"
+              [class.border-red-300]="signupForm.get('confirmPassword')?.touched && (signupForm.get('confirmPassword')?.invalid || signupForm.hasError('passwordsMismatch'))"
+              required
+            />
+            <button
+              type="button"
+              (mousedown)="revealPassword('confirmPassword', $event)"
+              (mouseup)="hidePassword('confirmPassword')"
+              (mouseleave)="hidePassword('confirmPassword')"
+              (touchstart)="revealPassword('confirmPassword', $event)"
+              (touchend)="hidePassword('confirmPassword')"
+              (touchcancel)="hidePassword('confirmPassword')"
+              class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-300 transition-colors hover:text-tribbo-primary"
+              aria-label="Afficher la confirmation pendant l'appui"
+            >
+              <span class="material-symbols-outlined text-xl">visibility</span>
+            </button>
+          </div>
         </div>
-
-        <button type="button" (click)="isPasswordVisible = !isPasswordVisible"
-          class="font-space text-[10px] uppercase tracking-widest text-gray-400 text-left -mt-2 hover:text-gray-500 transition-colors">
-          {{ isPasswordVisible ? 'Masquer' : 'Afficher' }} les mots de passe
-        </button>
 
         @if (errorMessage()) {
           <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
