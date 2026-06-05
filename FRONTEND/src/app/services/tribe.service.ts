@@ -15,6 +15,7 @@ export interface CurrentTribeProfile {
   tribe_name: string | null;
   is_country_tribe: boolean | null;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 export interface UserTribe {
@@ -23,6 +24,7 @@ export interface UserTribe {
   is_country_tribe: boolean;
   joined_at: string;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 export interface TribeMemberWithScore {
@@ -30,6 +32,7 @@ export interface TribeMemberWithScore {
   user_id: string;
   username: string | null;
   avatar_url: string | null;
+  avatar_path: string | null;
   total_points: number | string;
   exact_count: number | string;
   joined_at: string;
@@ -50,6 +53,7 @@ export interface TribeInviteInfo {
   member_count: number | string;
   is_country_tribe: boolean;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 export interface TribesLeaderboardRow {
@@ -62,6 +66,7 @@ export interface TribesLeaderboardRow {
   total_points: number | string;
   is_country_tribe: boolean;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 export interface TribeDashboard {
@@ -93,6 +98,7 @@ export class TribeService {
           tribe_name: selectedTribe?.tribe_name ?? null,
           is_country_tribe: selectedTribe?.is_country_tribe ?? null,
           country_flag_url: selectedTribe?.country_flag_url ?? null,
+          avatar_path: selectedTribe?.avatar_path ?? null,
         };
 
         if (!profile.tribe_id) {
@@ -152,7 +158,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('current_user_tribes')
-        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url')
+        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url, avatar_path')
         .order('is_country_tribe', { ascending: false })
         .order('joined_at', { ascending: true }),
     ).pipe(
@@ -167,7 +173,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('tribe_members_with_scores')
-        .select('tribe_id, user_id, username, avatar_url, total_points, exact_count, joined_at')
+        .select('tribe_id, user_id, username, avatar_url, avatar_path, total_points, exact_count, joined_at')
         .eq('tribe_id', tribeId)
         .order('total_points', { ascending: false }),
     ).pipe(
@@ -197,7 +203,7 @@ export class TribeService {
     return from(
       this.supabase.client
         .from('tribe_invite_info')
-        .select('tribe_id, tribe_name, invite_code, member_count, is_country_tribe, country_flag_url')
+        .select('tribe_id, tribe_name, invite_code, member_count, is_country_tribe, country_flag_url, avatar_path')
         .eq('tribe_id', tribeId)
         .maybeSingle(),
     ).pipe(

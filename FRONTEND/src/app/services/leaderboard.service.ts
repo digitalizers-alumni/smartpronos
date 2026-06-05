@@ -9,6 +9,7 @@ export interface LeaderboardUserRow {
   username: string | null;
   total_points: number | string;
   exact_count: number | string;
+  avatar_path: string | null;
 }
 
 export interface TribesLeaderboardRow {
@@ -21,6 +22,7 @@ export interface TribesLeaderboardRow {
   total_points: number | string;
   is_country_tribe: boolean;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 export interface CurrentUserTribe {
@@ -28,6 +30,7 @@ export interface CurrentUserTribe {
   tribe_name: string | null;
   is_country_tribe?: boolean | null;
   country_flag_url?: string | null;
+  avatar_path?: string | null;
 }
 
 export interface UserTribe {
@@ -36,6 +39,7 @@ export interface UserTribe {
   is_country_tribe: boolean;
   joined_at: string;
   country_flag_url: string | null;
+  avatar_path: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,7 +50,7 @@ export class LeaderboardService {
     return from(
       this.supabase.client
         .from('current_user_tribe')
-        .select('tribe_id, tribe_name, is_country_tribe, country_flag_url')
+        .select('tribe_id, tribe_name, is_country_tribe, country_flag_url, avatar_path')
         .maybeSingle(),
     ).pipe(
       map(({ data, error }) => {
@@ -56,6 +60,7 @@ export class LeaderboardService {
           tribe_name: data?.tribe_name ?? null,
           is_country_tribe: data?.is_country_tribe ?? null,
           country_flag_url: data?.country_flag_url ?? null,
+          avatar_path: data?.avatar_path ?? null,
         };
       }),
     );
@@ -65,7 +70,7 @@ export class LeaderboardService {
     return from(
       this.supabase.client
         .from('current_user_tribes')
-        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url')
+        .select('tribe_id, tribe_name, is_country_tribe, joined_at, country_flag_url, avatar_path')
         .order('is_country_tribe', { ascending: false })
         .order('joined_at', { ascending: true }),
     ).pipe(
@@ -98,7 +103,7 @@ export class LeaderboardService {
     return from(
       this.supabase.client
         .from('tribe_members_with_scores')
-        .select('user_id, username, total_points, exact_count')
+        .select('user_id, username, total_points, exact_count, avatar_path')
         .eq('tribe_id', tribeId)
         .order('total_points', { ascending: false })
         .order('exact_count', { ascending: false }),
@@ -111,6 +116,7 @@ export class LeaderboardService {
           username: row.username,
           total_points: row.total_points,
           exact_count: row.exact_count,
+          avatar_path: row.avatar_path,
         })) as LeaderboardUserRow[];
       }),
     );
