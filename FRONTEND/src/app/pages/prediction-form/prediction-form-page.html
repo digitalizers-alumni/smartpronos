@@ -81,16 +81,12 @@
               }
             </div>
 
-            <div class="flex items-center justify-between">
-              <div class="flex flex-col items-center gap-2 flex-1">
-                <img [src]="m.homeTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
-                <span class="font-archivo text-tribbo-text text-base">{{ m.homeTeam.name }}</span>
-              </div>
-              <div class="px-3 font-space text-gray-300 font-bold text-lg">VS</div>
-              <div class="flex flex-col items-center gap-2 flex-1">
-                <img [src]="m.awayTeam.flagUrl || ''" class="w-16 h-16 rounded-full object-cover" alt="" />
-                <span class="font-archivo text-tribbo-text text-base">{{ m.awayTeam.name }}</span>
-              </div>
+            <div class="grid grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)] grid-rows-[4rem_auto] items-start gap-x-3 gap-y-2">
+              <img [src]="m.homeTeam.flagUrl || ''" class="mx-auto h-16 w-16 rounded-full object-cover" alt="" />
+              <div class="row-span-2 flex h-16 items-center justify-center font-space text-lg font-bold text-gray-300">VS</div>
+              <img [src]="m.awayTeam.flagUrl || ''" class="mx-auto h-16 w-16 rounded-full object-cover" alt="" />
+              <span class="min-h-12 text-center font-archivo text-base leading-tight text-tribbo-text">{{ m.homeTeam.name }}</span>
+              <span class="col-start-3 min-h-12 text-center font-archivo text-base leading-tight text-tribbo-text">{{ m.awayTeam.name }}</span>
             </div>
 
             <hr class="border-gray-100" />
