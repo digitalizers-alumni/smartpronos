@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 
@@ -56,7 +58,7 @@ function tribeCode(name: string): string {
 @Component({
   selector: 'app-tribe-page',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './tribe-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -64,6 +66,7 @@ export class TribePage {
   private readonly authService = inject(AuthService);
   private readonly tribeService = inject(TribeService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly loading = signal(true);
   protected readonly actionLoading = signal(false);
@@ -144,6 +147,7 @@ export class TribePage {
         window.clearTimeout(this.successTimeoutId);
       }
     });
+    this.selectedTribeId.set(this.route.snapshot.queryParamMap.get('tribeId'));
     this.loadDashboard();
   }
 
@@ -165,6 +169,11 @@ export class TribePage {
     }
 
     this.runAction(this.tribeService.joinTribe(code), 'Tribu rejointe.');
+  }
+
+  protected submitJoinTribe(event?: Event): void {
+    event?.preventDefault();
+    this.joinTribe();
   }
 
   protected leaveTribe(): void {
@@ -261,10 +270,22 @@ export class TribePage {
       },
       error: (err) => {
         console.error('[TribePage] Action tribu impossible.', err);
-        this.actionError.set(err instanceof Error ? err.message : 'Action impossible.');
+        this.actionError.set(this.actionErrorMessage(err));
         this.actionLoading.set(false);
       },
     });
+  }
+
+  private actionErrorMessage(err: unknown): string {
+    const message = err instanceof Error ? err.message : '';
+    if (
+      message.includes('INVALID_INVITE_CODE') ||
+      message.toLowerCase().includes('invitation') ||
+      message.toLowerCase().includes('invite')
+    ) {
+      return 'Aucune tribu ne correspond à ce code d’invitation.';
+    }
+    return message || 'Action impossible.';
   }
 
   private showSuccessBanner(message: string): void {

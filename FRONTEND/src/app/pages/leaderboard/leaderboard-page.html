@@ -149,8 +149,11 @@
 
       @if (activeTab() === 'tribes') {
         @for (co of tribes(); track co.id; let i = $index) {
-          <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm"
-            [class]="co.isMine ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100'">
+          <div
+            class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm transition-all"
+            (click)="openMyTribe(co)"
+            [class]="co.isMine ? 'border-tribbo-primary bg-blue-50 cursor-pointer hover:border-tribbo-primary hover:shadow-md active:scale-[0.99]' : 'border-gray-100'"
+          >
             <div class="w-9 text-center font-space font-bold"
               [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
               {{ co.rank }}

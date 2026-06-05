@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -70,6 +71,7 @@ export class LeaderboardPage {
   private readonly authService = inject(AuthService);
   private readonly leaderboardService = inject(LeaderboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   protected readonly activeTab = signal<'global' | 'tribu' | 'tribes'>('global');
   protected readonly loading = signal(true);
@@ -115,6 +117,13 @@ export class LeaderboardPage {
       is_country_tribe: tribe.is_country_tribe,
     });
     this.loadSelectedTribeLeaderboard();
+  }
+
+  protected openMyTribe(tribe: TribeRow): void {
+    if (!tribe.isMine) return;
+    this.router.navigate(['/tribe'], {
+      queryParams: { tribeId: tribe.id },
+    });
   }
 
   private loadLeaderboards(): void {
