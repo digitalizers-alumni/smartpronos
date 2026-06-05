@@ -99,7 +99,15 @@
   @if (showAppChrome()) {
     <footer class="hidden md:flex shrink-0 h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2 z-10">
       <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
-      <img src="assets/logo-digitalizers-grey.png" class="h-5 opacity-40" alt="Digitalizers" />
+      <a
+        href="https://digitalizers.ch"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="opacity-40 transition-opacity hover:opacity-70"
+        aria-label="Ouvrir le site Digitalizers"
+      >
+        <img src="assets/logo-digitalizers-grey.png" class="h-5" alt="Digitalizers" />
+      </a>
     </footer>
   }
 
