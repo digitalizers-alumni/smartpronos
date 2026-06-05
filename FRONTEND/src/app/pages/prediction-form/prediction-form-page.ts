@@ -42,6 +42,8 @@ export class PredictionFormPage {
   private readonly predictionProgressService = inject(PredictionProgressService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private successBannerTimeout: ReturnType<typeof window.setTimeout> | null = null;
+  private completionRedirectTimeout: ReturnType<typeof window.setTimeout> | null = null;
 
   @ViewChild(PredictionForm)
   private predictionFormRef?: PredictionForm;
@@ -243,9 +245,13 @@ export class PredictionFormPage {
   }
 
   private showSuccessBanner(message: string): void {
+    if (this.successBannerTimeout) {
+      window.clearTimeout(this.successBannerTimeout);
+    }
     this.successBanner.set(message);
-    window.setTimeout(() => {
+    this.successBannerTimeout = window.setTimeout(() => {
       this.successBanner.set(null);
+      this.successBannerTimeout = null;
     }, 2500);
   }
 
@@ -266,7 +272,7 @@ export class PredictionFormPage {
           null;
 
         if (!nextMatch) {
-          this.noNextPrediction.set(true);
+          this.showCompletionBannerAndRedirect();
           return;
         }
 
@@ -280,5 +286,17 @@ export class PredictionFormPage {
         this.noNextPrediction.set(true);
       },
     });
+  }
+
+  private showCompletionBannerAndRedirect(): void {
+    if (this.completionRedirectTimeout) {
+      window.clearTimeout(this.completionRedirectTimeout);
+    }
+    this.noNextPrediction.set(false);
+    this.showSuccessBanner('100% des pronos disponibles complétés. Félicitations !');
+    this.completionRedirectTimeout = window.setTimeout(() => {
+      this.completionRedirectTimeout = null;
+      this.router.navigate(['/home', 'match-list']);
+    }, 2200);
   }
 }
