@@ -94,6 +94,9 @@ export class MatchListPage {
     return options.sort((a, b) => a.value.localeCompare(b.value));
   });
 
+  protected readonly showRoundFilters = computed(() => this.roundOptions().length > 1);
+  protected readonly showGroupFilters = computed(() => this.groupOptions().length > 1);
+
   protected readonly filteredMatches = computed(() => {
     let list = this.matches();
 
@@ -106,12 +109,12 @@ export class MatchListPage {
       list = list.filter((m) => m.status === status);
     }
 
-    const rounds = this.selectedRounds();
+    const rounds = this.showRoundFilters() ? this.selectedRounds() : new Set<string>();
     if (rounds.size > 0) {
       list = list.filter((m) => rounds.has(extractRoundKey(m.stage)));
     }
 
-    const groups = this.selectedGroups();
+    const groups = this.showGroupFilters() ? this.selectedGroups() : new Set<string>();
     if (groups.size > 0) {
       list = list.filter((m) => m.group && groups.has(m.group));
     }
@@ -189,7 +192,10 @@ export class MatchListPage {
   }
 
   protected hasActiveAdvancedFilters(): boolean {
-    return this.selectedRounds().size > 0 || this.selectedGroups().size > 0;
+    return (
+      (this.showRoundFilters() && this.selectedRounds().size > 0) ||
+      (this.showGroupFilters() && this.selectedGroups().size > 0)
+    );
   }
 
   protected toggleRound(round: string): void {

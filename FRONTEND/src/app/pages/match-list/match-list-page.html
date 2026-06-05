@@ -49,7 +49,7 @@
         }
       </div>
 
-      @if (roundOptions().length > 0) {
+      @if (showRoundFilters()) {
         <div>
           <p class="font-inter text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Par tour</p>
           <div class="flex flex-wrap gap-2">
@@ -69,7 +69,7 @@
         </div>
       }
 
-      @if (groupOptions().length > 0) {
+      @if (showGroupFilters()) {
         <div>
           <p class="font-inter text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Par groupe</p>
           <div class="flex flex-wrap gap-2">
@@ -89,7 +89,7 @@
         </div>
       }
 
-      @if (roundOptions().length === 0 && groupOptions().length === 0) {
+      @if (!showRoundFilters() && !showGroupFilters()) {
         <p class="font-inter text-sm text-gray-400 text-center py-4">Aucun filtre disponible pour les matchs chargés.</p>
       }
     </div>
