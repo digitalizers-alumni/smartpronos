@@ -37,6 +37,7 @@ export interface UserProfile {
   username: string | null;
   display_name: string | null;
   boosts_available: number;
+  avatar_path: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

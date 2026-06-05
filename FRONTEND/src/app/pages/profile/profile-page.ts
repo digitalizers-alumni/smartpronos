@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { AvatarService } from '../../services/avatar.service';
 import { TeamService, UserProfile } from '../../services/team.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { TeamService, UserProfile } from '../../services/team.service';
 export class ProfilePage {
   protected readonly authService = inject(AuthService);
   private readonly teamService = inject(TeamService);
+  private readonly avatarService = inject(AvatarService);
   private readonly router = inject(Router);
 
   protected readonly profile = signal<UserProfile | null>(null);
@@ -34,6 +36,9 @@ export class ProfilePage {
   protected readonly savingDisplayName = signal(false);
   protected readonly displayNameError = signal('');
   protected readonly displayNameSuccess = signal(false);
+  protected readonly uploadingAvatar = signal(false);
+  protected readonly avatarError = signal('');
+  protected readonly avatarSuccess = signal(false);
 
   protected readonly displayName = computed(() => {
     const profile = this.profile();
@@ -47,6 +52,8 @@ export class ProfilePage {
     if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     return name.slice(0, 2).toUpperCase();
   });
+
+  protected readonly avatarUrl = computed(() => this.avatarService.getPublicUrl(this.profile()?.avatar_path));
 
   constructor() {
     this.loadProfile();
@@ -96,6 +103,43 @@ export class ProfilePage {
         this.savingDisplayName.set(false);
       },
     });
+  }
+
+  protected async updateAvatar(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    this.uploadingAvatar.set(true);
+    this.avatarError.set('');
+    this.avatarSuccess.set(false);
+    try {
+      const avatarPath = await this.avatarService.updateProfileAvatar(file);
+      this.profile.update((profile) => profile ? { ...profile, avatar_path: avatarPath } : profile);
+      this.avatarSuccess.set(true);
+    } catch (err) {
+      console.error('[ProfilePage] Impossible de mettre à jour la photo.', err);
+      this.avatarError.set(err instanceof Error ? err.message : 'Photo impossible à mettre à jour.');
+    } finally {
+      this.uploadingAvatar.set(false);
+    }
+  }
+
+  protected async deleteAvatar(): Promise<void> {
+    this.uploadingAvatar.set(true);
+    this.avatarError.set('');
+    this.avatarSuccess.set(false);
+    try {
+      await this.avatarService.deleteProfileAvatar();
+      this.profile.update((profile) => profile ? { ...profile, avatar_path: null } : profile);
+      this.avatarSuccess.set(true);
+    } catch (err) {
+      console.error('[ProfilePage] Impossible de supprimer la photo.', err);
+      this.avatarError.set(err instanceof Error ? err.message : 'Photo impossible à supprimer.');
+    } finally {
+      this.uploadingAvatar.set(false);
+    }
   }
 
   protected openDeleteConfirm(): void {

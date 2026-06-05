@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
+import { AvatarService } from '../../services/avatar.service';
 import {
   TribeDashboard,
   TribeMemberWithScore,
@@ -22,6 +23,7 @@ interface TribeMember {
   exactCount: number;
   isYou: boolean;
   noPred: boolean;
+  avatarUrl: string | null;
 }
 
 interface PlayerRivalMessage {
@@ -65,6 +67,7 @@ function tribeCode(name: string): string {
 export class TribePage {
   private readonly authService = inject(AuthService);
   private readonly tribeService = inject(TribeService);
+  private readonly avatarService = inject(AvatarService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
 
@@ -73,6 +76,7 @@ export class TribePage {
   protected readonly error = signal<string | null>(null);
   protected readonly actionError = signal<string | null>(null);
   protected readonly actionSuccess = signal<string | null>(null);
+  protected readonly avatarUploading = signal(false);
   protected readonly dashboard = signal<TribeDashboard | null>(null);
   protected readonly createName = signal('');
   protected readonly joinCode = signal('');
@@ -112,6 +116,10 @@ export class TribePage {
     this.dashboard()?.invite?.country_flag_url ??
     null
   );
+  protected readonly tribeAvatarUrl = computed(() => {
+    if (this.isCountryTribe()) return this.countryFlagUrl();
+    return this.avatarService.getPublicUrl(this.dashboard()?.profile.avatar_path);
+  });
   protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
   protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
   protected readonly playerRival = computed<PlayerRivalMessage | null>(() => {
@@ -196,6 +204,47 @@ export class TribePage {
         console.error('[TribePage] Impossible de copier le code invitation.', err);
         this.actionError.set('Impossible de copier le code.');
       });
+  }
+
+  protected async updateTribeAvatar(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    const tribeId = this.dashboard()?.profile.tribe_id;
+    if (!file || !tribeId) return;
+
+    this.avatarUploading.set(true);
+    this.actionError.set(null);
+    this.actionSuccess.set(null);
+    try {
+      await this.avatarService.updateTribeAvatar(tribeId, file);
+      this.showSuccessBanner('Photo de tribu mise à jour.');
+      this.loadDashboard();
+    } catch (err) {
+      console.error('[TribePage] Impossible de mettre à jour la photo de tribu.', err);
+      this.actionError.set(err instanceof Error ? err.message : 'Photo impossible à mettre à jour.');
+    } finally {
+      this.avatarUploading.set(false);
+    }
+  }
+
+  protected async deleteTribeAvatar(): Promise<void> {
+    const tribeId = this.dashboard()?.profile.tribe_id;
+    if (!tribeId) return;
+
+    this.avatarUploading.set(true);
+    this.actionError.set(null);
+    this.actionSuccess.set(null);
+    try {
+      await this.avatarService.deleteTribeAvatar(tribeId);
+      this.showSuccessBanner('Photo de tribu supprimée.');
+      this.loadDashboard();
+    } catch (err) {
+      console.error('[TribePage] Impossible de supprimer la photo de tribu.', err);
+      this.actionError.set(err instanceof Error ? err.message : 'Photo impossible à supprimer.');
+    } finally {
+      this.avatarUploading.set(false);
+    }
   }
 
   protected toggleTribeActions(): void {
@@ -332,6 +381,7 @@ export class TribePage {
         exactCount: Number(row.exact_count),
         isYou: row.user_id === this.authService.currentUser()?.id,
         noPred: points === 0,
+        avatarUrl: this.avatarService.getPublicUrl(row.avatar_path),
       };
     });
   }
