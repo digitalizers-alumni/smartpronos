@@ -92,10 +92,14 @@
               [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
               {{ player.rank }}
             </div>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
-              [style.background]="avatarColor(player.name)">
-              {{ player.initials }}
-            </div>
+            @if (player.avatarUrl) {
+              <img [src]="player.avatarUrl" [alt]="player.name" class="w-10 h-10 rounded-full object-cover shrink-0" />
+            } @else {
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+                [style.background]="avatarColor(player.name)">
+                {{ player.initials }}
+              </div>
+            }
             <div class="flex-1 min-w-0">
               <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
                 {{ player.name }}
@@ -122,10 +126,14 @@
           <div class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm"
             [class]="member.isYou ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100'">
             <div class="w-9 text-center font-space font-bold text-lg text-gray-500">{{ member.rank }}</div>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
-              [style.background]="avatarColor(member.name)">
-              {{ member.initials }}
-            </div>
+            @if (member.avatarUrl) {
+              <img [src]="member.avatarUrl" [alt]="member.name" class="w-10 h-10 rounded-full object-cover shrink-0" />
+            } @else {
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+                [style.background]="avatarColor(member.name)">
+                {{ member.initials }}
+              </div>
+            }
             <div class="flex-1 min-w-0">
               <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
                 {{ member.name }}
@@ -160,6 +168,8 @@
             </div>
             @if (co.countryFlagUrl) {
               <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+            } @else if (co.avatarUrl) {
+              <img [src]="co.avatarUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
             } @else {
               <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
                 [style.background]="avatarColor(co.name)">

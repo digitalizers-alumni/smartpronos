@@ -11,6 +11,7 @@ import {
   TribesLeaderboardRow,
   UserTribe,
 } from '../../services/leaderboard.service';
+import { AvatarService } from '../../services/avatar.service';
 
 interface LeaderboardPlayer {
   id: string;
@@ -21,6 +22,7 @@ interface LeaderboardPlayer {
   points: number;
   exactCount: number;
   isYou: boolean;
+  avatarUrl: string | null;
 }
 
 interface TribeRow {
@@ -29,6 +31,7 @@ interface TribeRow {
   name: string;
   code: string;
   countryFlagUrl: string | null;
+  avatarUrl: string | null;
   members: number;
   activeMembers: number;
   avgPoints: number;
@@ -70,6 +73,7 @@ function tribeCode(name: string): string {
 export class LeaderboardPage {
   private readonly authService = inject(AuthService);
   private readonly leaderboardService = inject(LeaderboardService);
+  private readonly avatarService = inject(AvatarService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
@@ -79,6 +83,7 @@ export class LeaderboardPage {
   protected readonly currentTribe = signal<CurrentUserTribe>({
     tribe_id: null,
     tribe_name: null,
+      avatar_path: null,
   });
   protected readonly userTribes = signal<UserTribe[]>([]);
   protected readonly selectedTribeId = signal<string | null>(null);
@@ -115,6 +120,8 @@ export class LeaderboardPage {
       tribe_id: tribe.tribe_id,
       tribe_name: tribe.tribe_name,
       is_country_tribe: tribe.is_country_tribe,
+      country_flag_url: tribe.country_flag_url,
+      avatar_path: tribe.avatar_path,
     });
     this.loadSelectedTribeLeaderboard();
   }
@@ -142,6 +149,7 @@ export class LeaderboardPage {
             tribe_name: selectedTribe?.tribe_name ?? null,
             is_country_tribe: selectedTribe?.is_country_tribe ?? null,
             country_flag_url: selectedTribe?.country_flag_url ?? null,
+            avatar_path: selectedTribe?.avatar_path ?? null,
           });
           return forkJoin({
             global: this.leaderboardService.getGlobalLeaderboard(),
@@ -208,6 +216,7 @@ export class LeaderboardPage {
       points: Number(row.total_points),
       exactCount,
       isYou: row.user_id === this.authService.currentUser()?.id,
+      avatarUrl: this.avatarService.getPublicUrl(row.avatar_path),
     };
   }
 
@@ -218,6 +227,7 @@ export class LeaderboardPage {
       name: row.name,
       code: tribeCode(row.name),
       countryFlagUrl: row.is_country_tribe ? row.country_flag_url : null,
+      avatarUrl: row.is_country_tribe ? null : this.avatarService.getPublicUrl(row.avatar_path),
       members: Number(row.member_count),
       activeMembers: Number(row.active_member_count),
       avgPoints: Math.round(Number(row.avg_points)),
