@@ -7,6 +7,7 @@ import {
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -22,7 +23,7 @@ import {
   PredictionFormTeam,
 } from '../../shared/models/prediction.models';
 
-const MAX_SCORE = 20;
+const MAX_SCORE = 99;
 const MIN_SCORE = 0;
 
 function integerValidator(): ValidatorFn {
@@ -55,6 +56,7 @@ export class PredictionForm {
   readonly formKey = input<string | null>(null);
 
   readonly predictionSubmit = output<PredictionFormValue>();
+  protected readonly formError = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -97,8 +99,17 @@ export class PredictionForm {
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      if (
+        this.form.controls.homeScore.hasError('max') ||
+        this.form.controls.awayScore.hasError('max')
+      ) {
+        this.formError.set(`Le score maximum autorisé est ${MAX_SCORE} buts par équipe.`);
+      } else {
+        this.formError.set('Vérifie les scores avant de valider ton pronostic.');
+      }
       return;
     }
+    this.formError.set(null);
     const { homeScore, awayScore } = this.form.getRawValue();
     this.predictionSubmit.emit({
       homeScore: Math.trunc(homeScore),
