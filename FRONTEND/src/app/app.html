@@ -82,10 +82,8 @@
   }
 
   <!-- Scrollable Content Area -->
-  <main class="flex-1 overflow-y-auto overflow-x-hidden"
-        [class.pb-16]="showAppChrome()"
-        [class.md:pb-0]="showAppChrome()">
-    <div class="mx-auto w-full"
+  <main class="flex-1 overflow-y-auto overflow-x-hidden">
+    <div class="mx-auto min-h-full w-full"
          [class.md:max-w-7xl]="showAppChrome() && !isPredictionFormScreen()">
       <router-outlet />
     </div>
@@ -109,9 +107,9 @@
     </footer>
   }
 
-  <!-- Mobile Bottom Navigation (fixed at bottom) -->
+  <!-- Mobile Bottom Navigation -->
   @if (showAppChrome()) {
-    <nav class="fixed bottom-0 left-0 right-0 z-50 flex md:hidden">
+    <nav class="z-50 flex shrink-0 md:hidden">
       <app-bottom-nav />
     </nav>
   }
