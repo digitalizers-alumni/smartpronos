@@ -30,7 +30,14 @@
 
   <div class="mt-3 pt-3 border-t border-gray-100 relative">
     @if (match().prediction.hasPrediction) {
-      <div class="flex items-center justify-center gap-3 mb-3">
+      <div class="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        @if (match().result; as result) {
+          <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Score</span>
+          <span class="font-space text-lg font-bold text-green-600">{{ result.homeScore }}</span>
+          <span class="font-space text-gray-300">-</span>
+          <span class="font-space text-lg font-bold text-green-600">{{ result.awayScore }}</span>
+          <span class="h-4 w-px bg-gray-200"></span>
+        }
         <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Mon prono</span>
         <span class="font-space text-lg font-bold text-tribbo-primary">{{ match().prediction.homeScore }}</span>
         <span class="font-space text-gray-300">-</span>
@@ -45,7 +52,16 @@
       }
     } @else {
       <div class="flex items-center justify-center mb-3">
-        <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
+        @if (match().result; as result) {
+          <div class="flex items-center justify-center gap-3">
+            <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Score</span>
+            <span class="font-space text-lg font-bold text-green-600">{{ result.homeScore }}</span>
+            <span class="font-space text-gray-300">-</span>
+            <span class="font-space text-lg font-bold text-green-600">{{ result.awayScore }}</span>
+          </div>
+        } @else {
+          <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>
+        }
       </div>
     }
   </div>
