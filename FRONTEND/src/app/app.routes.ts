@@ -56,6 +56,12 @@ export const routes: Routes = [
       import('./pages/tribe/tribe-page').then((m) => m.TribePage),
   },
   {
+    path: 'tribes/:tribeId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/public-tribe/public-tribe-page').then((m) => m.PublicTribePage),
+  },
+  {
     path: 'company',
     redirectTo: '/tribe',
   },
@@ -64,6 +70,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/profile/profile-page').then((m) => m.ProfilePage),
+  },
+  {
+    path: 'players/:userId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/public-profile/public-profile-page').then((m) => m.PublicProfilePage),
   },
   {
     path: 'auth/callback',
