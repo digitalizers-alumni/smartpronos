@@ -83,7 +83,7 @@ export class LeaderboardPage {
   protected readonly currentTribe = signal<CurrentUserTribe>({
     tribe_id: null,
     tribe_name: null,
-      avatar_path: null,
+    avatar_path: null,
   });
   protected readonly userTribes = signal<UserTribe[]>([]);
   protected readonly selectedTribeId = signal<string | null>(null);
@@ -127,10 +127,21 @@ export class LeaderboardPage {
   }
 
   protected openMyTribe(tribe: TribeRow): void {
-    if (!tribe.isMine) return;
-    this.router.navigate(['/tribe'], {
-      queryParams: { tribeId: tribe.id },
-    });
+    if (tribe.isMine) {
+      this.router.navigate(['/tribe'], {
+        queryParams: { tribeId: tribe.id },
+      });
+      return;
+    }
+    this.router.navigate(['/tribes', tribe.id]);
+  }
+
+  protected openPlayer(player: LeaderboardPlayer): void {
+    if (player.isYou) {
+      this.router.navigateByUrl('/profile');
+      return;
+    }
+    this.router.navigate(['/players', player.id]);
   }
 
   private loadLeaderboards(): void {

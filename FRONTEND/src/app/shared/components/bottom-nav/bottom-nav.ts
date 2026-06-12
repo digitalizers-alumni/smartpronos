@@ -12,7 +12,7 @@ interface NavItem {
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   template: `
-    <nav class="h-16 w-full bg-tribbo-surface border-t border-gray-200 flex items-center justify-around shrink-0">
+    <nav class="min-h-16 w-full bg-tribbo-surface border-t border-gray-200 flex items-center justify-around shrink-0 pb-[env(safe-area-inset-bottom)]">
       @for (item of navItems; track item.route) {
         <a
           [routerLink]="[item.route]"

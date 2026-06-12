@@ -1,0 +1,54 @@
+<div class="flex min-h-full w-full flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8">
+  <div class="mx-auto w-full max-w-lg">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-16">
+        <div class="font-inter text-gray-400 text-sm">Chargement du profil...</div>
+      </div>
+    } @else if (error(); as err) {
+      <div class="rounded-2xl border border-red-100 bg-white px-5 py-6 text-center shadow-sm">
+        <p class="font-inter text-sm font-semibold text-red-500">Profil indisponible</p>
+        <p class="mt-2 font-inter text-sm text-gray-500">{{ err }}</p>
+      </div>
+    } @else if (profile(); as p) {
+      <div class="mb-6 flex flex-col items-center text-center">
+        @if (avatarUrl(); as url) {
+          <img [src]="url" [alt]="displayName()" class="h-[76px] w-[76px] rounded-2xl object-cover shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)]" />
+        } @else {
+          <div class="flex h-[76px] w-[76px] items-center justify-center rounded-2xl bg-gradient-to-br from-tribbo-primary to-blue-400 font-archivo text-3xl text-white shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)]">
+            {{ initials() }}
+          </div>
+        }
+        <div class="mt-3 font-archivo text-xl text-tribbo-text">{{ displayName() }}</div>
+        <div class="mt-1 font-inter text-xs text-gray-400">Profil joueur</div>
+        <div class="mt-3 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-1.5 text-sm font-semibold shadow-sm">
+          @if (p.favorite_team_flag) {
+            <img [src]="p.favorite_team_flag" class="h-6 w-6 rounded-full object-cover" alt="" />
+          }
+          {{ p.favorite_team_name ? 'Soutient ' + p.favorite_team_name : 'Aucune équipe' }}
+        </div>
+      </div>
+
+      <div class="mb-6 grid grid-cols-3 gap-3">
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
+          <div class="font-archivo text-2xl text-tribbo-primary">{{ p.rank ? '#' + p.rank : '—' }}</div>
+          <div class="mt-1 font-space text-[10px] font-semibold uppercase tracking-wider text-gray-400">Rang</div>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
+          <div class="font-archivo text-2xl text-tribbo-primary">{{ p.total_points }}</div>
+          <div class="mt-1 font-space text-[10px] font-semibold uppercase tracking-wider text-gray-400">Points</div>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
+          <div class="font-archivo text-2xl text-tribbo-primary">{{ p.exact_count }}</div>
+          <div class="mt-1 font-space text-[10px] font-semibold uppercase tracking-wider text-gray-400">Exacts</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div class="font-space text-[10px] font-bold uppercase tracking-widest text-gray-400">Pronostics</div>
+        <div class="mt-2 font-inter text-sm font-semibold text-tribbo-text">
+          {{ p.total_predictions }} pronostic{{ +p.total_predictions > 1 ? 's' : '' }} validé{{ +p.total_predictions > 1 ? 's' : '' }}
+        </div>
+      </div>
+    }
+  </div>
+</div>
