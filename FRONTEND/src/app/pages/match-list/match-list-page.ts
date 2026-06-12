@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval, startWith, switchMap } from 'rxjs';
 import { MatchCard } from '../../components/match-card/match-card';
 import { UserRankCard } from '../../shared/components/user-rank-card/user-rank-card';
 import { MatchListItem, MatchStatus } from '../../shared/models/match.models';
@@ -167,24 +168,25 @@ export class MatchListPage {
       },
     });
 
-    this.matchService
-      .getMatches()
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: (rows) => {
-          this.matches.set(rows);
-          this.error.set(null);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          console.error('[MatchListPage] Impossible de charger les matchs depuis Supabase.', err);
-          this.matches.set([]);
-          this.error.set(
-            'Impossible de charger les matchs depuis la base locale. Vérifie que Supabase est démarré, que le frontend pointe vers l’URL locale et que la RPC get_match_list existe.',
-          );
-          this.loading.set(false);
-        },
-      });
+    interval(30_000).pipe(
+      startWith(0),
+      switchMap(() => this.matchService.getMatches()),
+      takeUntilDestroyed(),
+    ).subscribe({
+      next: (rows) => {
+        this.matches.set(rows);
+        this.error.set(null);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('[MatchListPage] Impossible de charger les matchs depuis Supabase.', err);
+        this.matches.set([]);
+        this.error.set(
+          'Impossible de charger les matchs depuis la base locale. Vérifie que Supabase est démarré, que le frontend pointe vers l’URL locale et que la RPC get_match_list existe.',
+        );
+        this.loading.set(false);
+      },
+    });
   }
 
   protected toggleAdvanced(): void {
