@@ -1,4 +1,4 @@
-<div class="flex h-dvh w-full flex-col bg-tribbo-bg">
+<div class="flex h-dvh w-full flex-col bg-tribbo-bg pt-[env(safe-area-inset-top)]">
   <!-- Desktop Top Navigation Bar -->
   @if (showAppChrome()) {
     <header class="relative z-40 hidden md:flex h-16 bg-tribbo-surface border-b border-gray-200 items-center px-6 justify-between shrink-0">
@@ -88,24 +88,22 @@
       <router-outlet />
     </div>
 
-
+    <!-- Desktop Footer -->
+    @if (showAppChrome()) {
+      <footer class="hidden md:flex h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2">
+        <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
+        <a
+          href="https://digitalizers.ch"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="opacity-40 transition-opacity hover:opacity-70"
+          aria-label="Ouvrir le site Digitalizers"
+        >
+          <img src="assets/logo-digitalizers-grey.png" class="h-5" alt="Digitalizers" />
+        </a>
+      </footer>
+    }
   </main>
-
-  <!-- Desktop Footer -->
-  @if (showAppChrome()) {
-    <footer class="hidden md:flex shrink-0 h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2 z-10">
-      <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
-      <a
-        href="https://digitalizers.ch"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="opacity-40 transition-opacity hover:opacity-70"
-        aria-label="Ouvrir le site Digitalizers"
-      >
-        <img src="assets/logo-digitalizers-grey.png" class="h-5" alt="Digitalizers" />
-      </a>
-    </footer>
-  }
 
   <!-- Mobile Bottom Navigation -->
   @if (showAppChrome()) {

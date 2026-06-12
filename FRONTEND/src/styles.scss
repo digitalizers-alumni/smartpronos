@@ -11,15 +11,16 @@
 
   body {
     @apply bg-tribbo-bg text-tribbo-text antialiased;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
+
   }
 
   app-root {
     display: flex;
     flex-direction: column;
     width: 100%;
-    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   app-top-app-bar,
