@@ -56,6 +56,7 @@ export class MatchListPage {
   protected readonly userPoints = signal<number | null>(null);
   protected readonly userRank = signal<number | null>(null);
   protected readonly profileError = signal<string | null>(null);
+  protected readonly showBonusBanner = signal(!localStorage.getItem('tribbo_bonus_boosts_dismissed'));
 
   protected readonly statusFilters: StatusFilterOption[] = [
     { label: 'Tous', value: 'all' },
@@ -261,6 +262,11 @@ export class MatchListPage {
 
   protected isFilterActive(value: MatchStatusFilter): boolean {
     return this.statusFilter() === value;
+  }
+
+  protected dismissBonusBanner(): void {
+    localStorage.setItem('tribbo_bonus_boosts_dismissed', 'true');
+    this.showBonusBanner.set(false);
   }
 }
 

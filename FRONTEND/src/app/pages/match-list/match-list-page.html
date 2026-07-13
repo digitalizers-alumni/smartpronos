@@ -9,6 +9,27 @@
     </div>
   }
 
+  @if (showBonusBanner()) {
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-gradient-to-r from-tribbo-primary/10 via-indigo-500/5 to-purple-500/10 border border-tribbo-primary/10 rounded-2xl p-4 shadow-sm flex items-start justify-between gap-4 transition-all duration-300">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-tribbo-primary/10 flex items-center justify-center text-tribbo-primary">
+          <span class="material-symbols-outlined text-lg">redeem</span>
+        </div>
+        <div>
+          <h4 class="font-archivo text-xs font-bold text-tribbo-text uppercase tracking-wider mb-0.5">Bonus de boosts offert ! 🎁</h4>
+          <p class="font-inter text-xs text-gray-500 leading-relaxed">2 boosts supplémentaires ont été ajoutés à votre compte. Doublez vos points sur vos pronostics clés !</p>
+        </div>
+      </div>
+      <button 
+        (click)="dismissBonusBanner()" 
+        class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100 p-1 active:scale-95 flex items-center justify-center"
+        aria-label="Fermer l'alerte"
+      >
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    </div>
+  }
+
   <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100 transition-all duration-300">
     <div class="flex items-center justify-between">
       <h2 class="font-archivo text-base font-bold text-tribbo-text uppercase tracking-tight">Matchs</h2>
