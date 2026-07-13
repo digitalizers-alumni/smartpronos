@@ -108,10 +108,10 @@
         <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+      <div class="flex flex-wrap justify-center gap-4 md:gap-6">
         @for (group of dateGroups(); track group.dateKey) {
           @for (match of group.matches; track match.id) {
-            <app-match-card [match]="match" />
+            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)] max-w-md" />
           }
         }
       </div>
