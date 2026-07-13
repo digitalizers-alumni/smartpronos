@@ -20,14 +20,14 @@
             [class.font-semibold]="isActive('/leaderboard')"
             [class.bg-tribbo-primary/5]="isActive('/leaderboard')"
             [class.text-gray-500]="!isActive('/leaderboard')"
-         >Classement</a>
+         >Classements</a>
          <a (click)="navigateTo('/tribe')"
             class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
             [class.text-tribbo-primary]="isActive('/tribe')"
             [class.font-semibold]="isActive('/tribe')"
             [class.bg-tribbo-primary/5]="isActive('/tribe')"
             [class.text-gray-500]="!isActive('/tribe')"
-         >Tribu</a>
+         >Mes Tribus</a>
       </nav>
       <div class="relative" (click)="keepUserMenuOpen($event)">
         <button
@@ -82,15 +82,16 @@
   }
 
   <!-- Scrollable Content Area -->
-  <main class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-    <div class="mx-auto min-h-full w-full"
-         [class.md:max-w-7xl]="showAppChrome() && !isPredictionFormScreen()">
+  <main class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+    <div class="mx-auto flex-1 w-full"
+         [class.md:max-w-7xl]="showAppChrome() && !isPredictionFormScreen()"
+         [class.xl:max-w-[1576px]]="showAppChrome() && !isPredictionFormScreen()">
       <router-outlet />
     </div>
 
     <!-- Desktop Footer -->
     @if (showAppChrome()) {
-      <footer class="hidden md:flex h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2">
+      <footer class="hidden md:flex shrink-0 h-14 bg-tribbo-surface border-t border-gray-200 items-center justify-center gap-2">
         <span class="font-inter text-[10px] text-gray-400 tracking-[4px] uppercase">by</span>
         <a
           href="https://digitalizers.ch"

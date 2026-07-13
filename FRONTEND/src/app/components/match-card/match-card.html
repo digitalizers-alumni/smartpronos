@@ -1,8 +1,8 @@
 <div
   [routerLink]="['/match', match().id, 'prediction-form']"
-  class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-tribbo-primary hover:shadow-md transition-all h-full min-h-[240px] flex flex-col relative overflow-hidden"
+  class="bg-white rounded-xl p-5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.04)] border border-gray-100/70 cursor-pointer hover:border-tribbo-primary/30 hover:shadow-[0_12px_24px_-8px_rgba(29,77,255,0.12)] transition-all duration-300 ease-out h-full min-h-[240px] flex flex-col relative overflow-hidden"
 >
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.12)_0%,_rgba(29,77,255,0.07)_50%,_transparent_85%)] pointer-events-none"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,77,255,0.04)_0%,_rgba(29,77,255,0.01)_60%,_transparent_85%)] pointer-events-none"></div>
 
   <div class="flex items-center justify-between mb-4 text-xs text-gray-500 font-inter font-medium relative">
     <span class="flex items-center gap-1.5">📅 {{ match().kickoff | date:'dd MMM yyyy - HH:mm' }}</span>
@@ -36,6 +36,9 @@
           <span class="font-space text-lg font-bold text-green-600">{{ result.homeScore }}</span>
           <span class="font-space text-gray-300">-</span>
           <span class="font-space text-lg font-bold text-green-600">{{ result.awayScore }}</span>
+          @if (isPenaltyShootout()) {
+            <span class="font-inter text-[9px] font-bold text-gray-400 bg-gray-100 rounded px-1.5 py-0.5 select-none">tab</span>
+          }
           <span class="h-4 w-px bg-gray-200"></span>
         }
         <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">Mon prono</span>
@@ -58,6 +61,9 @@
             <span class="font-space text-lg font-bold text-green-600">{{ result.homeScore }}</span>
             <span class="font-space text-gray-300">-</span>
             <span class="font-space text-lg font-bold text-green-600">{{ result.awayScore }}</span>
+            @if (isPenaltyShootout()) {
+              <span class="font-inter text-[9px] font-bold text-gray-400 bg-gray-100 rounded px-1.5 py-0.5 select-none -ml-1">tab</span>
+            }
           </div>
         } @else {
           <span class="font-inter text-[11px] uppercase tracking-wider text-gray-400">À pronostiquer</span>

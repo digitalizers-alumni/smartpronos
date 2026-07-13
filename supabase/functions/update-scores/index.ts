@@ -371,8 +371,19 @@ serve(async (req) => {
         continue;
       }
 
-      const homeScore = m.score?.fullTime?.home;
-      const awayScore = m.score?.fullTime?.away;
+      let homeScore = m.score?.fullTime?.home;
+      let awayScore = m.score?.fullTime?.away;
+
+      // Si le match s'est terminé aux tirs au but, on exclut les tirs au but pour obtenir le score à la fin des prolongations (120 min)
+      if (m.score?.duration === "PENALTY_SHOOTOUT") {
+        const regHome = m.score?.regularTime?.home ?? 0;
+        const regAway = m.score?.regularTime?.away ?? 0;
+        const extHome = m.score?.extraTime?.home ?? 0;
+        const extAway = m.score?.extraTime?.away ?? 0;
+        homeScore = regHome + extHome;
+        awayScore = regAway + extAway;
+      }
+
       if (homeScore == null || awayScore == null) {
         errors.push(`Missing score for ${homeName} vs ${awayName}`);
         continue;

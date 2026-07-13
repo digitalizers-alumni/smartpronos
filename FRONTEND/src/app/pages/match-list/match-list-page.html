@@ -1,99 +1,139 @@
-<div class="flex min-h-full w-full flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+<div class="flex min-h-full w-full max-w-lg md:max-w-3xl min-[1192px]:max-w-[1192px] min-[1576px]:max-w-[1576px] mx-auto flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8 transition-all duration-300">
   @if (userPoints() !== null && userRank() !== null) {
-    <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto transition-all duration-300">
+      <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
+    </div>
   } @else if (profileError(); as err) {
-    <div class="bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm">
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm transition-all duration-300">
       <p class="font-inter text-sm text-yellow-700">{{ err }}</p>
     </div>
   }
 
-  <div class="flex gap-2 overflow-x-auto pb-1 items-center">
-    @for (f of statusFilters; track f.value) {
-      <button
-        (click)="setFilter(f.value)"
-        class="px-5 py-2.5 rounded-full text-sm font-inter font-medium transition-colors whitespace-nowrap"
-        [class.bg-tribbo-primary]="isFilterActive(f.value)"
-        [class.text-white]="isFilterActive(f.value)"
-        [class.bg-gray-100]="!isFilterActive(f.value)"
-        [class.text-gray-500]="!isFilterActive(f.value)"
+  @if (showBonusBanner()) {
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-gradient-to-r from-tribbo-primary/10 via-indigo-500/5 to-purple-500/10 border border-tribbo-primary/10 rounded-2xl p-4 shadow-sm flex items-start justify-between gap-4 transition-all duration-300">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-tribbo-primary/10 flex items-center justify-center text-tribbo-primary">
+          <span class="material-symbols-outlined text-lg">redeem</span>
+        </div>
+        <div>
+          <h4 class="font-archivo text-xs font-bold text-tribbo-text uppercase tracking-wider mb-0.5">Bonus de boosts offert ! 🎁</h4>
+          <p class="font-inter text-xs text-gray-500 leading-relaxed">2 boosts supplémentaires ont été ajoutés à votre compte. Doublez vos points sur vos pronostics clés !</p>
+        </div>
+      </div>
+      <button 
+        (click)="dismissBonusBanner()" 
+        class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100 p-1 active:scale-95 flex items-center justify-center"
+        aria-label="Fermer l'alerte"
       >
-        {{ f.label }}
+        <span class="material-symbols-outlined text-sm">close</span>
       </button>
-    }
-    <button
-      (click)="toggleAdvanced()"
-      class="ml-auto flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-inter font-medium transition-colors whitespace-nowrap"
-      [class.bg-tribbo-primary]="advancedOpen()"
-      [class.text-white]="advancedOpen()"
-      [class.bg-gray-100]="!advancedOpen()"
-      [class.text-gray-500]="!advancedOpen()"
-      [class.ring-2]="hasActiveAdvancedFilters() && !advancedOpen()"
-      [class.ring-tribbo-primary]="hasActiveAdvancedFilters() && !advancedOpen()"
-    >
-      <span class="material-symbols-outlined text-base">filter_list</span>
-      Filtrer par
-      @if (hasActiveAdvancedFilters() && !advancedOpen()) {
-        <span class="w-2 h-2 rounded-full bg-tribbo-primary"></span>
-      }
-    </button>
-  </div>
+    </div>
+  }
 
-  @if (advancedOpen()) {
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
-      <div class="flex items-center justify-between">
-        <h3 class="font-archivo text-sm text-tribbo-text uppercase tracking-tight">Filtres avancés</h3>
-        @if (hasActiveAdvancedFilters()) {
-          <button (click)="clearAdvancedFilters()" class="text-xs font-inter text-tribbo-primary hover:underline">
+  <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100 transition-all duration-300">
+    <div class="flex items-center justify-between">
+      <h2 class="font-archivo text-base font-bold text-tribbo-text uppercase tracking-tight">Matchs</h2>
+      <div class="flex items-center gap-3">
+        @if (advancedOpen() && hasActiveFilters()) {
+          <button (click)="clearAdvancedFilters()" class="text-xs font-inter text-tribbo-primary hover:underline transition-all">
             Réinitialiser
           </button>
         }
+        <button
+          (click)="toggleAdvanced()"
+          class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-inter font-semibold transition-all border shadow-sm active:scale-95"
+          [class.bg-tribbo-primary]="advancedOpen() || hasActiveFilters()"
+          [class.text-white]="advancedOpen() || hasActiveFilters()"
+          [class.border-tribbo-primary]="advancedOpen() || hasActiveFilters()"
+          [class.bg-white]="!advancedOpen() && !hasActiveFilters()"
+          [class.text-gray-500]="!advancedOpen() && !hasActiveFilters()"
+          [class.border-gray-200]="!advancedOpen() && !hasActiveFilters()"
+        >
+          <span class="material-symbols-outlined text-base">filter_list</span>
+          Filtrer
+          @if (hasActiveFilters()) {
+            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+          }
+        </button>
       </div>
-
-      @if (showRoundFilters()) {
-        <div>
-          <p class="font-inter text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Par tour</p>
-          <div class="flex flex-wrap gap-2">
-            @for (opt of roundOptions(); track opt.value) {
-              <button
-                (click)="toggleRound(opt.value)"
-                class="px-4 py-2 rounded-lg text-sm font-inter font-medium transition-colors"
-                [class.bg-tribbo-primary]="selectedRounds().has(opt.value)"
-                [class.text-white]="selectedRounds().has(opt.value)"
-                [class.bg-gray-100]="!selectedRounds().has(opt.value)"
-                [class.text-gray-500]="!selectedRounds().has(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (showGroupFilters()) {
-        <div>
-          <p class="font-inter text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Par groupe</p>
-          <div class="flex flex-wrap gap-2">
-            @for (opt of groupOptions(); track opt.value) {
-              <button
-                (click)="toggleGroup(opt.value)"
-                class="px-4 py-2 rounded-lg text-sm font-inter font-medium transition-colors"
-                [class.bg-tribbo-primary]="selectedGroups().has(opt.value)"
-                [class.text-white]="selectedGroups().has(opt.value)"
-                [class.bg-gray-100]="!selectedGroups().has(opt.value)"
-                [class.text-gray-500]="!selectedGroups().has(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (!showRoundFilters() && !showGroupFilters()) {
-        <p class="font-inter text-sm text-gray-400 text-center py-4">Aucun filtre disponible pour les matchs chargés.</p>
-      }
     </div>
-  }
+
+    <div
+      class="overflow-hidden transition-all duration-300 ease-in-out"
+      [class.max-h-0]="!advancedOpen()"
+      [class.opacity-0]="!advancedOpen()"
+      [class.pointer-events-none]="!advancedOpen()"
+      [class.max-h-[800px]]="advancedOpen()"
+      [class.opacity-100]="advancedOpen()"
+      [class.mt-4]="advancedOpen()"
+      [class.pt-4]="advancedOpen()"
+      [class.border-t]="advancedOpen()"
+      [class.border-gray-100]="advancedOpen()"
+    >
+      <div class="space-y-5">
+        <!-- Statut -->
+        <div class="text-center">
+          <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Statut</p>
+          <div class="flex flex-wrap justify-center gap-2">
+            @for (f of statusFilters; track f.value) {
+              <button
+                (click)="toggleStatusFilter(f.value)"
+                class="px-4 py-2 md:px-5 md:py-2.5 rounded-lg text-sm md:text-base font-inter font-medium transition-colors"
+                [class.bg-tribbo-primary]="isFilterActive(f.value)"
+                [class.text-white]="isFilterActive(f.value)"
+                [class.bg-gray-100]="!isFilterActive(f.value)"
+                [class.text-gray-500]="!isFilterActive(f.value)"
+              >
+                {{ f.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Par tour -->
+        @if (showRoundFilters()) {
+          <div class="text-center">
+            <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Par tour</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              @for (opt of roundOptions(); track opt.value) {
+                <button
+                  (click)="toggleRound(opt.value)"
+                  class="min-w-[4rem] md:min-w-[5rem] h-10 md:h-12 px-2 md:px-3 flex items-center justify-center rounded-lg text-xs md:text-sm font-inter font-semibold transition-colors"
+                  [class.bg-tribbo-primary]="selectedRounds().has(opt.value)"
+                  [class.text-white]="selectedRounds().has(opt.value)"
+                  [class.bg-gray-100]="!selectedRounds().has(opt.value)"
+                  [class.text-gray-500]="!selectedRounds().has(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Par groupe -->
+        @if (showGroupFilters()) {
+          <div class="text-center">
+            <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Par groupe</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              @for (opt of groupOptions(); track opt.value) {
+                <button
+                  (click)="toggleGroup(opt.value)"
+                  class="w-10 md:w-12 h-10 md:h-12 flex items-center justify-center rounded-lg text-xs md:text-sm font-inter font-semibold transition-colors"
+                  [class.bg-tribbo-primary]="selectedGroups().has(opt.value)"
+                  [class.text-white]="selectedGroups().has(opt.value)"
+                  [class.bg-gray-100]="!selectedGroups().has(opt.value)"
+                  [class.text-gray-500]="!selectedGroups().has(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 
   @if (loading()) {
     <div class="flex items-center justify-center py-16">
@@ -108,10 +148,10 @@
         <p class="font-inter text-sm text-gray-500 leading-relaxed">{{ err }}</p>
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+      <div class="flex flex-wrap justify-center gap-4 md:gap-6">
         @for (group of dateGroups(); track group.dateKey) {
           @for (match of group.matches; track match.id) {
-            <app-match-card [match]="match" />
+            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] min-[1192px]:w-[360px] max-w-lg" />
           }
         }
       </div>
@@ -119,7 +159,7 @@
       @if (dateGroups().length === 0) {
         <div class="flex flex-col items-center justify-center py-16 gap-2">
           <span class="font-inter text-gray-400 text-sm">Aucun match trouvé</span>
-          @if (hasActiveAdvancedFilters()) {
+          @if (hasActiveFilters()) {
             <button (click)="clearAdvancedFilters()" class="font-inter text-xs text-tribbo-primary hover:underline">
               Réinitialiser les filtres
             </button>

@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { RouterLink } from '@angular/router';
 
 import { MatchListItem } from '../../shared/models/match.models';
-import { stageLabel } from '../../shared/utils/stage-label';
+import { extractRoundKey, stageLabel } from '../../shared/utils/stage-label';
 
 @Component({
   selector: 'app-match-card',
@@ -16,4 +16,11 @@ export class MatchCard {
   readonly match = input.required<MatchListItem>();
 
   protected readonly stageLabel = computed(() => stageLabel(this.match().stage));
+
+  protected readonly isPenaltyShootout = computed(() => {
+    const m = this.match();
+    if (m.status !== 'finished' || !m.result) return false;
+    const stageKey = extractRoundKey(m.stage);
+    return stageKey !== 'group' && stageKey !== 'unknown' && m.result.homeScore === m.result.awayScore;
+  });
 }

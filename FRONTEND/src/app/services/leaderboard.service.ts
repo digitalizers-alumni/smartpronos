@@ -126,7 +126,31 @@ export class LeaderboardService {
     return from(this.supabase.client.rpc('get_tribes_leaderboard_with_flags')).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return (data ?? []) as TribesLeaderboardRow[];
+        const tribes = (data ?? []) as TribesLeaderboardRow[];
+
+        const real = tribes.filter(t => Number(t.active_member_count) >= 5);
+        const small = tribes.filter(t => Number(t.active_member_count) === 3 || Number(t.active_member_count) === 4);
+        const out = tribes.filter(t => Number(t.active_member_count) <= 2);
+
+        const processGroup = (group: TribesLeaderboardRow[]) => {
+          group.sort((a, b) => Number(b.avg_points) - Number(a.avg_points));
+          let currentRank = 1;
+          return group.map((item, index) => {
+            if (index > 0) {
+              const prev = group[index - 1];
+              if (Math.round(Number(prev.avg_points)) !== Math.round(Number(item.avg_points))) {
+                currentRank++;
+              }
+            }
+            return { ...item, rank: currentRank };
+          });
+        };
+
+        const rankedReal = processGroup(real);
+        const rankedSmall = processGroup(small);
+        const rankedOut = processGroup(out);
+
+        return [...rankedReal, ...rankedSmall, ...rankedOut];
       }),
     );
   }
