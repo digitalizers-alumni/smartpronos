@@ -1,15 +1,15 @@
-<div class="flex min-h-full w-full max-w-lg md:max-w-3xl lg:max-w-[1576px] mx-auto flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+<div class="flex min-h-full w-full max-w-lg md:max-w-3xl min-[1192px]:max-w-[1192px] min-[1576px]:max-w-[1576px] mx-auto flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8 transition-all duration-300">
   @if (userPoints() !== null && userRank() !== null) {
-    <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto">
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto transition-all duration-300">
       <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
     </div>
   } @else if (profileError(); as err) {
-    <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm">
+    <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm transition-all duration-300">
       <p class="font-inter text-sm text-yellow-700">{{ err }}</p>
     </div>
   }
 
-  <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100 transition-all duration-300">
+  <div class="w-full max-w-lg md:max-w-[704px] min-[1192px]:max-w-[1128px] min-[1576px]:max-w-[1512px] mx-auto bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100 transition-all duration-300">
     <div class="flex items-center justify-between">
       <h2 class="font-archivo text-base font-bold text-tribbo-text uppercase tracking-tight">Matchs</h2>
       <div class="flex items-center gap-3">
@@ -130,7 +130,7 @@
       <div class="flex flex-wrap justify-center gap-4 md:gap-6">
         @for (group of dateGroups(); track group.dateKey) {
           @for (match of group.matches; track match.id) {
-            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] lg:w-[360px] max-w-lg" />
+            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] min-[1192px]:w-[360px] max-w-lg" />
           }
         }
       </div>
