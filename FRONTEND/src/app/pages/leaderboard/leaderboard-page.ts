@@ -91,6 +91,18 @@ export class LeaderboardPage {
   protected readonly tribeMembers = signal<LeaderboardPlayer[]>([]);
   protected readonly tribes = signal<TribeRow[]>([]);
 
+  protected readonly realTribes = computed(() =>
+    this.tribes().filter((t) => t.activeMembers >= 5)
+  );
+
+  protected readonly smallTribes = computed(() =>
+    this.tribes().filter((t) => t.activeMembers === 3 || t.activeMembers === 4)
+  );
+
+  protected readonly outOfRankingTribes = computed(() =>
+    this.tribes().filter((t) => t.activeMembers <= 2)
+  );
+
   protected readonly tabs = [
     { key: 'global' as const, label: 'Global' },
     { key: 'tribu' as const, label: 'Ma Tribu' },
@@ -174,8 +186,16 @@ export class LeaderboardPage {
       )
       .subscribe({
         next: ({ global, tribeMembers, tribes }) => {
-          this.globalLb.set(global.map((row) => this.toPlayer(row)));
-          this.tribeMembers.set(tribeMembers.map((row) => this.toPlayer(row, this.currentTribe().tribe_name)));
+          const rankedGlobal = assignDenseRanks(global, (a, b) =>
+            Number(a.total_points) === Number(b.total_points) &&
+            Number(a.exact_count) === Number(b.exact_count)
+          );
+          const rankedTribe = assignDenseRanks(tribeMembers, (a, b) =>
+            Number(a.total_points) === Number(b.total_points) &&
+            Number(a.exact_count) === Number(b.exact_count)
+          );
+          this.globalLb.set(rankedGlobal.map((row) => this.toPlayer(row)));
+          this.tribeMembers.set(rankedTribe.map((row) => this.toPlayer(row, this.currentTribe().tribe_name)));
           this.tribes.set(tribes.map((row) => this.toTribe(row)));
           this.loading.set(false);
         },
@@ -202,7 +222,11 @@ export class LeaderboardPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (members) => {
-          this.tribeMembers.set(members.map((row) => this.toPlayer(row, tribeName)));
+          const rankedMembers = assignDenseRanks(members, (a, b) =>
+            Number(a.total_points) === Number(b.total_points) &&
+            Number(a.exact_count) === Number(b.exact_count)
+          );
+          this.tribeMembers.set(rankedMembers.map((row) => this.toPlayer(row, tribeName)));
         },
         error: (err) => {
           console.error('[LeaderboardPage] Impossible de charger le classement de la tribu.', err);
@@ -246,4 +270,20 @@ export class LeaderboardPage {
       isMine: this.userTribes().some((tribe) => tribe.tribe_id === row.tribe_id),
     };
   }
+}
+
+function assignDenseRanks<T extends { rank: number | string }>(
+  items: T[],
+  isEqual: (a: T, b: T) => boolean
+): T[] {
+  let currentRank = 1;
+  return items.map((item, index) => {
+    if (index > 0) {
+      const prev = items[index - 1];
+      if (!isEqual(prev, item)) {
+        currentRank++;
+      }
+    }
+    return { ...item, rank: currentRank };
+  });
 }

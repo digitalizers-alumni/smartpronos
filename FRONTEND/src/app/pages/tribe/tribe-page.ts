@@ -369,12 +369,16 @@ export class TribePage {
   }
 
   private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {
-    return rows.map((row, index) => {
+    const rankedRows = assignDenseRanks(rows, (a, b) =>
+      Number(a.total_points) === Number(b.total_points) &&
+      Number(a.exact_count) === Number(b.exact_count)
+    );
+    return rankedRows.map((row) => {
       const name = row.username ?? `user_${row.user_id.slice(0, 8)}`;
       const points = Number(row.total_points);
       return {
         id: row.user_id,
-        rank: index + 1,
+        rank: row.rank,
         name,
         initials: initials(name),
         points,
@@ -403,3 +407,20 @@ export class TribePage {
     this.loadDashboard();
   }
 }
+
+function assignDenseRanks<T>(
+  items: T[],
+  isEqual: (a: T, b: T) => boolean
+): (T & { rank: number })[] {
+  let currentRank = 1;
+  return items.map((item, index) => {
+    if (index > 0) {
+      const prev = items[index - 1];
+      if (!isEqual(prev, item)) {
+        currentRank++;
+      }
+    }
+    return { ...item, rank: currentRank };
+  });
+}
+

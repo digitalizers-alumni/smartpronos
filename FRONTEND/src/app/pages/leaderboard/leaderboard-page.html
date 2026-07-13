@@ -162,43 +162,141 @@
       }
 
       @if (activeTab() === 'tribes') {
-        @for (co of tribes(); track co.id; let i = $index) {
-          <div
-            class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm transition-all cursor-pointer hover:border-tribbo-primary/30 active:scale-[0.99]"
-            (click)="openMyTribe(co)"
-            [class]="co.isMine ? 'border-tribbo-primary bg-blue-50 hover:border-tribbo-primary hover:shadow-md' : 'border-gray-100'"
-          >
-            <div class="w-9 text-center font-space font-bold"
-              [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
-              {{ co.rank }}
-            </div>
-            @if (co.countryFlagUrl) {
-              <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
-            } @else if (co.avatarUrl) {
-              <img [src]="co.avatarUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
-            } @else {
-              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
-                [style.background]="avatarColor(co.name)">
-                {{ co.code }}
-              </div>
-            }
-            <div class="flex-1 min-w-0">
-              <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
-                {{ co.name }}
-                @if (co.isMine) {
-                  <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Ma Tribu</span>
-                }
-              </div>
-              <div class="font-inter text-xs text-gray-400 mt-0.5">
-                {{ co.members }} membres · {{ co.activeMembers }} actifs · {{ co.totalPoints }} pts
-              </div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="font-archivo text-base text-tribbo-primary">{{ co.avgPoints }}</div>
-              <div class="font-inter text-[10px] text-gray-400 -mt-0.5">moy.</div>
-            </div>
+        <!-- Vraies Tribus -->
+        @if (realTribes().length > 0) {
+          <div class="flex items-center gap-2 pt-2 pb-3">
+            <span class="material-symbols-outlined text-xl text-yellow-500">emoji_events</span>
+            <span class="font-archivo text-xs font-bold uppercase tracking-wider text-tribbo-text">Vraies Tribus (5+ actifs)</span>
           </div>
-        } @empty {
+          @for (co of realTribes(); track co.id; let i = $index) {
+            <div
+              class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm transition-all cursor-pointer hover:border-tribbo-primary/30 active:scale-[0.99] mb-2"
+              (click)="openMyTribe(co)"
+              [class]="co.isMine ? 'border-tribbo-primary bg-blue-50 hover:border-tribbo-primary hover:shadow-md' : 'border-gray-100'"
+            >
+              <div class="w-9 text-center font-space font-bold"
+                [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
+                {{ co.rank }}
+              </div>
+              @if (co.countryFlagUrl) {
+                <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else if (co.avatarUrl) {
+                <img [src]="co.avatarUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else {
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+                  [style.background]="avatarColor(co.name)">
+                  {{ co.code }}
+                </div>
+              }
+              <div class="flex-1 min-w-0">
+                <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
+                  {{ co.name }}
+                  @if (co.isMine) {
+                    <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Ma Tribu</span>
+                  }
+                </div>
+                <div class="font-inter text-xs text-gray-400 mt-0.5">
+                  {{ co.members }} membres · {{ co.activeMembers }} actifs · {{ co.totalPoints }} pts
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-archivo text-base text-tribbo-primary">{{ co.avgPoints }}</div>
+                <div class="font-inter text-[10px] text-gray-400 -mt-0.5">moy.</div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Petites Tribus -->
+        @if (smallTribes().length > 0) {
+          <div class="flex items-center gap-2 pt-6 pb-3 border-t border-gray-100 mt-6">
+            <span class="material-symbols-outlined text-xl text-blue-500">group</span>
+            <span class="font-archivo text-xs font-bold uppercase tracking-wider text-gray-500">Petites Tribus (3-4 actifs)</span>
+          </div>
+          @for (co of smallTribes(); track co.id; let i = $index) {
+            <div
+              class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm transition-all cursor-pointer hover:border-tribbo-primary/30 active:scale-[0.99] mb-2"
+              (click)="openMyTribe(co)"
+              [class]="co.isMine ? 'border-tribbo-primary bg-blue-50 hover:border-tribbo-primary hover:shadow-md' : 'border-gray-100'"
+            >
+              <div class="w-9 text-center font-space font-bold"
+                [class]="i < 3 ? 'text-xl text-tribbo-primary' : 'text-sm text-gray-500'">
+                {{ co.rank }}
+              </div>
+              @if (co.countryFlagUrl) {
+                <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else if (co.avatarUrl) {
+                <img [src]="co.avatarUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else {
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
+                  [style.background]="avatarColor(co.name)">
+                  {{ co.code }}
+                </div>
+              }
+              <div class="flex-1 min-w-0">
+                <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
+                  {{ co.name }}
+                  @if (co.isMine) {
+                    <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Ma Tribu</span>
+                  }
+                </div>
+                <div class="font-inter text-xs text-gray-400 mt-0.5">
+                  {{ co.members }} membres · {{ co.activeMembers }} actifs · {{ co.totalPoints }} pts
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-archivo text-base text-tribbo-primary">{{ co.avgPoints }}</div>
+                <div class="font-inter text-[10px] text-gray-400 -mt-0.5">moy.</div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Hors-classement -->
+        @if (outOfRankingTribes().length > 0) {
+          <div class="flex items-center gap-2 pt-6 pb-3 border-t border-gray-100 mt-6">
+            <span class="material-symbols-outlined text-xl text-gray-400">person_off</span>
+            <span class="font-archivo text-xs font-bold uppercase tracking-wider text-gray-400">Hors-classement (1-2 actifs)</span>
+          </div>
+          @for (co of outOfRankingTribes(); track co.id; let i = $index) {
+            <div
+              class="flex items-center gap-3 bg-white border rounded-2xl px-4 py-3 shadow-sm transition-all cursor-pointer hover:border-tribbo-primary/30 active:scale-[0.99] mb-2"
+              (click)="openMyTribe(co)"
+              [class]="co.isMine ? 'border-tribbo-primary bg-blue-50 hover:border-tribbo-primary hover:shadow-md' : 'border-gray-100'"
+            >
+              <div class="w-9 text-center font-space font-bold text-sm text-gray-400">
+                —
+              </div>
+              @if (co.countryFlagUrl) {
+                <img [src]="co.countryFlagUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else if (co.avatarUrl) {
+                <img [src]="co.avatarUrl" [alt]="co.name" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+              } @else {
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0 opacity-60"
+                  [style.background]="avatarColor(co.name)">
+                  {{ co.code }}
+                </div>
+              }
+              <div class="flex-1 min-w-0 opacity-70">
+                <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
+                  {{ co.name }}
+                  @if (co.isMine) {
+                    <span class="bg-gray-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Ma Tribu</span>
+                  }
+                </div>
+                <div class="font-inter text-xs text-gray-400 mt-0.5">
+                  {{ co.members }} membres · {{ co.activeMembers }} actifs · {{ co.totalPoints }} pts
+                </div>
+              </div>
+              <div class="text-right shrink-0 opacity-70">
+                <div class="font-archivo text-base text-gray-500">{{ co.avgPoints }}</div>
+                <div class="font-inter text-[10px] text-gray-400 -mt-0.5">moy.</div>
+              </div>
+            </div>
+          }
+        }
+
+        @if (realTribes().length === 0 && smallTribes().length === 0 && outOfRankingTribes().length === 0) {
           <div class="bg-white border border-gray-100 rounded-2xl px-5 py-6 text-center">
             <p class="font-inter text-sm text-gray-400">Aucune tribu classée pour le moment.</p>
           </div>
