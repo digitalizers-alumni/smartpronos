@@ -9,17 +9,17 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 const STAGE_KEYWORDS: [string, string][] = [
+  ['semi_final', 'semi_final'],
+  ['quarter_final', 'quarter_final'],
+  ['round_of_16', 'round_of_16'],
+  ['round_of_32', 'round_of_32'],
+  ['third_place', 'third_place'],
   ['huitième', 'round_of_16'],
   ['seizième', 'round_of_32'],
-  ['round_of_32', 'round_of_32'],
   ['quart', 'quarter_final'],
   ['demi', 'semi_final'],
   ['troisième', 'third_place'],
   ['final', 'final'],
-  ['round_of_16', 'round_of_16'],
-  ['quarter_final', 'quarter_final'],
-  ['semi_final', 'semi_final'],
-  ['third_place', 'third_place'],
 ];
 
 export function stageLabel(stage?: string): string {

@@ -14,7 +14,7 @@ import { MatchService } from '../../services/match.service';
 import { TeamService } from '../../services/team.service';
 import { extractRoundKey, stageLabel } from '../../shared/utils/stage-label';
 
-export type MatchStatusFilter = 'all' | 'mine' | MatchStatus;
+export type MatchStatusFilter = 'all' | 'upcoming' | 'mine' | MatchStatus;
 
 export interface MatchDateGroup {
   dateKey: string;
@@ -51,16 +51,16 @@ export class MatchListPage {
   protected readonly loading = signal(true);
   protected readonly matches = signal<MatchListItem[]>([]);
   protected readonly error = signal<string | null>(null);
-  protected readonly statusFilter = signal<MatchStatusFilter>('all');
+  protected readonly statusFilter = signal<MatchStatusFilter>('upcoming');
 
   protected readonly userPoints = signal<number | null>(null);
   protected readonly userRank = signal<number | null>(null);
   protected readonly profileError = signal<string | null>(null);
 
   protected readonly statusFilters: StatusFilterOption[] = [
-    { label: 'Tous', value: 'all' },
-    { label: 'Mes pronos', value: 'mine' },
+    { label: 'À venir', value: 'upcoming' },
     { label: 'À pronostiquer', value: 'scheduled' },
+    { label: 'Mes pronos', value: 'mine' },
     { label: 'Matchs joués', value: 'finished' },
   ];
 
@@ -102,7 +102,9 @@ export class MatchListPage {
     let list = this.matches();
 
     const status = this.statusFilter();
-    if (status === 'mine') {
+    if (status === 'upcoming') {
+      list = list.filter((m) => m.status === 'scheduled' || m.status === 'locked');
+    } else if (status === 'mine') {
       list = list.filter((m) => m.prediction.hasPrediction);
     } else if (status === 'scheduled') {
       list = list.filter((m) => m.status === 'scheduled' && !m.prediction.hasPrediction);
@@ -124,9 +126,12 @@ export class MatchListPage {
   });
 
   protected readonly dateGroups = computed<MatchDateGroup[]>(() => {
-    const sorted = [...this.filteredMatches()].sort(
-      (a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime(),
-    );
+    const isFinished = this.statusFilter() === 'finished';
+    const sorted = [...this.filteredMatches()].sort((a, b) => {
+      const timeA = new Date(a.kickoff).getTime();
+      const timeB = new Date(b.kickoff).getTime();
+      return isFinished ? timeB - timeA : timeA - timeB;
+    });
     const map = new Map<string, MatchListItem[]>();
     for (const m of sorted) {
       const key = m.kickoff.slice(0, 10);
