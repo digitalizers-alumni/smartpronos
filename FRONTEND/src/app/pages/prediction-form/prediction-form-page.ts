@@ -23,7 +23,7 @@ import {
 import { MatchService } from '../../services/match.service';
 import { MatchListItem } from '../../shared/models/match.models';
 import { TeamService } from '../../services/team.service';
-import { stageLabel } from '../../shared/utils/stage-label';
+import { extractRoundKey, stageLabel } from '../../shared/utils/stage-label';
 import { PredictionProgressService } from '../../services/prediction-progress.service';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'error';
@@ -144,6 +144,12 @@ export class PredictionFormPage {
   protected readonly result = computed(() => this.match()?.result ?? null);
   protected readonly hasPrediction = computed(() => this.match()?.prediction.hasPrediction ?? false);
   protected readonly stageLabel = computed(() => stageLabel(this.match()?.stage));
+  protected readonly isPenaltyShootout = computed(() => {
+    const m = this.match();
+    if (!m || m.status !== 'finished' || !m.result) return false;
+    const stageKey = extractRoundKey(m.stage);
+    return stageKey !== 'group' && stageKey !== 'unknown' && m.result.homeScore === m.result.awayScore;
+  });
   protected readonly previousPredictionMatch = computed(() => {
     const current = this.match();
     if (!current) return null;
