@@ -63,8 +63,16 @@
         }
         <div class="font-inter text-sm opacity-90 mt-2 relative">
           {{ memberCount() }} membres · {{ activeMemberCount() }} actifs ·
-          @if (tribeRank()) {
-            {{ tribeRank() }}ᵉ / {{ totalTribes() }} Tribus
+          @if (tribeRank(); as rank) {
+            @if (tribeCategoryInfo(); as cat) {
+              @if (cat.isOut) {
+                Hors-classement
+              } @else {
+                {{ rank }}ᵉ / {{ cat.total }} ({{ cat.name }})
+              }
+            } @else {
+              {{ rank }}ᵉ / {{ totalTribes() }} Tribus
+            }
           } @else {
             non classée
           }

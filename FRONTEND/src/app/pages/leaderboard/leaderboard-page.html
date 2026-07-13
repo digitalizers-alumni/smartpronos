@@ -41,46 +41,7 @@
       }
     }
 
-    <!-- My rank card (tribu tab) -->
-    @if (activeTab() === 'tribu') {
-      @if (userTribes().length > 0) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-          @for (tribe of userTribes(); track tribe.tribe_id) {
-            <button
-              type="button"
-              (click)="selectTribe(tribe)"
-              class="min-w-0 rounded-full border px-3 py-2 font-inter text-xs font-semibold transition-all active:scale-[0.98]"
-              [class.bg-tribbo-primary]="selectedTribeId() === tribe.tribe_id"
-              [class.text-white]="selectedTribeId() === tribe.tribe_id"
-              [class.border-tribbo-primary]="selectedTribeId() === tribe.tribe_id"
-              [class.bg-white]="selectedTribeId() !== tribe.tribe_id"
-              [class.text-gray-500]="selectedTribeId() !== tribe.tribe_id"
-              [class.border-gray-200]="selectedTribeId() !== tribe.tribe_id"
-            >
-              <span class="block truncate">{{ tribe.tribe_name }}</span>
-            </button>
-          }
-        </div>
-      }
 
-      @if (meInTribe(); as currentMember) {
-        <div class="bg-gradient-to-br from-tribbo-primary to-blue-400 text-white rounded-2xl p-4 mb-4 flex items-center gap-4 shadow-[0_8px_24px_-8px_rgba(29,77,255,0.4)]">
-          <div class="font-archivo text-3xl">#{{ currentMember.rank }}</div>
-          <div>
-            <div class="font-inter text-[11px] uppercase tracking-wider opacity-80">Ta position · {{ currentTribe().tribe_name }}</div>
-            <div class="font-inter text-sm font-medium mt-0.5">{{ currentMember.points }} pts · {{ currentMember.exactCount }} exacts</div>
-          </div>
-        </div>
-      } @else if (!currentTribe().tribe_id) {
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 text-sm text-yellow-800 leading-relaxed">
-          Tu n'as pas encore de tribu. Crée ou rejoins une tribu pour voir ce classement.
-        </div>
-      } @else {
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 text-sm text-yellow-800 leading-relaxed">
-          Tu n'es pas encore classé dans ta tribu. Fais ton 1er prono pour apparaître ici.
-        </div>
-      }
-    }
 
     <!-- Rows -->
     <div class="space-y-2">
@@ -124,42 +85,7 @@
         }
       }
 
-      @if (activeTab() === 'tribu') {
-        @for (member of tribeMembers(); track member.id) {
-          <button
-            type="button"
-            (click)="openPlayer(member)"
-            class="flex w-full items-center gap-3 rounded-2xl border bg-white px-4 py-3 text-left shadow-sm transition-all hover:border-tribbo-primary/30 active:scale-[0.99]"
-            [class]="member.isYou ? 'border-tribbo-primary bg-blue-50' : 'border-gray-100'">
-            <div class="w-9 text-center font-space font-bold text-lg text-gray-500">{{ member.rank }}</div>
-            @if (member.avatarUrl) {
-              <img [src]="member.avatarUrl" [alt]="member.name" class="w-10 h-10 rounded-full object-cover shrink-0" />
-            } @else {
-              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-archivo text-sm font-bold shrink-0"
-                [style.background]="avatarColor(member.name)">
-                {{ member.initials }}
-              </div>
-            }
-            <div class="flex-1 min-w-0">
-              <div class="font-inter font-bold text-sm text-tribbo-text flex items-center gap-2">
-                {{ member.name }}
-                @if (member.isYou) {
-                  <span class="bg-tribbo-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Toi</span>
-                }
-              </div>
-              <div class="font-inter text-xs text-gray-400 mt-0.5">{{ member.subtitle }}</div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="font-archivo text-base text-tribbo-primary">{{ member.points }}</div>
-              <div class="font-inter text-[10px] text-gray-400 -mt-0.5">pts</div>
-            </div>
-          </button>
-        } @empty {
-          <div class="bg-white border border-gray-100 rounded-2xl px-5 py-6 text-center">
-            <p class="font-inter text-sm text-gray-400">Aucun membre classé pour le moment.</p>
-          </div>
-        }
-      }
+
 
       @if (activeTab() === 'tribes') {
         <!-- Vraies Tribus -->

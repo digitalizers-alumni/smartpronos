@@ -77,18 +77,11 @@ export class LeaderboardPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
-  protected readonly activeTab = signal<'global' | 'tribu' | 'tribes'>('global');
+  protected readonly activeTab = signal<'global' | 'tribes'>('global');
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly currentTribe = signal<CurrentUserTribe>({
-    tribe_id: null,
-    tribe_name: null,
-    avatar_path: null,
-  });
   protected readonly userTribes = signal<UserTribe[]>([]);
-  protected readonly selectedTribeId = signal<string | null>(null);
   protected readonly globalLb = signal<LeaderboardPlayer[]>([]);
-  protected readonly tribeMembers = signal<LeaderboardPlayer[]>([]);
   protected readonly tribes = signal<TribeRow[]>([]);
 
   protected readonly realTribes = computed(() =>
@@ -105,12 +98,10 @@ export class LeaderboardPage {
 
   protected readonly tabs = [
     { key: 'global' as const, label: 'Global' },
-    { key: 'tribu' as const, label: 'Ma Tribu' },
-    { key: 'tribes' as const, label: 'Tribus' },
+    { key: 'tribes' as const, label: 'Tribal' },
   ];
 
   protected readonly me = computed(() => this.globalLb().find((p) => p.isYou) ?? null);
-  protected readonly meInTribe = computed(() => this.tribeMembers().find((p) => p.isYou) ?? null);
 
   protected readonly userRank = computed(() => this.me()?.rank ?? null);
   protected readonly userTotalPlayers = computed(() => this.globalLb().length);
@@ -121,21 +112,8 @@ export class LeaderboardPage {
     this.loadLeaderboards();
   }
 
-  protected setTab(key: 'global' | 'tribu' | 'tribes'): void {
+  protected setTab(key: 'global' | 'tribes'): void {
     this.activeTab.set(key);
-  }
-
-  protected selectTribe(tribe: UserTribe): void {
-    if (this.selectedTribeId() === tribe.tribe_id) return;
-    this.selectedTribeId.set(tribe.tribe_id);
-    this.currentTribe.set({
-      tribe_id: tribe.tribe_id,
-      tribe_name: tribe.tribe_name,
-      is_country_tribe: tribe.is_country_tribe,
-      country_flag_url: tribe.country_flag_url,
-      avatar_path: tribe.avatar_path,
-    });
-    this.loadSelectedTribeLeaderboard();
   }
 
   protected openMyTribe(tribe: TribeRow): void {
@@ -165,37 +143,20 @@ export class LeaderboardPage {
       .pipe(
         switchMap((userTribes) => {
           this.userTribes.set(userTribes);
-          const selectedTribe = this.defaultSelectedTribe(userTribes);
-          this.selectedTribeId.set(selectedTribe?.tribe_id ?? null);
-          this.currentTribe.set({
-            tribe_id: selectedTribe?.tribe_id ?? null,
-            tribe_name: selectedTribe?.tribe_name ?? null,
-            is_country_tribe: selectedTribe?.is_country_tribe ?? null,
-            country_flag_url: selectedTribe?.country_flag_url ?? null,
-            avatar_path: selectedTribe?.avatar_path ?? null,
-          });
           return forkJoin({
             global: this.leaderboardService.getGlobalLeaderboard(),
-            tribeMembers: selectedTribe?.tribe_id
-              ? this.leaderboardService.getTribeLeaderboard(selectedTribe.tribe_id)
-              : of([] as LeaderboardUserRow[]),
             tribes: this.leaderboardService.getTribesLeaderboard(),
           });
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: ({ global, tribeMembers, tribes }) => {
+        next: ({ global, tribes }) => {
           const rankedGlobal = assignDenseRanks(global, (a, b) =>
             Number(a.total_points) === Number(b.total_points) &&
             Number(a.exact_count) === Number(b.exact_count)
           );
-          const rankedTribe = assignDenseRanks(tribeMembers, (a, b) =>
-            Number(a.total_points) === Number(b.total_points) &&
-            Number(a.exact_count) === Number(b.exact_count)
-          );
           this.globalLb.set(rankedGlobal.map((row) => this.toPlayer(row)));
-          this.tribeMembers.set(rankedTribe.map((row) => this.toPlayer(row, this.currentTribe().tribe_name)));
           this.tribes.set(tribes.map((row) => this.toTribe(row)));
           this.loading.set(false);
         },
@@ -207,36 +168,6 @@ export class LeaderboardPage {
           this.loading.set(false);
         },
       });
-  }
-
-  private loadSelectedTribeLeaderboard(): void {
-    const tribeId = this.selectedTribeId();
-    const tribeName = this.currentTribe().tribe_name;
-    if (!tribeId) {
-      this.tribeMembers.set([]);
-      return;
-    }
-
-    this.leaderboardService
-      .getTribeLeaderboard(tribeId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (members) => {
-          const rankedMembers = assignDenseRanks(members, (a, b) =>
-            Number(a.total_points) === Number(b.total_points) &&
-            Number(a.exact_count) === Number(b.exact_count)
-          );
-          this.tribeMembers.set(rankedMembers.map((row) => this.toPlayer(row, tribeName)));
-        },
-        error: (err) => {
-          console.error('[LeaderboardPage] Impossible de charger le classement de la tribu.', err);
-          this.error.set('Impossible de charger le classement de cette tribu depuis la base locale.');
-        },
-      });
-  }
-
-  private defaultSelectedTribe(userTribes: UserTribe[]): UserTribe | null {
-    return userTribes.find((tribe) => tribe.is_country_tribe) ?? userTribes[0] ?? null;
   }
 
   private toPlayer(row: LeaderboardUserRow, tribeName?: string | null): LeaderboardPlayer {

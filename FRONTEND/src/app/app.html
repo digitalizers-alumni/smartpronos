@@ -20,14 +20,14 @@
             [class.font-semibold]="isActive('/leaderboard')"
             [class.bg-tribbo-primary/5]="isActive('/leaderboard')"
             [class.text-gray-500]="!isActive('/leaderboard')"
-         >Classement</a>
+         >Classements</a>
          <a (click)="navigateTo('/tribe')"
             class="px-4 py-2 rounded-lg text-sm font-inter cursor-pointer transition-colors hover:text-gray-700 hover:bg-gray-50"
             [class.text-tribbo-primary]="isActive('/tribe')"
             [class.font-semibold]="isActive('/tribe')"
             [class.bg-tribbo-primary/5]="isActive('/tribe')"
             [class.text-gray-500]="!isActive('/tribe')"
-         >Tribu</a>
+         >Mes Tribus</a>
       </nav>
       <div class="relative" (click)="keepUserMenuOpen($event)">
         <button

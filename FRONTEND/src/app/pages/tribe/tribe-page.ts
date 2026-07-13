@@ -122,6 +122,39 @@ export class TribePage {
   });
   protected readonly tribeRank = computed(() => this.currentTribeRank()?.rank ?? null);
   protected readonly totalTribes = computed(() => this.dashboard()?.tribesLeaderboard.length ?? 0);
+
+  protected readonly tribeCategoryInfo = computed(() => {
+    const info = this.currentTribeRank();
+    if (!info) return null;
+    const activeCount = Number(info.active_member_count);
+    
+    let categoryName = '';
+    let categoryKey: 'real' | 'small' | 'out' = 'real';
+    if (activeCount >= 5) {
+      categoryName = 'Vraies Tribus';
+      categoryKey = 'real';
+    } else if (activeCount === 3 || activeCount === 4) {
+      categoryName = 'Petites Tribus';
+      categoryKey = 'small';
+    } else {
+      categoryName = 'Hors-classement';
+      categoryKey = 'out';
+    }
+
+    const leaderboard = this.dashboard()?.tribesLeaderboard ?? [];
+    const totalInCategory = leaderboard.filter(t => {
+      const cnt = Number(t.active_member_count);
+      if (categoryKey === 'real') return cnt >= 5;
+      if (categoryKey === 'small') return cnt === 3 || cnt === 4;
+      return cnt <= 2;
+    }).length;
+
+    return {
+      name: categoryName,
+      total: totalInCategory,
+      isOut: categoryKey === 'out'
+    };
+  });
   protected readonly playerRival = computed<PlayerRivalMessage | null>(() => {
     const members = this.members();
     const currentIndex = members.findIndex((member) => member.isYou);
@@ -369,7 +402,21 @@ export class TribePage {
   }
 
   private toMembers(rows: TribeMemberWithScore[]): TribeMember[] {
-    const rankedRows = assignDenseRanks(rows, (a, b) =>
+    const sortedRows = [...rows].sort((a, b) => {
+      const ptsA = Number(a.total_points);
+      const ptsB = Number(b.total_points);
+      if (ptsA !== ptsB) return ptsB - ptsA;
+
+      const exactA = Number(a.exact_count);
+      const exactB = Number(b.exact_count);
+      if (exactA !== exactB) return exactB - exactA;
+
+      const timeA = new Date(a.joined_at).getTime();
+      const timeB = new Date(b.joined_at).getTime();
+      return timeA - timeB;
+    });
+
+    const rankedRows = assignDenseRanks(sortedRows, (a, b) =>
       Number(a.total_points) === Number(b.total_points) &&
       Number(a.exact_count) === Number(b.exact_count)
     );
