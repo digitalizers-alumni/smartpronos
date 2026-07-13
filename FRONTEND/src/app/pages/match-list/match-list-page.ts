@@ -58,7 +58,7 @@ export class MatchListPage {
   protected readonly profileError = signal<string | null>(null);
 
   protected readonly statusFilters: StatusFilterOption[] = [
-    { label: 'À venir', value: 'upcoming' },
+    { label: 'Tous', value: 'all' },
     { label: 'À pronostiquer', value: 'scheduled' },
     { label: 'Mes pronos', value: 'mine' },
     { label: 'Matchs joués', value: 'finished' },
@@ -101,23 +101,31 @@ export class MatchListPage {
   protected readonly filteredMatches = computed(() => {
     let list = this.matches();
 
-    const status = this.statusFilter();
+    const rounds = this.showRoundFilters() ? this.selectedRounds() : new Set<string>();
+    const groups = this.showGroupFilters() ? this.selectedGroups() : new Set<string>();
+    const hasAdvancedFilter = rounds.size > 0 || groups.size > 0;
+
+    let status = this.statusFilter();
+    // Si un filtre avancé (tour ou groupe) est actif et que le statut est "à venir" (par défaut),
+    // on bascule implicitement sur "tous" les matchs pour afficher l'historique complet de ce filtre.
+    if (status === 'upcoming' && hasAdvancedFilter) {
+      status = 'all';
+    }
+
     if (status === 'upcoming') {
       list = list.filter((m) => m.status === 'scheduled' || m.status === 'locked');
     } else if (status === 'mine') {
       list = list.filter((m) => m.prediction.hasPrediction);
     } else if (status === 'scheduled') {
       list = list.filter((m) => m.status === 'scheduled' && !m.prediction.hasPrediction);
-    } else if (status !== 'all') {
-      list = list.filter((m) => m.status === status);
-    }
+    } else if (status === 'finished') {
+      list = list.filter((m) => m.status === 'finished');
+    } // Si 'all', on ne filtre pas par statut
 
-    const rounds = this.showRoundFilters() ? this.selectedRounds() : new Set<string>();
     if (rounds.size > 0) {
       list = list.filter((m) => rounds.has(extractRoundKey(m.stage)));
     }
 
-    const groups = this.showGroupFilters() ? this.selectedGroups() : new Set<string>();
     if (groups.size > 0) {
       list = list.filter((m) => m.group && groups.has(m.group));
     }
@@ -156,6 +164,7 @@ export class MatchListPage {
         const parsed = JSON.parse(saved);
         if (parsed.rounds) this.selectedRounds.set(new Set(parsed.rounds));
         if (parsed.groups) this.selectedGroups.set(new Set(parsed.groups));
+        if (parsed.status) this.statusFilter.set(parsed.status);
       } catch { /* ignore */ }
     }
 
@@ -198,10 +207,11 @@ export class MatchListPage {
     this.advancedOpen.update((v) => !v);
   }
 
-  protected hasActiveAdvancedFilters(): boolean {
+  protected hasActiveFilters(): boolean {
     return (
       (this.showRoundFilters() && this.selectedRounds().size > 0) ||
-      (this.showGroupFilters() && this.selectedGroups().size > 0)
+      (this.showGroupFilters() && this.selectedGroups().size > 0) ||
+      this.statusFilter() !== 'upcoming'
     );
   }
 
@@ -228,6 +238,7 @@ export class MatchListPage {
   protected clearAdvancedFilters(): void {
     this.selectedRounds.set(new Set());
     this.selectedGroups.set(new Set());
+    this.statusFilter.set('upcoming');
     this.saveFilters();
   }
 
@@ -235,11 +246,17 @@ export class MatchListPage {
     localStorage.setItem('tribbo_filters', JSON.stringify({
       rounds: [...this.selectedRounds()],
       groups: [...this.selectedGroups()],
+      status: this.statusFilter(),
     }));
   }
 
-  protected setFilter(value: MatchStatusFilter): void {
-    this.statusFilter.set(value);
+  protected toggleStatusFilter(value: MatchStatusFilter): void {
+    if (this.statusFilter() === value) {
+      this.statusFilter.set('upcoming');
+    } else {
+      this.statusFilter.set(value);
+    }
+    this.saveFilters();
   }
 
   protected isFilterActive(value: MatchStatusFilter): boolean {
