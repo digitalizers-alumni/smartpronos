@@ -76,7 +76,7 @@ export class MatchListPage {
       const key = extractRoundKey(m.stage);
       if (!seen.has(key)) {
         seen.add(key);
-        options.push({ label: stageLabel(key), value: key });
+        options.push({ label: getStageAbbreviation(key), value: key });
       }
     }
     return options.sort((a, b) => a.value.localeCompare(b.value));
@@ -89,7 +89,7 @@ export class MatchListPage {
       const g = m.group;
       if (g && !seen.has(g)) {
         seen.add(g);
-        options.push({ label: `Groupe ${g}`, value: g });
+        options.push({ label: g, value: g });
       }
     }
     return options.sort((a, b) => a.value.localeCompare(b.value));
@@ -263,3 +263,25 @@ export class MatchListPage {
     return this.statusFilter() === value;
   }
 }
+
+function getStageAbbreviation(key: string): string {
+  switch (key) {
+    case 'group':
+      return 'Groupes';
+    case 'round_of_32':
+      return '1/16';
+    case 'round_of_16':
+      return '1/8';
+    case 'quarter_final':
+      return '1/4';
+    case 'semi_final':
+      return '1/2';
+    case 'third_place':
+      return '3ᵉ';
+    case 'final':
+      return 'F';
+    default:
+      return key;
+  }
+}
+

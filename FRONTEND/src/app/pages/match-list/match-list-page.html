@@ -1,13 +1,15 @@
-<div class="flex min-h-full w-full flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+<div class="flex min-h-full w-full max-w-lg md:max-w-3xl lg:max-w-[1576px] mx-auto flex-col bg-tribbo-bg px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
   @if (userPoints() !== null && userRank() !== null) {
-    <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
+    <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto">
+      <app-user-rank-card [points]="userPoints()!" [rank]="userRank()!" label="Mes points" />
+    </div>
   } @else if (profileError(); as err) {
-    <div class="bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm">
+    <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto bg-white border border-yellow-100 rounded-2xl px-5 py-4 shadow-sm">
       <p class="font-inter text-sm text-yellow-700">{{ err }}</p>
     </div>
   }
 
-  <div class="flex items-center justify-between">
+  <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto flex items-center justify-between">
     <h2 class="font-archivo text-base font-bold text-tribbo-text uppercase tracking-tight">Matchs</h2>
     <button
       (click)="toggleAdvanced()"
@@ -28,7 +30,7 @@
   </div>
 
   @if (advancedOpen()) {
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
+    <div class="w-full max-w-lg md:max-w-[704px] lg:max-w-[1128px] xl:max-w-[1512px] mx-auto bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
       <div class="flex items-center justify-between">
         <h3 class="font-archivo text-xs font-bold text-tribbo-text uppercase tracking-wider">Filtres</h3>
         @if (hasActiveFilters()) {
@@ -39,13 +41,13 @@
       </div>
 
       <!-- Statut -->
-      <div>
+      <div class="text-center">
         <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Statut</p>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap justify-center gap-2">
           @for (f of statusFilters; track f.value) {
             <button
               (click)="toggleStatusFilter(f.value)"
-              class="px-4 py-2 rounded-lg text-sm font-inter font-medium transition-colors"
+              class="px-4 py-2 md:px-5 md:py-2.5 rounded-lg text-sm md:text-base font-inter font-medium transition-colors"
               [class.bg-tribbo-primary]="isFilterActive(f.value)"
               [class.text-white]="isFilterActive(f.value)"
               [class.bg-gray-100]="!isFilterActive(f.value)"
@@ -59,13 +61,13 @@
 
       <!-- Par tour -->
       @if (showRoundFilters()) {
-        <div>
+        <div class="text-center">
           <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Par tour</p>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap justify-center gap-2">
             @for (opt of roundOptions(); track opt.value) {
               <button
                 (click)="toggleRound(opt.value)"
-                class="px-4 py-2 rounded-lg text-sm font-inter font-medium transition-colors"
+                class="min-w-[4rem] md:min-w-[5rem] h-10 md:h-12 px-2 md:px-3 flex items-center justify-center rounded-lg text-xs md:text-sm font-inter font-semibold transition-colors"
                 [class.bg-tribbo-primary]="selectedRounds().has(opt.value)"
                 [class.text-white]="selectedRounds().has(opt.value)"
                 [class.bg-gray-100]="!selectedRounds().has(opt.value)"
@@ -80,13 +82,13 @@
 
       <!-- Par groupe -->
       @if (showGroupFilters()) {
-        <div>
+        <div class="text-center">
           <p class="font-inter text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Par groupe</p>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap justify-center gap-2">
             @for (opt of groupOptions(); track opt.value) {
               <button
                 (click)="toggleGroup(opt.value)"
-                class="px-4 py-2 rounded-lg text-sm font-inter font-medium transition-colors"
+                class="w-10 md:w-12 h-10 md:h-12 flex items-center justify-center rounded-lg text-xs md:text-sm font-inter font-semibold transition-colors"
                 [class.bg-tribbo-primary]="selectedGroups().has(opt.value)"
                 [class.text-white]="selectedGroups().has(opt.value)"
                 [class.bg-gray-100]="!selectedGroups().has(opt.value)"
@@ -117,7 +119,7 @@
       <div class="flex flex-wrap justify-center gap-4 md:gap-6">
         @for (group of dateGroups(); track group.dateKey) {
           @for (match of group.matches; track match.id) {
-            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)] max-w-md" />
+            <app-match-card [match]="match" class="block w-full md:w-[calc(50%-12px)] lg:w-[360px] max-w-lg" />
           }
         }
       </div>
