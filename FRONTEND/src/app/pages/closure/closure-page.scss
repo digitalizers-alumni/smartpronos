@@ -1,0 +1,31 @@
+/* Custom styles for Closure Page */
+.bg-grid-pattern {
+  background-image: radial-gradient(#1D4DFF 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+  background-position: -19px -19px;
+  opacity: 0.05;
+}
+
+.filter-chip {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.filter-chip.active {
+  background-color: #1D4DFF !important;
+  color: #FFFFFF !important;
+  border-color: #1D4DFF !important;
+  box-shadow: 0 4px 14px rgba(29, 77, 255, 0.35);
+}
+
+.carousel-viewport {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+}
+.carousel-viewport:active {
+  cursor: grabbing;
+}
+.carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
