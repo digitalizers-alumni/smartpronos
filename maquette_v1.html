@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smartpronos (Tribbo) — Remerciements & Annuaire Équipe</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'tribbo-bg': '#F7F8FC',
+            'tribbo-surface': '#FFFFFF',
+            'tribbo-primary': '#1D4DFF',
+            'tribbo-primary-hover': '#153ecc',
+            'tribbo-text': '#1F2430',
+            'tribbo-success': '#19C95B',
+            'tribbo-error': '#FF3B43',
+            'tribbo-gray-100': '#E8EAEF',
+            'tribbo-gray-200': '#cbced4',
+            'tribbo-gray-400': '#697086',
+            'tribbo-gray-500': '#9CA3AF',
+            'digitalizers-blue': '#0A2540',
+            'digitalizers-accent': '#00D4FF',
+          },
+          fontFamily: {
+            archivo: ['"Archivo Black"', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+            space: ['"Space Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'tribbo-card': '0 10px 30px -5px rgba(29, 77, 255, 0.08), 0 4px 12px rgba(31, 36, 48, 0.04)',
+            'tribbo-blue': '0 8px 24px 0 rgba(29, 77, 255, 0.35)',
+            'tribbo-glow': '0 0 30px rgba(29, 77, 255, 0.2)',
+          },
+          borderRadius: {
+            'tribbo-card': '1.25rem',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F7F8FC;
+      color: #1F2430;
+    }
+    .font-archivo {
+      font-family: 'Archivo Black', sans-serif;
+    }
+    .font-space {
+      font-family: 'Space Mono', monospace;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(232, 234, 239, 0.8);
+    }
+    .glass-dark {
+      background: rgba(31, 36, 48, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .gradient-hero {
+      background: radial-gradient(circle at 50% -20%, rgba(29, 77, 255, 0.15), transparent 70%),
+                  radial-gradient(circle at 90% 60%, rgba(25, 201, 91, 0.08), transparent 50%),
+                  radial-gradient(circle at 10% 80%, rgba(255, 59, 67, 0.06), transparent 50%);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #1D4DFF 0%, #00C6FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .team-card {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .team-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -10px rgba(29, 77, 255, 0.15), 0 8px 16px rgba(0,0,0,0.04);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-tribbo-primary selection:text-white gradient-hero">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-tribbo-gray-100 px-4 lg:px-8 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-tribbo-primary text-white shadow-tribbo-blue group-hover:scale-105 transition-transform">
+          <span class="material-symbols-outlined text-2xl">sports_soccer</span>
+          <span class="absolute -top-1 -right-1 flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tribbo-success opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-tribbo-success"></span>
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="font-archivo text-xl text-tribbo-text tracking-tight uppercase">TRIBBO</span>
+            <span class="text-[10px] font-space font-bold px-2 py-0.5 rounded-full bg-tribbo-primary/10 text-tribbo-primary border border-tribbo-primary/20">2026</span>
+          </div>
+          <span class="text-xs text-tribbo-gray-400 font-medium">ex-Smartpronos</span>
+        </div>
+      </a>
+
+      <!-- Quick Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 bg-tribbo-gray-100/60 p-1 rounded-xl border border-tribbo-gray-200/50">
+        <a href="#contexte" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-tribbo-text hover:bg-white hover:shadow-sm transition-all">
+          🏆 Contexte
+        </a>
+        <a href="#digitalizers" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-tribbo-text hover:bg-white hover:shadow-sm transition-all">
+          ⚡ Digitalizers
+        </a>
+        <a href="#equipe" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-tribbo-text hover:bg-white hover:shadow-sm transition-all">
+          👥 L'Équipe
+        </a>
+      </nav>
+
+      <!-- Digitalizers CTA -->
+      <a href="https://digitalizers.ch" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-2 px-4 py-2 rounded-xl bg-tribbo-text text-white text-xs font-bold hover:bg-black transition-all shadow-sm hover:shadow-md group">
+        <span>Site Digitalizers</span>
+        <span class="material-symbols-outlined text-sm text-tribbo-gray-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">open_in_new</span>
+      </a>
+
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-16 lg:space-y-24">
+
+    <!-- ================= HERO & THANK YOU SECTION ================= -->
+    <section id="contexte" class="relative text-center max-w-4xl mx-auto pt-4 sm:pt-8">
+      
+      <!-- Tournament End Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-tribbo-primary/10 border border-tribbo-primary/20 text-tribbo-primary mb-6 shadow-sm">
+        <span class="material-symbols-outlined text-base">emoji_events</span>
+        <span class="text-xs font-space font-bold tracking-wide uppercase">Coupe du Monde 2026 — Clôture Officielle</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-archivo text-3xl sm:text-5xl lg:text-6xl text-tribbo-text leading-tight tracking-tight uppercase mb-6">
+        Merci pour cette <br class="hidden sm:inline" />
+        <span class="gradient-text">incroyable aventure !</span>
+      </h1>
+
+      <!-- Description Context -->
+      <p class="text-base sm:text-lg text-tribbo-gray-400 font-normal leading-relaxed max-w-2xl mx-auto mb-8">
+        La Coupe du Monde touche à sa fin et l'application <strong class="text-tribbo-text font-semibold">Tribbo (Smartpronos)</strong> tire sa référence en beauté. Conçue par la communauté et l'équipe d'alumni de <strong class="text-tribbo-primary font-semibold">Digitalizers</strong>, cette plateforme 100% gratuite et conviviale aura réuni passionnés et camarades autour de pronostics endiablés.
+      </p>
+
+      <!-- Key Numbers Banner -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+        <div class="bg-white p-5 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-tribbo-primary/10 flex items-center justify-center text-tribbo-primary shrink-0">
+            <span class="material-symbols-outlined text-2xl">format_list_bulleted</span>
+          </div>
+          <div>
+            <div class="font-archivo text-2xl text-tribbo-text">64</div>
+            <div class="text-xs text-tribbo-gray-400 font-medium">Matchs pronostiqués</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-tribbo-success/10 flex items-center justify-center text-tribbo-success shrink-0">
+            <span class="material-symbols-outlined text-2xl">sentiment_very_satisfied</span>
+          </div>
+          <div>
+            <div class="font-archivo text-2xl text-tribbo-text">100%</div>
+            <div class="text-xs text-tribbo-gray-400 font-medium">Gratuit & Sans argent</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+            <span class="material-symbols-outlined text-2xl">groups</span>
+          </div>
+          <div>
+            <div class="font-archivo text-2xl text-tribbo-text">Tribus</div>
+            <div class="text-xs text-tribbo-gray-400 font-medium">Défis entre collègues</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DIGITALIZERS REDIRECT SPOTLIGHT ================= -->
+    <section id="digitalizers" class="relative overflow-hidden rounded-3xl bg-tribbo-text text-white p-8 sm:p-12 lg:p-14 shadow-2xl">
+      <!-- Background Ambient Glow -->
+      <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-tribbo-primary/30 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -top-20 w-80 h-80 bg-digitalizers-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-4 text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-digitalizers-accent text-xs font-space font-bold tracking-wider uppercase border border-white/10">
+            <span class="w-2 h-2 rounded-full bg-digitalizers-accent animate-pulse"></span>
+            Créateurs du projet
+          </div>
+          
+          <h2 class="font-archivo text-2xl sm:text-4xl text-white tracking-tight uppercase leading-snug">
+            Propulsé par le collectif <span class="text-digitalizers-accent">Digitalizers</span>
+          </h2>
+          
+          <p class="text-tribbo-gray-200 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
+            Digitalizers façonne des solutions web & mobiles innovantes, accompagne les talents du numérique et conçoit des produits digitaux performants. Notre nom de domaine reste actif pour nos futurs projets !
+          </p>
+        </div>
+
+        <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center lg:items-end">
+          <a href="https://digitalizers.ch" target="_blank" rel="noopener noreferrer" 
+             class="w-full sm:w-auto text-center px-6 py-3.5 rounded-xl bg-tribbo-primary hover:bg-tribbo-primary-hover text-white font-bold text-sm shadow-tribbo-blue transition-all flex items-center justify-center gap-2 group">
+            <span>Visiter digitalizers.ch</span>
+            <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </a>
+          <span class="text-xs text-tribbo-gray-500 text-center font-space">Rejoignez la communauté</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TEAMMATES DIRECTORY (ANNUAIRE) ================= -->
+    <section id="equipe" class="space-y-8">
+      
+      <!-- Section Header & Filter controls -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-tribbo-gray-200/80">
+        <div>
+          <div class="flex items-center gap-2 text-tribbo-primary font-space text-xs font-bold uppercase tracking-wider mb-2">
+            <span class="material-symbols-outlined text-base">badge</span>
+            Annuaire des contributeurs
+          </div>
+          <h2 class="font-archivo text-2xl sm:text-3xl text-tribbo-text uppercase tracking-tight">
+            L'équipe ayant œuvré sur le projet
+          </h2>
+          <p class="text-xs sm:text-sm text-tribbo-gray-400 mt-1">
+            Découvrez les camarades et développeurs qui ont participé au design, à l'architecture et au code.
+          </p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative min-w-[260px]">
+          <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-tribbo-gray-400 text-lg">search</span>
+          <input type="text" id="searchInput" placeholder="Rechercher un camarade..." 
+                 class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-tribbo-gray-200 text-xs font-medium text-tribbo-text focus:outline-none focus:border-tribbo-primary focus:ring-2 focus:ring-tribbo-primary/20 transition-all" />
+        </div>
+      </div>
+
+      <!-- Filter Category Chips -->
+      <div class="flex flex-wrap items-center gap-2" id="filterContainer">
+        <button data-filter="all" class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-tribbo-primary text-white shadow-sm transition-all">
+          Tous les camarades (9)
+        </button>
+        <button data-filter="tech" class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-tribbo-gray-400 hover:text-tribbo-text hover:bg-tribbo-gray-100 border border-tribbo-gray-200 transition-all">
+          💻 Dev & Tech
+        </button>
+        <button data-filter="product" class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-tribbo-gray-400 hover:text-tribbo-text hover:bg-tribbo-gray-100 border border-tribbo-gray-200 transition-all">
+          🎯 Lead & Product
+        </button>
+        <button data-filter="qa" class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-tribbo-gray-400 hover:text-tribbo-text hover:bg-tribbo-gray-100 border border-tribbo-gray-200 transition-all">
+          🧪 QA & Data
+        </button>
+      </div>
+
+      <!-- Team Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="teamGrid">
+
+        <!-- 1. Alban Zuka -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="product tech" data-name="alban zuka">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                AZ
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-tribbo-primary/10 text-tribbo-primary border border-tribbo-primary/20">
+                Digitalizers
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Alban Zuka</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Co-fondateur Digitalizers & Tech Lead</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Supervision de la vision globale, cadrage de l'application et mentorat technique sur l'écosystème.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Leadership</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Architecture</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Membre Alumni
+            </span>
+            <a href="https://www.linkedin.com/in/albanzuka/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 2. Per Otto Schruefer -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="product" data-name="per otto schruefer">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                PO
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-tribbo-primary/10 text-tribbo-primary border border-tribbo-primary/20">
+                Digitalizers
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Per Otto Schruefer</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Co-fondateur & Design Strategist</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Direction artistique, UX design de la plateforme et alignement des priorités produit.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Strategy</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">UI/UX</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Membre Alumni
+            </span>
+            <a href="https://www.linkedin.com/in/perottoschruefer/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 3. Ryen Kamkoum -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="tech product" data-name="ryen kamkoum">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                RK
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                Core Dev
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Ryen Kamkoum</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Lead Developer & Fullstack</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Développement de la structure Angular 21, intégration du Design System et orchestration frontend.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Angular 21</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">TypeScript</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/ryenkamkoum/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 4. Louis Hacks -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="tech" data-name="louis hacks">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-800 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                LH
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-violet-50 text-violet-600 border border-violet-200">
+                Frontend
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Louis Hacks</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Frontend Engineer & UI Specialist</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Implémentation responsive, animations CSS et polissage de l'expérience utilisateur mobile.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Tailwind</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">SCSS</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/louishacks/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 5. Jonathan Gleize -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="tech" data-name="jonathan gleize">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                JG
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                Backend
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Jonathan Gleize</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Backend Architect & Supabase</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Mise en place de la base Supabase, procédures stockées RPC, authentification et calcul des scores.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Supabase</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">PostgreSQL</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/jonathangleize/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 6. Valentin (Fif) -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="qa" data-name="valentin fif">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                VF
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                QA & Test
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Valentin (Fif)</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">QA Lead & Automation Cypress</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Création des suites de tests E2E Cypress, recette fonctionnelle et fiabilité des flux utilisateur.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Cypress</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">QA Automation</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/valentin-fif/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 7. Rui Da-Graca -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="qa tech" data-name="rui da graca">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-700 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                RD
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-rose-50 text-rose-600 border border-rose-200">
+                Data & Edge
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Rui Da-Graca</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Data & Edge Functions Developer</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Développement des Edge Functions Supabase pour la synchronisation automatique des scores en direct.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Edge Functions</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Deno</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/ruidagraca/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 8. Benoit De Pagnier -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="product" data-name="benoit de pagnier">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-700 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                BP
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-indigo-50 text-indigo-600 border border-indigo-200">
+                Product
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Benoit De Pagnier</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Product Owner & Business Rules</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Définition du système de points (boosts, bonus), rédaction des user stories et validation fonctionnelle.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Scrum</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Business Logic</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/benoitdepagnier/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 9. Ahmed Bassiouny -->
+        <article class="team-card bg-white p-6 rounded-tribbo-card border border-tribbo-gray-100 shadow-tribbo-card flex flex-col justify-between" data-category="tech" data-name="ahmed bassiouny">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-700 text-white font-archivo text-xl flex items-center justify-center shadow-md">
+                AB
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-space font-bold bg-teal-50 text-teal-600 border border-teal-200">
+                Database
+              </span>
+            </div>
+            <div>
+              <h3 class="font-archivo text-lg text-tribbo-text">Ahmed Bassiouny</h3>
+              <p class="text-xs font-semibold text-tribbo-primary">Database Admin & Integration</p>
+            </div>
+            <p class="text-xs text-tribbo-gray-400 font-normal leading-relaxed">
+              Modélisation relationnelle de la base de données, optimisation des requêtes et sécurisation RLS.
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">Postgres</span>
+              <span class="px-2 py-0.5 rounded-md bg-tribbo-gray-100 text-[10px] font-space text-tribbo-gray-400">RLS Policies</span>
+            </div>
+          </div>
+          <div class="pt-5 mt-4 border-t border-tribbo-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-tribbo-gray-400 font-medium flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-tribbo-success"></span> Développeur
+            </span>
+            <a href="https://www.linkedin.com/in/ahmedbassiouny/" target="_blank" rel="noopener noreferrer" 
+               class="px-3 py-1.5 rounded-lg bg-tribbo-bg hover:bg-tribbo-primary hover:text-white text-tribbo-text font-semibold text-xs transition-colors flex items-center gap-1.5">
+              <span>LinkedIn</span>
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-tribbo-gray-200 mt-20 py-8 px-4 sm:px-8 text-center text-xs text-tribbo-gray-400">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-archivo text-tribbo-text text-sm uppercase tracking-tight">Tribbo</span>
+        <span class="text-[10px] font-space text-tribbo-gray-400">• © 2026 Tous droits réservés</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] tracking-[3px] uppercase">par</span>
+        <a href="https://digitalizers.ch" target="_blank" rel="noopener noreferrer" class="font-bold text-tribbo-text hover:text-tribbo-primary transition-colors">
+          Digitalizers
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= INTERACTIVE JS ================= -->
+  <script>
+    // Search and Filter functionality
+    const searchInput = document.getElementById('searchInput');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const teamCards = document.querySelectorAll('.team-card');
+
+    let currentFilter = 'all';
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Active button styles
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-tribbo-primary', 'text-white', 'shadow-sm');
+          b.classList.add('bg-white', 'text-tribbo-gray-400', 'hover:text-tribbo-text', 'hover:bg-tribbo-gray-100', 'border', 'border-tribbo-gray-200');
+        });
+        btn.classList.remove('bg-white', 'text-tribbo-gray-400', 'hover:text-tribbo-text', 'hover:bg-tribbo-gray-100', 'border', 'border-tribbo-gray-200');
+        btn.classList.add('bg-tribbo-primary', 'text-white', 'shadow-sm');
+
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+
+    function applyFilters() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+
+      teamCards.forEach(card => {
+        const categories = card.getAttribute('data-category').split(' ');
+        const name = card.getAttribute('data-name').toLowerCase();
+
+        const matchesFilter = currentFilter === 'all' || categories.includes(currentFilter);
+        const matchesSearch = name.includes(searchTerm) || card.textContent.toLowerCase().includes(searchTerm);
+
+        if (matchesFilter && matchesSearch) {
+          card.style.display = 'flex';
+          card.style.opacity = '1';
+        } else {
+          card.style.display = 'none';
+          card.style.opacity = '0';
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
